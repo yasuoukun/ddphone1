@@ -5,95 +5,92 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-8 bg-gray-50/50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             @if(session('success'))
-            <div class="mb-6 p-4 bg-green-100 text-green-700 rounded-lg">
-                {{ session('success') }}
+            <div class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 rounded-r-lg shadow-sm flex items-center gap-3">
+                <i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i>
+                <span class="font-medium">{{ session('success') }}</span>
             </div>
             @endif
 
-            <!-- Product Filter Section -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mb-6">
-                <form action="{{ route('central_admin.reviews.index') }}" method="GET" class="flex flex-wrap items-end gap-4">
-                    <div style="flex: 1 1 300px;">
-                        <label for="product_filter" class="block text-sm font-semibold text-gray-700 mb-2">🔍 เลือกดูรีวิวตามรุ่นสินค้า (Filter by Model)</label>
-                        <select name="product_id" id="product_filter" onchange="this.form.submit()" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 font-medium text-gray-800">
-                            <option value="">-- แสดงรีวิวของทุกรุ่น (Show All Models) --</option>
-                            @foreach($products as $prod)
-                                <option value="{{ $prod->id }}" {{ request('product_id') == $prod->id ? 'selected' : '' }}>
-                                    📱 {{ $prod->name }} (มี {{ $prod->reviews->count() }} รีวิว)
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @if(request('product_id'))
-                        <div>
-                            <a href="{{ route('central_admin.reviews.index') }}" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded font-semibold transition inline-block">
-                                ล้างตัวกรอง (Clear)
-                            </a>
-                        </div>
-                    @endif
-                </form>
+            <x-real-time-filter table-id="reviewsTable" placeholder="ค้นหาชื่อลูกค้า, ชื่อสินค้า หรือความคิดเห็น..." count-label="รีวิว">
+                <select id="rtf-reviewsTable-product" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[220px]">
+                    <option value="all">📱 ทุกรุ่นสินค้า</option>
+                    @foreach($products as $prod)
+                        <option value="{{ $prod->name }}">{{ $prod->name }}</option>
+                    @endforeach
+                </select>
+                <select id="rtf-reviewsTable-rating" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[150px]">
+                    <option value="all">⭐ ทุกคะแนน</option>
+                    <option value="5">⭐⭐⭐⭐⭐ 5 ดาว</option>
+                    <option value="4">⭐⭐⭐⭐ 4 ดาว</option>
+                    <option value="3">⭐⭐⭐ 3 ดาว</option>
+                    <option value="2">⭐⭐ 2 ดาว</option>
+                    <option value="1">⭐ 1 ดาว</option>
+                </select>
+            </x-real-time-filter>
+
+            <div class="bg-white overflow-hidden shadow-sm rounded-3xl border border-gray-100">
+                <div class="overflow-x-auto">
+                    <table id="reviewsTable" class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-100 text-slate-500 text-xs font-semibold uppercase bg-slate-50/80">
+                                <th class="py-4 px-4 rounded-tl-xl">สินค้า</th>
+                                <th class="py-4 px-4">ลูกค้า</th>
+                                <th class="py-4 px-4 text-center">คะแนน</th>
+                                <th class="py-4 px-4">ความคิดเห็น</th>
+                                <th class="py-4 px-4 text-center">วันที่</th>
+                                <th class="py-4 px-4 text-center rounded-tr-xl">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            @forelse($reviews as $review)
+                            <tr class="hover:bg-slate-50/50 transition-colors"
+                                data-searchable="{{ strtolower(($review->user->name ?? '') . ' ' . ($review->product->name ?? '') . ' ' . $review->comment) }}"
+                                data-filter-product="{{ $review->product->name ?? '' }}"
+                                data-filter-rating="{{ $review->rating }}">
+                                <td class="py-4 px-4">
+                                    <a href="{{ route('products.show', $review->product_id) }}" target="_blank" class="text-indigo-600 hover:underline font-semibold text-sm">
+                                        {{ $review->product->name ?? 'สินค้าถูกลบ' }}
+                                    </a>
+                                </td>
+                                <td class="py-4 px-4">
+                                    <div class="font-semibold text-slate-800 text-sm">{{ $review->user->name ?? 'ลูกค้าทั่วไป' }}</div>
+                                    <div class="text-xs text-slate-400">{{ $review->user->email ?? '' }}</div>
+                                </td>
+                                <td class="py-4 px-4 text-center">
+                                    <div class="flex items-center justify-center gap-0.5 text-amber-400 text-base">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <i class="fa-{{ $i <= $review->rating ? 'solid' : 'regular' }} fa-star text-sm"></i>
+                                        @endfor
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 font-semibold">{{ $review->rating }}/5</span>
+                                </td>
+                                <td class="py-4 px-4 text-slate-600 text-sm max-w-xs">
+                                    <p class="truncate" title="{{ $review->comment }}">{{ $review->comment ?: '—' }}</p>
+                                </td>
+                                <td class="py-4 px-4 text-center text-xs text-slate-500">
+                                    {{ $review->created_at->format('d/m/Y') }}
+                                </td>
+                                <td class="py-4 px-4 text-center">
+                                    <form action="{{ route('central_admin.reviews.destroy', $review) }}" method="POST" onsubmit="return confirm('ยืนยันที่จะลบรีวิวนี้หรือไม่?');">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl transition">
+                                            <i class="fa-solid fa-trash-can"></i> ลบรีวิว
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="6" class="py-14 text-center text-slate-400 italic">ยังไม่มีรีวิวสินค้าจากลูกค้าในขณะนี้</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <table class="w-full border-collapse">
-                    <thead>
-                        <tr class="bg-gray-100 border-b">
-                            <th class="border-b p-3 text-left">สินค้า</th>
-                            <th class="border-b p-3 text-left">ลูกค้า</th>
-                            <th class="border-b p-3 text-center">คะแนน</th>
-                            <th class="border-b p-3 text-left">ความคิดเห็น</th>
-                            <th class="border-b p-3 text-center">วันที่สร้าง</th>
-                            <th class="border-b p-3 text-center">การจัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($reviews as $review)
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="p-3 align-top">
-                                <a href="{{ route('products.show', $review->product_id) }}" target="_blank" class="text-blue-600 hover:underline font-medium">
-                                    {{ $review->product->name ?? 'สินค้าถูกลบ' }}
-                                </a>
-                            </td>
-                            <td class="p-3 align-top">
-                                <span class="font-medium text-gray-800">{{ $review->user->name ?? 'ลูกค้าทั่วไป' }}</span>
-                                <span class="block text-xs text-gray-400">{{ $review->user->email ?? '' }}</span>
-                            </td>
-                            <td class="p-3 align-top text-center text-yellow-500 font-bold text-lg">
-                                @for($i = 1; $i <= 5; $i++)
-                                    {{ $i <= $review->rating ? '★' : '☆' }}
-                                @endfor
-                            </td>
-                            <td class="p-3 align-top text-gray-600 max-w-xs break-words">
-                                {{ $review->comment }}
-                            </td>
-                            <td class="p-3 align-top text-center text-sm text-gray-500">
-                                {{ $review->created_at->format('d/m/Y H:i') }}
-                            </td>
-                            <td class="p-3 align-top text-center">
-                                <form action="{{ route('central_admin.reviews.destroy', $review) }}" method="POST" onsubmit="return confirm('ยืนยันที่จะลบรีวิวนี้หรือไม่?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1.5 rounded transition">
-                                        ลบรีวิว
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="p-8 text-center text-gray-500 italic">
-                                ยังไม่มีรีวิวสินค้าจากลูกค้าในขณะนี้
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            
         </div>
     </div>
 </x-app-layout>

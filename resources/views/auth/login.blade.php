@@ -3,7 +3,7 @@
         <h2 style="font-size: 1.6rem; font-weight: 800; color: #121C30; margin: 0 0 4px; font-family: 'Prompt', sans-serif;">
             เข้าสู่ระบบ
         </h2>
-        <p style="font-size: 0.85rem; color: #64748B; margin: 0; font-weight: 500;">ดีดี.ไอที.คอม (ศูนย์บริการไอทีครบวงจร)</p>
+        <p style="font-size: 0.85rem; color: #64748B; margin: 0; font-weight: 600;">DDPHONE ดีดีโฟน (ศูนย์รวมสมาร์ทโฟนมือสองคัดเกรด A+)</p>
     </div>
 
     <!-- Session Status -->
@@ -59,11 +59,9 @@
         </div>
 
         <!-- Submit Button -->
-        <div style="padding-top: 6px;">
-            <button type="submit" class="btn-primary-navy">
-                เข้าสู่ระบบ
+            <button type="submit" class="btn-capsule-yellow" style="width: 100%; justify-content: center; font-size: 0.95rem !important;">
+                เข้าสู่ระบบ <span class="circle-icon"><i class="fa-solid fa-right-to-bracket"></i></span>
             </button>
-        </div>
     </form>
 
     <!-- Divider & Secondary Action -->

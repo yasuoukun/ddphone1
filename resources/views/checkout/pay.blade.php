@@ -96,6 +96,16 @@
                             :class="paymentType === 'omise' ? 'active-tab' : 'inactive-tab'">
                         <span class="tab-icon">💳</span> บัตรเครดิตออนไลน์
                     </button>
+                    <button @click="paymentType = 'scb_qr'" 
+                            :class="paymentType === 'scb_qr' ? 'active-tab' : 'inactive-tab'"
+                            style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; border: none;">
+                        <span class="tab-icon">📲</span> SCB PromptPay/QR
+                    </button>
+                    <button @click="paymentType = 'scb_card'" 
+                            :class="paymentType === 'scb_card' ? 'active-tab' : 'inactive-tab'"
+                            style="background: linear-gradient(135deg, #059669, #047857); color: white; border: none;">
+                        <span class="tab-icon">🏧</span> SCB บัตรเครดิต/เดบิต
+                    </button>
                 </div>
                 
                 <!-- TAB 1: PromptPay -->
@@ -110,7 +120,7 @@
                         </div>
 
                         <div class="account-details">
-                            <p>ชื่อบัญชี: <strong>บริษัท ดีดี.ไอที.คอม จำกัด</strong></p>
+                            <p>ชื่อบัญชี: <strong>DDPHONE (ดีดีโฟน ชัยภูมิ)</strong></p>
                             <p>หมายเลขพร้อมเพย์: <strong class="text-indigo-600">088-999-8888</strong></p>
                         </div>
                     </div>
@@ -219,7 +229,92 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- TAB: SCB PromptPay / QR (2C2P) --}}
+                <div x-show="paymentType === 'scb_qr'" class="tab-content fade-in" x-cloak>
+                    <div style="background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 20px; padding: 2.5rem; text-align: center; border: 1.5px solid #c4b5fd;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 1rem;">
+                            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #4f46e5, #7c3aed); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(79,70,229,0.35);">
+                                <i class="fa-solid fa-qrcode" style="color: white; font-size: 1.5rem;"></i>
+                            </div>
+                            <div style="text-align: left;">
+                                <h4 style="font-weight: 800; color: #3730a3; margin: 0; font-size: 1.1rem;">ชำระผ่าน SCB PromptPay / QR Code</h4>
+                                <p style="color: #6d28d9; font-size: 0.85rem; margin: 0;">ขับเคลื่อนโดย 2C2P Payment Gateway</p>
+                            </div>
+                        </div>
+                        <p style="color: #5b21b6; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                            สแกน QR Code ด้วยแอปธนาคาร หรือ Mobile Banking ของคุณ<br>
+                            <strong>รับรองโดย SCB (ไทยพาณิชย์)</strong> ผ่าน 2C2P PGW v4.3
+                        </p>
+                        <div style="background: white; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; border: 1px solid #c4b5fd;">
+                            <p style="font-size: 0.85rem; color: #6b7280; margin: 0;">ยอดที่ต้องชำระ</p>
+                            <p style="font-size: 1.75rem; font-weight: 900; color: #3730a3; margin: 0;">฿{{ number_format($order->total_amount, 2) }}</p>
+                        </div>
+                        <form action="{{ route('payment.2c2p.initiate', $order->id) }}" method="POST" x-data="{ paying: false }" @submit="paying = true">
+                            @csrf
+                            <input type="hidden" name="type" value="qr">
+                            <button type="submit" :disabled="paying"
+                                style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; border: none; border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(79,70,229,0.4); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                                <span x-show="!paying"><i class="fa-solid fa-qrcode"></i> รับ QR Code เพื่อชำระเงิน</span>
+                                <span x-show="paying" style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <svg class="animate-spin" style="width:20px;height:20px;" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                                    กำลังเชื่อมต่อระบบ SCB...
+                                </span>
+                            </button>
+                        </form>
+                        <div style="margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-shield-halved" style="color: #6d28d9;"></i>
+                            <span style="font-size: 0.8rem; color: #6d28d9;">Secured by 2C2P · SCB Payment Gateway v4.3</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- TAB: SCB Credit/Debit Card (2C2P) --}}
+                <div x-show="paymentType === 'scb_card'" class="tab-content fade-in" x-cloak>
+                    <div style="background: linear-gradient(135deg, #ecfdf5, #f0fdf4); border-radius: 20px; padding: 2.5rem; text-align: center; border: 1.5px solid #86efac;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 1rem;">
+                            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #059669, #047857); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(5,150,105,0.35);">
+                                <i class="fa-solid fa-credit-card" style="color: white; font-size: 1.5rem;"></i>
+                            </div>
+                            <div style="text-align: left;">
+                                <h4 style="font-weight: 800; color: #065f46; margin: 0; font-size: 1.1rem;">ชำระด้วยบัตรเครดิต/เดบิต (SCB)</h4>
+                                <p style="color: #047857; font-size: 0.85rem; margin: 0;">ขับเคลื่อนโดย 2C2P Payment Gateway</p>
+                            </div>
+                        </div>
+                        <p style="color: #065f46; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                            ชำระด้วยบัตร Visa, MasterCard, JCB ผ่านหน้าชำระเงินที่ปลอดภัย<br>
+                            <strong>รับรองโดย SCB (ไทยพาณิชย์)</strong> · 3D Secure Verified
+                        </p>
+                        <div style="background: white; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; border: 1px solid #86efac;">
+                            <p style="font-size: 0.85rem; color: #6b7280; margin: 0;">ยอดที่ต้องชำระ</p>
+                            <p style="font-size: 1.75rem; font-weight: 900; color: #065f46; margin: 0;">฿{{ number_format($order->total_amount, 2) }}</p>
+                        </div>
+                        <form action="{{ route('payment.2c2p.initiate', $order->id) }}" method="POST" x-data="{ paying: false }" @submit="paying = true">
+                            @csrf
+                            <input type="hidden" name="type" value="card">
+                            <button type="submit" :disabled="paying"
+                                style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(5,150,105,0.4); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                                <span x-show="!paying"><i class="fa-solid fa-lock"></i> ชำระเงินด้วยบัตรอย่างปลอดภัย</span>
+                                <span x-show="paying" style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <svg class="animate-spin" style="width:20px;height:20px;" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                                    กำลังเชื่อมต่อระบบ SCB...
+                                </span>
+                            </button>
+                        </form>
+                        <div style="margin-top: 1.25rem; display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" style="height: 22px; object-fit: contain; opacity: 0.7;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/MasterCard_Logo.svg/200px-MasterCard_Logo.svg.png" alt="MasterCard" style="height: 22px; object-fit: contain; opacity: 0.7;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/JCB_logo.svg/200px-JCB_logo.svg.png" alt="JCB" style="height: 22px; object-fit: contain; opacity: 0.7;">
+                        </div>
+                        <div style="margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-shield-halved" style="color: #059669;"></i>
+                            <span style="font-size: 0.8rem; color: #059669;">Secured by 2C2P · SCB Payment Gateway v4.3 · 3D Secure</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
+        </div>
         </div>
     </div>
 </div>

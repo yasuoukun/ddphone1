@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>ดีดี.ไอที.คอม - เข้าสู่ระบบ / สมัครสมาชิก</title>
+        <title>DDPHONE ดีดีโฟน - เข้าสู่ระบบ / สมัครสมาชิก</title>
 
         <!-- Fonts & Icons -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -135,11 +135,8 @@
             <!-- White Card -->
             <div style="background: #FFFFFF; border-radius: 28px; border-top: 5px solid #F59E0B; padding: 2.25rem 2rem 2.5rem; box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05); position: relative;">
                 <!-- Logo Badge Wrapper -->
-                <div style="width: 88px; height: 88px; margin: -68px auto 1rem; background: #FFFFFF; border-radius: 50%; padding: 4px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); border: 4px solid #FFFFFF; display: flex; align-items: center; justify-content: center; position: relative; z-index: 20;">
-                    <img src="{{ asset('images/logodd.png') }}" alt="DDIT Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div style="width: 100%; height: 100%; border-radius: 50%; background: #1B2A47; color: #F59E0B; display: none; align-items: center; justify-content: center; font-size: 1.75rem;">
-                        <i class="fa-solid fa-laptop-code"></i>
-                    </div>
+                <div style="width: 88px; height: 88px; margin: -68px auto 1rem; background: #070D1B; border-radius: 50%; padding: 4px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); border: 4px solid #FFE600; display: flex; align-items: center; justify-content: center; position: relative; z-index: 20;">
+                    <img src="{{ asset('images/logoddphone.png') }}" alt="DDPHONE Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;" onerror="this.src='{{ asset('logoddphone.png') }}'">
                 </div>
 
                 {{ $slot }}
@@ -147,8 +144,8 @@
         </div>
 
         <!-- Footer Copyright -->
-        <div style="text-align: center; padding: 1.25rem; font-size: 0.8rem; color: #64748B; font-weight: 600; margin-top: auto;">
-            © {{ date('Y') }} บริษัท ดีดี.ไอที.คอม จำกัด — All rights reserved.
+        <div style="text-align: center; padding: 1.25rem; font-size: 0.82rem; color: #475569; font-weight: 700; margin-top: auto;">
+            © {{ date('Y') }} DDPHONE ดีดีโฟน — ศูนย์รวมสมาร์ทโฟนมือสองคัดเกรด A+ รับประกัน 30 วัน
         </div>
     </body>
 </html>

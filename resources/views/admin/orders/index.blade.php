@@ -6,7 +6,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-8 bg-gray-50/50 min-h-screen" x-data="{ search: '', statusFilter: 'all' }">
+    <div class="py-8 bg-gray-50/50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             @if(session('success'))
@@ -16,14 +16,8 @@
             </div>
             @endif
 
-            <!-- Search & Filter Bar -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6 flex flex-col md:flex-row gap-4 items-center">
-                <div class="relative flex-grow w-full md:w-auto">
-                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" x-model="search" placeholder="ค้นหาตามชื่อลูกค้า หรือหมายเลขออเดอร์..." 
-                           class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-medium">
-                </div>
-                <select x-model="statusFilter" class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[180px]">
+            <x-real-time-filter table-id="ordersTable" placeholder="ค้นหาชื่อลูกค้า อีเมล หรือเลขออเดอร์..." count-label="ออเดอร์">
+                <select id="rtf-ordersTable-status" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[180px]">
                     <option value="all">📋 ทุกสถานะ</option>
                     <option value="pending">⏳ รอชำระเงิน</option>
                     <option value="pending_verification">🔍 รอตรวจสอบสลิป</option>
@@ -32,12 +26,11 @@
                     <option value="delivered">📦 ส่งมอบแล้ว</option>
                     <option value="cancelled">❌ ยกเลิก</option>
                 </select>
-            </div>
+            </x-real-time-filter>
 
-            <!-- Orders Table -->
             <div class="bg-white overflow-hidden shadow-sm rounded-3xl border border-gray-100">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table id="ordersTable" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-gray-100 text-slate-500 text-xs font-semibold uppercase bg-slate-50/80">
                                 <th class="py-4 px-5 rounded-tl-xl">เลขออเดอร์</th>
@@ -51,8 +44,8 @@
                         <tbody class="divide-y divide-gray-50">
                             @forelse($orders as $order)
                             <tr class="hover:bg-indigo-50/30 transition-colors"
-                                x-show="(statusFilter === 'all' || '{{ $order->status }}' === statusFilter) && (search === '' || '{{ strtolower($order->user->name ?? 'guest') }}'.includes(search.toLowerCase()) || '#{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}'.includes(search))"
-                                x-cloak>
+                                data-searchable="{{ strtolower(($order->user->name ?? 'guest') . ' ' . ($order->user->email ?? '') . ' #' . str_pad($order->id, 5, '0', STR_PAD_LEFT)) }}"
+                                data-filter-status="{{ $order->status }}">
                                 <td class="py-4 px-5">
                                     <span class="font-bold text-slate-800 text-sm">#{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</span>
                                 </td>
@@ -67,9 +60,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="py-4 px-5 text-right font-bold text-slate-800">
-                                    ฿{{ number_format($order->total_amount, 2) }}
-                                </td>
+                                <td class="py-4 px-5 text-right font-bold text-slate-800">฿{{ number_format($order->total_amount, 2) }}</td>
                                 <td class="py-4 px-5 text-center">
                                     @php
                                         $statusMap = [
@@ -82,13 +73,9 @@
                                         ];
                                         $st = $statusMap[$order->status] ?? ['ไม่ทราบ', 'bg-gray-100 text-gray-600'];
                                     @endphp
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold {{ $st[1] }}">
-                                        {{ $st[0] }}
-                                    </span>
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold {{ $st[1] }}">{{ $st[0] }}</span>
                                 </td>
-                                <td class="py-4 px-5 text-sm text-slate-500">
-                                    {{ $order->created_at->format('d/m/Y H:i') }}
-                                </td>
+                                <td class="py-4 px-5 text-sm text-slate-500">{{ $order->created_at->format('d/m/Y H:i') }}</td>
                                 <td class="py-4 px-5 text-center">
                                     <a href="{{ route('admin.orders.show', $order) }}" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition">
                                         <i class="fa-solid fa-eye"></i> ดูรายละเอียด
@@ -96,12 +83,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr>
-                                <td colspan="6" class="py-16 text-center text-slate-400">
-                                    <i class="fa-solid fa-inbox text-4xl mb-3 block"></i>
-                                    ยังไม่มีคำสั่งซื้อในระบบ
-                                </td>
-                            </tr>
+                            <tr><td colspan="6" class="py-16 text-center text-slate-400"><i class="fa-solid fa-inbox text-4xl mb-3 block"></i>ยังไม่มีคำสั่งซื้อในระบบ</td></tr>
                             @endforelse
                         </tbody>
                     </table>

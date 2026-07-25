@@ -299,7 +299,7 @@
                                 <!-- Receipt Content -->
                                 <div id="receipt-print-{{ $order->id }}" style="color: #333; text-align: left;">
                                     <div style="text-align: center; border-bottom: 2px dashed var(--color-silver); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-                                        <h3 style="margin: 0; font-size: 2rem; font-weight: 800; color: var(--color-navy); letter-spacing: 1px;">ดีดี.ไอที.คอม</h3>
+                                        <h3 style="margin: 0; font-size: 2rem; font-weight: 900; color: var(--color-navy); letter-spacing: 1px;">DDPHONE ดีดีโฟน</h3>
                                         <p style="margin: 5px 0 0; color: var(--color-grey); font-size: 0.95rem; font-weight: 500;">ใบเสร็จรับเงิน / Receipt</p>
                                         <div style="margin-top: 10px; font-size: 0.85rem; color: var(--color-grey);">
                                             <p style="margin: 2px 0;">เลขที่ใบสั่งซื้อ: #{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</p>

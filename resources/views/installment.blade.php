@@ -62,7 +62,7 @@
     <div style="background: white; border-radius: 24px; border: 1px solid var(--color-silver); padding: 2.5rem; margin-bottom: 3.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
         <div style="text-align: center; margin-bottom: 2rem;">
             <h3 style="font-size: 1.6rem; font-weight: 800; color: var(--color-navy-dark); margin-bottom: 0.5rem; font-family: 'Prompt', sans-serif;">
-                📋 ตารางผ่อนชำระสินค้า ดีดี.ไอที.คอม
+                📋 ตารางผ่อนชำระสินค้า DDPHONE ดีดีโฟน
             </h3>
                 <i class="fa-brands fa-line" style="font-size: 1.5rem;"></i> ทักแชท LINE เพื่อยื่นเรื่องผ่อน (อนุมัติใน 15 นาที)
             </a>

@@ -391,110 +391,75 @@
 
 
 
-    <!-- Activities and News Section -->
+    <!-- Activities and News Section (Synced with Articles) -->
     <div style="margin-top: 5rem; margin-bottom: 5rem;">
         <div style="text-align: center; margin-bottom: 3rem;">
-            <span style="display: inline-block; background: rgba(99, 102, 241, 0.08); color: #6366f1; padding: 4px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.75rem;">ACTIVITIES</span>
-            <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--color-navy-dark); letter-spacing: -0.02em; margin: 0;">
-                กิจกรรมและข่าวสารของเรา
+            <span style="display: inline-block; background: #FFE600; color: #0F172A; padding: 4px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 900; margin-bottom: 0.75rem; letter-spacing: 0.5px;">ACTIVITIES & NEWS</span>
+            <h2 style="font-size: 1.75rem; font-weight: 900; color: #0F172A; letter-spacing: -0.02em; margin: 0;">
+                กิจกรรมและข่าวสาร DDPHONE
             </h2>
-            <p style="color: #64748b; font-size: 0.95rem; margin-top: 0.5rem;">ภาพความประทับใจและผลงานการติดตั้งระบบไอทีระดับประเทศ</p>
+            <p style="color: #64748b; font-size: 0.95rem; margin-top: 0.5rem;">ติดตามข่าวอัปเดต รีวิวสมาร์ทโฟน และกิจกรรมของร้านดีดีโฟน</p>
         </div>
 
         <div class="shopee-mobile-row" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
-            <!-- Activity 1 -->
-            <div class="hover-scale" style="background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(27, 42, 71, 0.02);">
-                <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80" alt="โรงเรียนจัตุรัสวิทยาคาร" style="width: 100%; height: 180px; object-fit: cover;">
-                <div style="padding: 1.25rem;">
-                    <span style="font-size: 0.75rem; color: #6366f1; font-weight: 600; text-transform: uppercase;">สถาบันการศึกษา</span>
-                    <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-navy-dark); margin: 6px 0 10px; line-height: 1.4;">โรงเรียนจัตุรัสวิทยาคาร</h4>
-                    <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">งานบริการติดตั้ง วางระบบไอที และการจัดการอุปกรณ์การสอนแบบสมบูรณ์และทันสมัย</p>
+            @if(isset($articles) && $articles->count() > 0)
+                @foreach($articles->take(4) as $article)
+                <div class="hover-scale" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04); display: flex; flex-direction: column;">
+                    <img src="{{ $article->cover_image ? (str_starts_with($article->cover_image, 'http') ? $article->cover_image : Storage::url($article->cover_image)) : 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80' }}" alt="{{ $article->title }}" style="width: 100%; height: 180px; object-fit: cover;">
+                    <div style="padding: 1.25rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <span style="font-size: 0.75rem; color: #3B82F6; font-weight: 800; text-transform: uppercase;">{{ $article->category ?? 'ข่าวสาร' }}</span>
+                            <h4 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 6px 0 10px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $article->title }}</h4>
+                            <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ Str::limit(strip_tags($article->content), 100) }}</p>
+                        </div>
+                        <a href="{{ route('blog.show', $article->id ?? 1) }}" style="display: inline-flex; align-items: center; gap: 6px; color: #0F172A; font-weight: 800; font-size: 0.82rem; margin-top: 1rem; text-decoration: none;" onmouseover="this.style.color='#FF5722'" onmouseout="this.style.color='#0F172A'">
+                            อ่านรายละเอียด ➔
+                        </a>
+                    </div>
                 </div>
-            </div>
+                @endforeach
+            @else
+                <!-- Activity 1 -->
+                <div class="hover-scale" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);">
+                    <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80" alt="บริการสมาร์ทโฟนเพื่อการศึกษา" style="width: 100%; height: 180px; object-fit: cover;">
+                    <div style="padding: 1.25rem;">
+                        <span style="font-size: 0.75rem; color: #3B82F6; font-weight: 800; text-transform: uppercase;">สถาบันการศึกษา</span>
+                        <h4 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 6px 0 10px; line-height: 1.4;">โครงการไอทีและแท็บเล็ตเพื่อการศึกษา DDPHONE</h4>
+                        <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">ส่งมอบ iPad และสมาร์ทโฟนเพื่อการศึกษา พร้อมประกันและบริการหลังการขาย</p>
+                    </div>
+                </div>
 
-            <!-- Activity 2 -->
-            <div class="hover-scale" style="background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(27, 42, 71, 0.02);">
-                <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80" alt="โรงเรียนหนองบัวแดง" style="width: 100%; height: 180px; object-fit: cover;">
-                <div style="padding: 1.25rem;">
-                    <span style="font-size: 0.75rem; color: #6366f1; font-weight: 600; text-transform: uppercase;">นำเสนอระบบ Apple</span>
-                    <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-navy-dark); margin: 6px 0 10px; line-height: 1.4;">งานนำเสนออุปกรณ์ Apple Products แก่คณะผู้บริหารและนักเรียนโรงเรียนหนองบัวแดง</h4>
-                    <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">สาธิตและแนะนำโปรแกรมสำหรับสถานศึกษาเพื่อก้าวสู่ความร่วมมือยุคใหม่</p>
+                <!-- Activity 2 -->
+                <div class="hover-scale" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80" alt="นำเสนอ Apple Products" style="width: 100%; height: 180px; object-fit: cover;">
+                    <div style="padding: 1.25rem;">
+                        <span style="font-size: 0.75rem; color: #3B82F6; font-weight: 800; text-transform: uppercase;">แอปเปิ้ลมือสองคัดเกรด</span>
+                        <h4 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 6px 0 10px; line-height: 1.4;">สาธิตการใช้งาน iPhone & iPad มือสองแท้เกรด A+</h4>
+                        <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">แนะนำการเช็คสุขภาพแบตเตอรี่และตรวจเช็คเครื่องแท้ก่อนส่งถึงมือลูกค้า</p>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Activity 3 -->
-            <div class="hover-scale" style="background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(27, 42, 71, 0.02);">
-                <img src="https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=600&q=80" alt="ปลูกป่าร่วมกับทีม true" style="width: 100%; height: 180px; object-fit: cover;">
-                <div style="padding: 1.25rem;">
-                    <span style="font-size: 0.75rem; color: #10b981; font-weight: 600; text-transform: uppercase;">ซีเอสอาร์ / สังคม</span>
-                    <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-navy-dark); margin: 6px 0 10px; line-height: 1.4;">ปลูกป่าร่วมกับทีม true ที่อุทยานป่าหินงาม อ.เทพสถิต จ.ชัยภูมิ</h4>
-                    <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">ร่วมมือสร้างสิ่งแวดล้อมที่ยั่งยืนให้ชุมชนและสนับสนุนกิจกรรมสาธารณประโยชน์</p>
+                <!-- Activity 3 -->
+                <div class="hover-scale" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);">
+                    <img src="https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=600&q=80" alt="กิจกรรม CSR" style="width: 100%; height: 180px; object-fit: cover;">
+                    <div style="padding: 1.25rem;">
+                        <span style="font-size: 0.75rem; color: #10B981; font-weight: 800; text-transform: uppercase;">กิจกรรมเพื่อสังคม</span>
+                        <h4 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 6px 0 10px; line-height: 1.4;">กิจกรรมตอบแทนสังคมและสิ่งแวดล้อม DDPHONE</h4>
+                        <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">ร่วมมือสร้างสิ่งแวดล้อมยั่งยืนและสนับสนุนการรีไซเคิลขยะอิเล็กทรอนิกส์</p>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Activity 4 -->
-            <div class="hover-scale" style="background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(27, 42, 71, 0.02);">
-                <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80" alt="VST ECS Best Dealer Award" style="width: 100%; height: 180px; object-fit: cover;">
-                <div style="padding: 1.25rem;">
-                    <span style="font-size: 0.75rem; color: #f59e0b; font-weight: 600; text-transform: uppercase;">รางวัลแห่งความสำเร็จ</span>
-                    <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-navy-dark); margin: 6px 0 10px; line-height: 1.4;">ร่วมงาน VST ECS Best Dealer Award 2024</h4>
-                    <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">การตอกย้ำความเป็นผู้นำทางด้านการจัดจำหน่ายและวางระบบสินค้าไอทีของภูมิภาค</p>
-                </div>
-            </div>
-
-            <!-- Activity 5 -->
-            <div class="hover-scale" style="background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(27, 42, 71, 0.02);">
-                <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80" alt="กิจกรรมติวเตอร์โรงเรียนเทพสถิตวิทยา" style="width: 100%; height: 180px; object-fit: cover;">
-                <div style="padding: 1.25rem;">
-                    <span style="font-size: 0.75rem; color: #6366f1; font-weight: 600; text-transform: uppercase;">สนับสนุนวิชาการ</span>
-                    <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-navy-dark); margin: 6px 0 10px; line-height: 1.4;">กิจกรรมติวเตอร์โรงเรียนเทพสถิตวิทยา</h4>
-                    <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">สนับสนุนการให้ความรู้ด้านทักษะคอมพิวเตอร์และการพัฒนาบุคลากรทางการศึกษา</p>
-                </div>
-            </div>
-
-            <!-- Activity 6 -->
-            <div class="hover-scale" style="background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(27, 42, 71, 0.02);">
-                <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80" alt="โรงเรียนภักดีชุมพล" style="width: 100%; height: 180px; object-fit: cover;">
-                <div style="padding: 1.25rem;">
-                    <span style="font-size: 0.75rem; color: #6366f1; font-weight: 600; text-transform: uppercase;">วางระบบเครือข่าย</span>
-                    <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-navy-dark); margin: 6px 0 10px; line-height: 1.4;">โรงเรียนภักดีชุมพล</h4>
-                    <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">งานติดตั้งและส่งมอบแท็บเล็ตและไอแพดเพื่อใช้พัฒนาสื่อเรียนการสอน</p>
-                </div>
-            </div>
-
-            <!-- Activity 7 -->
-            <div class="hover-scale" style="background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(27, 42, 71, 0.02);">
-                <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80" alt="ติวเตอร์โรงเรียนนาหนองทุ่ม" style="width: 100%; height: 180px; object-fit: cover;">
-                <div style="padding: 1.25rem;">
-                    <span style="font-size: 0.75rem; color: #6366f1; font-weight: 600; text-transform: uppercase;">กิจกรรมสัญจร</span>
-                    <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-navy-dark); margin: 6px 0 10px; line-height: 1.4;">ติวเตอร์โรงเรียนนาหนองทุ่ม</h4>
-                    <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">ให้การสนับสนุนการจัดสอบประเมินและการใช้ซอฟต์แวร์จำลองการศึกษายุคใหม่</p>
-                </div>
-            </div>
-
-            <!-- Activity 8 -->
-            <div class="hover-scale" style="background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(27, 42, 71, 0.02);">
-                <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=600&q=80" alt="ROV เลย" style="width: 100%; height: 180px; object-fit: cover;">
-                <div style="padding: 1.25rem;">
-                    <span style="font-size: 0.75rem; color: #ec4899; font-weight: 600; text-transform: uppercase;">อีสปอร์ต / E-Sports</span>
-                    <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-navy-dark); margin: 6px 0 10px; line-height: 1.4;">ROV เลย</h4>
-                    <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">ร่วมเป็นผู้สนับสนุนหลักในการแข่งขันกีฬา E-sports ระดับมัธยมศึกษาในภูมิภาค</p>
-                </div>
-            </div>
-
-            <!-- Activity 9 -->
-            <div class="hover-scale" style="background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(27, 42, 71, 0.02);">
-                <img src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=600&q=80" alt="วิทยาลัยเทคนิคชัยภูมิ" style="width: 100%; height: 180px; object-fit: cover;">
-                <div style="padding: 1.25rem;">
-                    <span style="font-size: 0.75rem; color: #6366f1; font-weight: 600; text-transform: uppercase;">เครือข่ายสถาบัน</span>
-                    <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-navy-dark); margin: 6px 0 10px; line-height: 1.4;">วิทยาลัยเทคนิคชัยภูมิ</h4>
-                    <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">บันทึกข้อตกลงและติดตั้งอุปกรณ์ห้องแล็บคอมพิวเตอร์ระดับวิชาชีพเพื่อนักเรียนนักศึกษา</p>
-                </div>
-            </div>
+                <!-- Activity 4 -->
+                <div class="hover-scale" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);">
+                    <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80" alt="รางวัลคุณภาพ" style="width: 100%; height: 180px; object-fit: cover;">
+                    <div style="padding: 1.25rem;">
+                        <span style="font-size: 0.75rem; color: #F59E0B; font-weight: 800; text-transform: uppercase;">รางวัลการันตี</span>
+                        <h4 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 6px 0 10px; line-height: 1.4;">รางวัลร้านค้ารับประกันคุณภาพยอดเยี่ยม</h4>
+                        <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">การันตีความไว้วางใจด้วยบริการหลังการขายและการดูแลลูกค้าตลอด 30 วัน</p>
+                    </div>
+            @endif
         </div>
     </div>
-
-    
 
 </div>
 @endsection

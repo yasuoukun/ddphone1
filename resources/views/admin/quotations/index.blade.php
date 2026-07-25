@@ -19,6 +19,16 @@
             </div>
             @endif
 
+            <x-real-time-filter table-id="quotationsTable" placeholder="ค้นหาชื่อลูกค้า, เลขใบเสนอราคา..." count-label="ใบเสนอราคา">
+                <select id="rtf-quotationsTable-status" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[170px]">
+                    <option value="all">📋 ทุกสถานะ</option>
+                    <option value="pending">⏳ รอตรวจสอบ</option>
+                    <option value="approved">✅ อนุมัติแล้ว</option>
+                    <option value="rejected">❌ ไม่อนุมัติ</option>
+                    <option value="ordered">🛏️ สั่งซื้อแล้ว</option>
+                </select>
+            </x-real-time-filter>
+
             <!-- Quotations Table Card -->
             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4 bg-white">
@@ -29,13 +39,13 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table id="quotationsTable" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50 text-slate-400 uppercase text-[11px] font-bold tracking-wider border-b border-gray-100">
                                 <th class="py-4 px-6">เลขที่ใบเสนอราคา</th>
                                 <th class="py-4 px-6">ลูกค้า/หน่วยงาน</th>
                                 <th class="py-4 px-6">ข้อมูลติดต่อ</th>
-                                <th class="py-4 px-6 text-right">ยอดเงินสุทธิ</th>
+                                <th class="py-4 px-6 text-right">ยอดเงินสุทธิ์</th>
                                 <th class="py-4 px-6 text-center">สถานะ</th>
                                 <th class="py-4 px-6 text-center">อัปเดตสถานะ</th>
                                 <th class="py-4 px-6 text-center">การจัดการ</th>
@@ -43,7 +53,9 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 text-sm">
                             @forelse($quotations as $quote)
-                            <tr class="hover:bg-slate-50/80 transition-colors">
+                            <tr class="hover:bg-slate-50/80 transition-colors"
+                                data-searchable="{{ strtolower($quote->quote_no . ' ' . $quote->cust_name . ' ' . ($quote->cust_org ?? '') . ' ' . ($quote->cust_email ?? '') . ' ' . ($quote->cust_phone ?? '')) }}"
+                                data-filter-status="{{ $quote->status }}">
                                 <td class="py-4 px-6 font-bold text-indigo-600">
                                     <span class="block text-slate-800">{{ $quote->quote_no }}</span>
                                     <span class="text-[11px] text-gray-400 font-normal">{{ $quote->created_at->format('d/m/Y H:i') }}</span>

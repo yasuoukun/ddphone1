@@ -2,24 +2,21 @@
 
 @section('content')
 <div style="font-family: 'Prompt', sans-serif;" x-data="blogApp()">
-    <div class="fade-in" style="max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem;">
-    <!-- Hero Banner with Gradient -->
-    <div style="background: linear-gradient(135deg, var(--color-navy-dark) 0%, var(--color-navy-light) 100%); border-radius: 24px; padding: 4.5rem 2rem; text-align: center; color: white; margin-bottom: 4rem; box-shadow: 0 20px 40px rgba(18, 28, 48, 0.15); position: relative; overflow: hidden;">
-        <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.03); border-radius: 50%;"></div>
-        <div style="position: absolute; bottom: -50px; left: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.03); border-radius: 50%;"></div>
-        
-        <span style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); color: #E2E8F0; font-size: 0.9rem; font-weight: 600; padding: 8px 20px; border-radius: 30px; letter-spacing: 1px; display: inline-block; margin-bottom: 1.5rem;">NEWS & ARTICLES</span>
-        <h1 style="font-size: 3rem; font-weight: 700; margin: 0 0 1.5rem 0; line-height: 1.2;">ข่าวสารและบทความ</h1>
-        <p style="color: #CBD5E1; max-width: 800px; margin: 0 auto; font-size: 1.2rem; line-height: 1.7;">
-            ติดตามกิจกรรมเพื่อสังคม การสนับสนุนทางการศึกษา ความรู้ และเคล็ดลับการใช้งานอุปกรณ์ไอทีจาก ดีดี.ไอที.คอม (DDITCOM)
+    <div class="fade-in" style="max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem;">
+    <!-- Hero Banner with Nexora Style -->
+    <div class="nexora-hero-canvas text-center mb-12">
+        <span class="badge-yellow-fun bounce-fun" style="margin-bottom: 1.25rem;">NEWS & REVIEWS</span>
+        <h1 style="font-size: 2.8rem; font-weight: 900; color: #0F172A; margin: 0 0 1.25rem 0; line-height: 1.2;">📰 บทความและรีวิวสมาร์ทโฟนมือสอง</h1>
+        <p style="color: #475569; max-width: 750px; margin: 0 auto; font-size: 1.1rem; line-height: 1.7; font-weight: 500;">
+            ติดตามข่าวสาร เทคนิคการเลือกซื้อสมาร์ทโฟนมือสองสภาพนางฟ้า รีวิวการใช้งาน และกิจกรรมพิเศษจาก DDPHONE ดีดีโฟน
         </p>
     </div>
 
     <!-- Toolbar: Search and Filter Tabs -->
-    <div style="background: white; border: 1px solid var(--color-silver); border-radius: 20px; padding: 1.5rem 2rem; margin-bottom: 3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.01); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+    <div style="background: white; border: 2px solid #E2E8F0; border-radius: 22px; padding: 1.5rem 2rem; margin-bottom: 3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
         
         <!-- Filter Tabs -->
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button @click="setCategory('all')" :style="category === 'all' ? activeTabStyle : inactiveTabStyle">
                 ทั้งหมด
             </button>
@@ -27,14 +24,14 @@
                 ข่าวสารและกิจกรรม
             </button>
             <button @click="setCategory('knowledge')" :style="category === 'knowledge' ? activeTabStyle : inactiveTabStyle">
-                บทความความรู้
+                บทความรีวิว & เทคนิค
             </button>
         </div>
 
         <!-- Search Bar -->
         <div style="position: relative; width: 300px; max-width: 100%;">
-            <input type="text" x-model="searchQuery" placeholder="ค้นหาบทความ..." style="width: 100%; padding: 12px 18px 12px 42px; border: 1px solid var(--color-silver); border-radius: 12px; font-size: 0.95rem; outline: none; font-family: inherit; transition: border-color 0.2s;" @input="filterArticles()">
-            <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--color-grey-light); font-size: 1.1rem;">
+            <input type="text" x-model="searchQuery" placeholder="ค้นหาบทความ..." style="width: 100%; padding: 12px 18px 12px 42px; border: 2px solid #FFE600; border-radius: 14px; font-size: 0.92rem; outline: none; font-family: inherit;" @input="filterArticles()">
+            <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #FF5722; font-size: 1rem;">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </span>
         </div>
@@ -125,23 +122,24 @@
             isModalOpen: false,
             selectedArticle: {},
             activeTabStyle: {
-                background: 'var(--color-accent)',
-                color: 'white',
-                border: 'none',
+                background: '#FFE600',
+                color: '#0F172A',
+                border: '1.5px solid #FFC700',
                 padding: '10px 22px',
-                borderRadius: '10px',
-                fontWeight: '600',
+                borderRadius: '12px',
+                fontWeight: '800',
                 fontSize: '0.92rem',
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                boxShadow: '0 4px 12px rgba(255,230,0,0.3)'
             },
             inactiveTabStyle: {
-                background: 'var(--color-silver-light)',
-                color: 'var(--color-grey)',
-                border: '1px solid var(--color-silver)',
+                background: '#F8FAFC',
+                color: '#475569',
+                border: '1.5px solid #E2E8F0',
                 padding: '10px 22px',
-                borderRadius: '10px',
-                fontWeight: '600',
+                borderRadius: '12px',
+                fontWeight: '700',
                 fontSize: '0.92rem',
                 cursor: 'pointer',
                 transition: 'all 0.2s'

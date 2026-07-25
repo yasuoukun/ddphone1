@@ -17,21 +17,21 @@
             
             <!-- Alert Session Messages -->
             <!-- Quick Product Management Shortcuts -->
-            <div class="mb-8 bg-gradient-to-r from-indigo-900 via-slate-900 to-slate-800 p-6 rounded-3xl text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="mb-8 p-6 rounded-3xl text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-4" style="background: linear-gradient(135deg, #070D1B 0%, #0F172A 100%); border: 2px solid #FFE600;">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 text-2xl">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-[#FFE600] text-2xl">
                         <i class="fa-solid fa-square-plus"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold">จัดการสินค้า & คลังสินค้า</h3>
-                        <p class="text-xs text-slate-300">แอดมินสามารถเพิ่มรายการสินค้าใหม่ ปรับแต่งข้อมูล ราคา สเปก และรูปภาพสินค้าได้ทันที</p>
+                        <h3 class="text-lg font-black text-[#FFE600]">จัดการสินค้า & คลังสินค้า</h3>
+                        <p class="text-xs text-slate-200 font-medium">แอดมินสามารถเพิ่มรายการสินค้าใหม่ ปรับแต่งข้อมูล ราคา สเปก และรูปภาพสินค้าได้ทันที</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('central_admin.products.create') }}" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105">
+                    <a href="{{ route('central_admin.products.create') }}" class="px-5 py-2.5 rounded-xl bg-[#FF5722] hover:bg-[#e64a19] text-white font-black text-xs shadow-lg flex items-center gap-2 transition-all hover:scale-105" style="border: 1px solid #FFE600;">
                         <i class="fa-solid fa-plus"></i> เพิ่มสินค้าใหม่
                     </a>
-                    <a href="{{ route('central_admin.products.index') }}" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 flex items-center gap-2 transition-all">
+                    <a href="{{ route('central_admin.products.index') }}" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/30 flex items-center gap-2 transition-all">
                         <i class="fa-solid fa-boxes-stacked"></i> ดูรายการสินค้าทั้งหมด
                     </a>
                 </div>
@@ -103,15 +103,16 @@
                 <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
                     <div>
                         <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie text-rose-500"></i> สัดส่วนสถานะใบสั่งซื้อ
+                            <i class="fa-solid fa-chart-pie text-amber-500"></i> สัดส่วนสถานะใบสั่งซื้อ
                         </h3>
                         <div style="position: relative; height: 240px; width: 100%;">
                             <canvas id="statusPieChart"></canvas>
                         </div>
                     </div>
-                    <div class="text-xs text-gray-400 text-center mt-4">
+                    <div class="text-xs text-slate-400 text-center mt-4">
                         สถิติอัปเดตแบบเรียลไทม์ตามฐานข้อมูลออเดอร์
                     </div>
+                </div>
             </div>
 
             <!-- Product & Sales Intelligence Section -->

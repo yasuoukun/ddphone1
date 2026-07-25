@@ -56,8 +56,9 @@
     @endif
 
     <div style="text-align: center; margin-bottom: 3rem;">
-        <h2 style="font-size: 2.2rem; color: var(--color-navy-dark); font-weight: 700; margin-bottom: 0.5rem; font-family: 'Prompt', sans-serif;">🎉 คูปองส่วนลด & โปรโมชันพิเศษ</h2>
-        <p style="color: var(--color-grey); font-size: 1.1rem;">เก็บโค้ดส่วนลดด้านล่างไปใช้ในขั้นตอนชำระเงินเพื่อรับส่วนลดสุดคุ้ม!</p>
+        <span class="badge-yellow-fun bounce-fun" style="margin-bottom: 0.75rem;">SPECIAL DEALS & COUPONS</span>
+        <h2 style="font-size: 2.2rem; color: var(--color-navy-dark); font-weight: 900; margin-bottom: 0.5rem; font-family: 'Prompt', sans-serif;">🔥 โปรเด็ดมือสอง & โค้ดส่วนลดสุดคุ้ม</h2>
+        <p style="color: #64748b; font-size: 1.05rem;">กดเก็บโค้ดส่วนลดนำไปใช้ในขั้นตอนชำระเงินเพื่อรับส่วนลดพิเศษทันที!</p>
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
@@ -65,13 +66,13 @@
         @php
             $isCollected = in_array($coupon->id, $collectedCouponIds);
         @endphp
-        <div style="background: white; border: 2px dashed #FF4500; border-radius: 16px; display: flex; overflow: hidden; box-shadow: 0 10px 20px rgba(255, 69, 0, 0.05); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div class="card-fun-hover" style="background: white; border: 2px dashed #FF5722; border-radius: 20px; display: flex; overflow: hidden; box-shadow: 0 8px 25px rgba(255, 87, 34, 0.08); flex-wrap: wrap;">
             
             <!-- Left Ticket Part -->
-            <div style="background: linear-gradient(135deg, #FF4500 0%, #FF8C00 100%); color: white; padding: 2rem; display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 200px; text-align: center;">
-                <span style="font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">ลดทันที</span>
-                <h3 style="font-size: 2.2rem; font-weight: 800; margin: 0.5rem 0;">฿{{ number_format($coupon->discount_amount, 0) }}</h3>
-                <span style="font-size: 0.8rem; opacity: 0.9;">
+            <div style="background: linear-gradient(135deg, #070D1B 0%, #0F172A 100%); color: white; padding: 2rem; display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 210px; text-align: center; border-right: 2px dashed #FFE600;">
+                <span style="font-size: 0.85rem; font-weight: 800; color: #FFE600; text-transform: uppercase; letter-spacing: 1px;">⚡ ลดทันที</span>
+                <h3 style="font-size: 2.3rem; font-weight: 900; color: #FFE600; margin: 0.4rem 0;">฿{{ number_format($coupon->discount_amount, 0) }}</h3>
+                <span style="font-size: 0.8rem; color: #CBD5E1;">
                     @if($coupon->product)
                         เฉพาะสินค้าที่ร่วมรายการ
                     @else
@@ -81,40 +82,37 @@
             </div>
 
             <!-- Right Info Part -->
-            <div style="padding: 1.5rem 2rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="padding: 1.5rem 2rem; flex: 1 1 300px; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                    <h4 style="font-size: 1.25rem; color: var(--color-navy-dark); font-weight: 700; margin: 0 0 0.5rem;">
+                    <h4 style="font-size: 1.25rem; color: var(--color-navy-dark); font-weight: 800; margin: 0 0 0.5rem;">
                         {{ $coupon->name }}
                     </h4>
-                    <p style="color: var(--color-grey); font-size: 0.9rem; margin: 0;">
+                    <p style="color: #64748b; font-size: 0.9rem; margin: 0;">
                         @if($coupon->product)
-                            <span style="color: #FF4500; font-weight: 600;">⚠️ คูปองนี้ใช้ได้เฉพาะกับ: {{ $coupon->product->name }}</span>
+                            <span style="color: #FF5722; font-weight: 700;">⚠️ คูปองนี้ใช้ได้เฉพาะกับ: {{ $coupon->product->name }}</span>
                         @else
-                            <span>ใช้ได้กับสินค้าทุกชิ้นในร้าน ดีดี.ไอที.คอม</span>
+                            <span>ใช้ได้กับสินค้ามือถือมือสองทุกชิ้นในร้าน DDPHONE</span>
                         @endif
                     </p>
                 </div>
                 
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 1rem; border-top: 1px solid var(--color-silver-light); padding-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 1rem; border-top: 1px solid #F1F5F9; padding-top: 1rem;">
                     <div>
-                        <p style="margin: 0; font-size: 0.8rem; color: var(--color-grey);">รหัสโค้ดส่วนลด:</p>
-                        <strong style="font-size: 1.2rem; color: #FF4500; font-family: monospace; letter-spacing: 1px;">{{ $coupon->code }}</strong>
+                        <p style="margin: 0; font-size: 0.8rem; color: #64748b; font-weight: 600;">รหัสโค้ดส่วนลด:</p>
+                        <strong style="font-size: 1.25rem; color: #FF5722; font-family: monospace; letter-spacing: 1px; background: #FFF5F5; padding: 2px 10px; border-radius: 6px; border: 1px solid #FFE600;">{{ $coupon->code }}</strong>
                     </div>
                     
-                    <div style="display: flex; gap: 15px; align-items: center;">
-                        <span class="countdown-timer" data-expires="{{ $coupon->expires_at }}" style="font-size: 0.85rem; color: var(--color-danger); font-weight: 600; background: rgba(229, 62, 62, 0.1); padding: 4px 10px; border-radius: 20px;">
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <span class="countdown-timer" data-expires="{{ $coupon->expires_at }}" style="font-size: 0.82rem; color: #D97706; font-weight: 700; background: #FEF3C7; padding: 5px 12px; border-radius: 20px;">
                             ⌛ โค้ดหมดอายุใน: --:--:--
                         </span>
 
                         @if($isCollected)
-                            <button disabled style="background: var(--color-grey-light); color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; cursor: not-allowed;">
+                            <button disabled style="background: #94A3B8; color: white; border: none; padding: 10px 22px; border-radius: 14px; font-weight: 700; font-size: 0.88rem; cursor: not-allowed;">
                                 เก็บโค้ดแล้ว
                             </button>
                         @else
-                            <button onclick="collectCoupon(this, '{{ $coupon->id }}')" 
-                                    style="background: #FF4500; color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.2s;"
-                                    onmouseover="this.style.background='#D03400'"
-                                    onmouseout="this.style.background='#FF4500'">
+                            <button onclick="collectCoupon(this, '{{ $coupon->id }}')" class="btn-orange-fun" style="padding: 9px 22px !important; font-size: 0.88rem !important;">
                                 เก็บโค้ดส่วนลด
                             </button>
                         @endif
@@ -123,10 +121,10 @@
             </div>
         </div>
         @empty
-        <div style="background: white; border: 1px solid var(--color-silver); border-radius: 12px; padding: 4rem 2rem; text-align: center; color: var(--color-grey);">
+        <div style="background: white; border: 2px solid #E2E8F0; border-radius: 20px; padding: 4rem 2rem; text-align: center; color: #64748b;">
             <span style="font-size: 3rem;">🎟️</span>
-            <h3 style="margin-top: 1rem; font-size: 1.2rem; font-weight: 600;">ขณะนี้ยังไม่มีโปรโมชันคูปองส่วนลดพิเศษ</h3>
-            <p style="font-size: 0.9rem; margin-top: 5px;">โปรดติดตามข่าวสารและโปรโมชันพิเศษจากทางร้านใหม่ในเร็วๆ นี้</p>
+            <h3 style="margin-top: 1rem; font-size: 1.2rem; font-weight: 800; color: var(--color-navy-dark);">ขณะนี้ยังไม่มีโปรโมชันคูปองส่วนลดพิเศษ</h3>
+            <p style="font-size: 0.9rem; margin-top: 5px;">โปรดติดตามข่าวสารและโปรโมชันพิเศษจากทางร้าน DDPHONE ในเร็วๆ นี้</p>
         </div>
         @endforelse
     </div>

@@ -41,32 +41,60 @@ class CmsController extends Controller
     public function storeBanner(Request $request)
     {
         $request->validate([
-            'banner_image' => 'required_without:image_url|nullable|image|mimes:jpeg,png,jpg,gif,webp|max:3072',
-            'image_url' => 'required_without:banner_image|nullable|url|max:1000',
-            'link_url' => 'nullable|url|max:255',
-            'sort_order' => 'required|integer|min:0',
+            'cropped_image_data' => 'nullable|string',
+            'image_url'          => 'nullable|url|max:1000',
+            'link_url'           => 'nullable|url|max:255',
+            'sort_order'         => 'required|integer|min:0',
         ], [
-            'banner_image.required_without' => 'กรุณาอัปโหลดไฟล์รูปภาพ หรือกรอกลิงก์รูปภาพออนไลน์อย่างใดอย่างหนึ่ง',
-            'image_url.required_without' => 'กรุณาอัปโหลดไฟล์รูปภาพ หรือกรอกลิงก์รูปภาพออนไลน์อย่างใดอย่างหนึ่ง',
-            'image_url.url' => 'ลิงก์รูปภาพออนไลน์ต้องเป็นรูปแบบ URL ที่ถูกต้อง (เช่น https://...)',
-            'link_url.url' => 'ลิงก์เชื่อมโยงต้องเป็นรูปแบบ URL ที่ถูกต้อง (เช่น https://...)',
+            'image_url.url'  => 'ลิงก์รูปภาพออนไลน์ต้องเป็นรูปแบบ URL ที่ถูกต้อง (เช่น https://...)',
+            'link_url.url'   => 'ลิงก์เชื่อมโยงต้องเป็นรูปแบบ URL ที่ถูกต้อง (เช่น https://...)',
         ]);
 
+        $croppedData = $request->input('cropped_image_data');
+        $imageUrl    = $request->input('image_url');
+
+        if (empty($croppedData) && empty($imageUrl)) {
+            return redirect()->back()->withErrors(['banner' => 'กรุณาเลือกรูปภาพ หรือกรอก URL รูปภาพอย่างใดอย่างหนึ่ง'])->withInput();
+        }
+
         $imagePath = '';
-        if ($request->hasFile('banner_image')) {
-            $imagePath = $request->file('banner_image')->store('banners', 'public');
-        } elseif ($request->filled('image_url')) {
-            $imagePath = $request->image_url;
+
+        // 1. Handle base64 cropped image data (highest priority)
+        if (!empty($croppedData)) {
+            // Parse data:image/jpeg;base64,...
+            if (preg_match('/^data:image\/(\w+);base64,/', $croppedData, $type)) {
+                $extension = strtolower($type[1]);
+                // Support jpeg/png/webp
+                if (!in_array($extension, ['jpeg', 'jpg', 'png', 'webp', 'gif'])) {
+                    $extension = 'jpg';
+                }
+                $imageData = substr($croppedData, strpos($croppedData, ',') + 1);
+                $imageData = base64_decode($imageData);
+
+                if ($imageData === false) {
+                    return redirect()->back()->withErrors(['banner' => 'ข้อมูลรูปภาพ Cropped ไม่ถูกต้อง กรุณาลองใหม่'])->withInput();
+                }
+
+                $filename = 'banners/' . uniqid('banner_', true) . '.' . $extension;
+                Storage::disk('public')->put($filename, $imageData);
+                $imagePath = $filename;
+            } else {
+                return redirect()->back()->withErrors(['banner' => 'รูปแบบข้อมูลรูปภาพไม่ถูกต้อง'])->withInput();
+            }
+        }
+        // 2. Fallback: use image URL directly (no crop)
+        elseif (!empty($imageUrl)) {
+            $imagePath = $imageUrl;
         }
 
         PromotionalBanner::create([
             'image_path' => $imagePath,
-            'link_url' => $request->link_url,
+            'link_url'   => $request->link_url,
             'sort_order' => $request->sort_order,
-            'is_active' => true,
+            'is_active'  => true,
         ]);
 
-        return redirect()->back()->with('success', 'เพิ่มสไลด์แบนเนอร์ใหม่เรียบร้อยแล้ว');
+        return redirect()->back()->with('success', 'เพิ่มสไลด์แบนเนอร์ใหม่เรียบร้อยแล้ว (ขนาด 1200×400px ครอปแล้ว)');
     }
 
     public function deleteBanner(PromotionalBanner $banner)

@@ -3,7 +3,7 @@
         <h2 style="font-size: 1.6rem; font-weight: 800; color: #121C30; margin: 0 0 4px; font-family: 'Prompt', sans-serif;">
             สมัครสมาชิกใหม่
         </h2>
-        <p style="font-size: 0.85rem; color: #64748B; margin: 0; font-weight: 500;">ดีดี.ไอที.คอม (ศูนย์บริการไอทีครบวงจร)</p>
+        <p style="font-size: 0.85rem; color: #64748B; margin: 0; font-weight: 600;">DDPHONE ดีดีโฟน (ศูนย์รวมสมาร์ทโฟนมือสองคัดเกรด A+)</p>
     </div>
 
     <form method="POST" action="{{ route('register') }}" style="display: flex; flex-direction: column; gap: 1rem;">

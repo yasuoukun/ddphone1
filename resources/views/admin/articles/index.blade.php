@@ -21,72 +21,77 @@
             </div>
             @endif
 
+            <x-real-time-filter table-id="articlesTable" placeholder="ค้นหาชื่อบทความ หรือชื่อผู้เขียน..." count-label="บทความ">
+                <select id="rtf-articlesTable-published" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[160px]">
+                    <option value="all">📰 ทุกสถานะ</option>
+                    <option value="1">✅ เผยแพร่แล้ว</option>
+                    <option value="0">📝 ฉบับร่าง</option>
+                </select>
+            </x-real-time-filter>
+
             <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-gray-100">
-                <div class="p-6 bg-white border-b border-gray-200">
-                    
+                <div class="overflow-x-auto">
                     @if($articles->count() > 0)
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">บทความ</th>
-                                        <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">สถานะ</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ผู้เขียน</th>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">จัดการ</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach($articles as $article)
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-16 w-16 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
-                                                    @if($article->images && count($article->images) > 0)
-                                                        <img class="h-16 w-16 object-cover" src="{{ Storage::url($article->images[0]) }}" alt="">
-                                                    @else
-                                                        <i class="fa-solid fa-image text-gray-400 text-xl"></i>
-                                                    @endif
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-bold text-gray-900">{{ Str::limit($article->title, 50) }}</div>
-                                                    <div class="text-xs text-gray-500 mt-1">วันที่: {{ $article->created_at->format('d/m/Y') }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            @if($article->is_published)
-                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">เผยแพร่</span>
-                                            @else
-                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">ฉบับร่าง</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $article->author_name }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('central_admin.articles.edit', $article) }}" class="text-indigo-600 hover:text-indigo-900 mr-3 inline-block bg-indigo-50 p-2 rounded hover:bg-indigo-100 transition-colors" title="แก้ไข">
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                            </a>
-                                            <form action="{{ route('central_admin.articles.destroy', $article) }}" method="POST" class="inline-block" onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบบทความนี้?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-rose-600 hover:text-rose-900 bg-rose-50 p-2 rounded hover:bg-rose-100 transition-colors" title="ลบ">
-                                                    <i class="fa-solid fa-trash-can"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                    <table id="articlesTable" class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50/80">
+                            <tr class="border-b border-gray-100 text-slate-500 text-xs font-semibold uppercase">
+                                <th class="py-4 px-6 rounded-tl-xl">บทความ</th>
+                                <th class="py-4 px-6 text-center">สถานะ</th>
+                                <th class="py-4 px-6">ผู้เขียน</th>
+                                <th class="py-4 px-6 text-right rounded-tr-xl">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @foreach($articles as $article)
+                            <tr class="hover:bg-slate-50/50 transition-colors"
+                                data-searchable="{{ strtolower($article->title . ' ' . $article->author_name) }}"
+                                data-filter-published="{{ $article->is_published ? '1' : '0' }}">
+                                <td class="py-4 px-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex-shrink-0 h-14 w-14 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
+                                        @if($article->images && count($article->images) > 0)
+                                            <img class="h-14 w-14 object-cover" src="{{ Storage::url($article->images[0]) }}" alt="">
+                                        @else
+                                            <i class="fa-solid fa-image text-gray-400 text-xl"></i>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-900">{{ Str::limit($article->title, 60) }}</div>
+                                        <div class="text-xs text-gray-500 mt-1">{{ $article->created_at->format('d/m/Y') }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-4 px-6 text-center">
+                                @if($article->is_published)
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">✅ เผยแพร่</span>
+                                @else
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">📝 ฉบับร่าง</span>
+                                @endif
+                            </td>
+                            <td class="py-4 px-6 text-sm text-slate-600 font-medium">{{ $article->author_name }}</td>
+                            <td class="py-4 px-6 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ route('central_admin.articles.edit', $article) }}" class="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition" title="แก้ไข">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <form action="{{ route('central_admin.articles.destroy', $article) }}" method="POST" class="inline-block" onsubmit="return confirm('ยืนยันลบบทความนี้?');">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition" title="ลบ">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
                     @else
-                        <div class="text-center py-12 text-gray-500">
-                            <i class="fa-solid fa-newspaper text-4xl mb-3 text-gray-300"></i>
-                            <p>ยังไม่มีบทความในระบบ</p>
-                        </div>
+                    <div class="py-16 text-center text-slate-400">
+                        <i class="fa-solid fa-newspaper text-4xl mb-3 block text-slate-300"></i>
+                        <p class="font-medium">ยังไม่มีบทความในระบบ</p>
+                    </div>
                     @endif
-                    
                 </div>
             </div>
         </div>

@@ -16,52 +16,31 @@
             </div>
             @endif
 
-            <!-- Search & Filters -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
-                <form action="{{ route('admin.stock.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-center">
-                    <!-- Search Input -->
-                    <div class="relative flex-grow w-full md:w-auto">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" name="q" value="{{ request('q') }}" placeholder="ค้นหาชื่อสินค้า..." 
-                               class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-medium">
-                    </div>
-
-                    <!-- Category Filter -->
-                    <select name="category_id" class="w-full md:w-auto px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[160px]">
-                        <option value="">📂 ทุกหมวดหมู่</option>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
-                                {{ $cat->name }}
-                            </option>
-                        @endforeach
-                    </select>
-
-                    <!-- Brand Filter -->
-                    <select name="brand_id" class="w-full md:w-auto px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[160px]">
-                        <option value="">🏷️ ทุกแบรนด์</option>
-                        @foreach($brands as $brand)
-                            <option value="{{ $brand->id }}" {{ request('brand_id') == $brand->id ? 'selected' : '' }}>
-                                {{ $brand->name }}
-                            </option>
-                        @endforeach
-                    </select>
-
-                    <!-- Submit & Reset Buttons -->
-                    <div class="flex gap-2 w-full md:w-auto">
-                        <button type="submit" class="flex-grow md:flex-grow-0 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-sm transition">
-                            กรองข้อมูล
-                        </button>
-                        <a href="{{ route('admin.stock.index') }}" class="px-4 py-3 border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl text-sm font-bold transition flex items-center justify-center">
-                            ล้างค่า
-                        </a>
-                    </div>
-                </form>
-            </div>
+            <x-real-time-filter table-id="stockTable" placeholder="ค้นหาชื่อสินค้า, SKU, ID..." count-label="สินค้า">
+                <select id="rtf-stockTable-category" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[160px]">
+                    <option value="all">📂 ทุกหมวดหมู่</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->name }}">{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+                <select id="rtf-stockTable-brand" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[150px]">
+                    <option value="all">🏷️ ทุกแบรนด์</option>
+                    @foreach($brands as $brand)
+                        <option value="{{ $brand->name }}">{{ $brand->name }}</option>
+                    @endforeach
+                </select>
+                <select id="rtf-stockTable-stockstatus" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[150px]">
+                    <option value="all">📦 ทุกสถานะ</option>
+                    <option value="ok">🟢 พร้อมส่ง</option>
+                    <option value="low">⚠️ ใกล้หมด (&lt;5)</option>
+                    <option value="out">🔴 หมดสต็อก</option>
+                </select>
+            </x-real-time-filter>
 
             <!-- Products Stock Table -->
             <div class="bg-white overflow-hidden shadow-sm rounded-3xl border border-gray-100 mb-6">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table id="stockTable" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-gray-100 text-slate-500 text-xs font-semibold uppercase bg-slate-50/80">
                                 <th class="py-4 px-5 rounded-tl-xl">สินค้า</th>
@@ -74,7 +53,14 @@
                         </thead>
                         <tbody class="divide-y divide-gray-50">
                             @forelse($products as $product)
-                            <tr class="hover:bg-indigo-50/30 transition-colors">
+                            @php
+                                $stockSt = $product->stock == 0 ? 'out' : ($product->stock < 5 ? 'low' : 'ok');
+                            @endphp
+                            <tr class="hover:bg-indigo-50/30 transition-colors"
+                                data-searchable="{{ strtolower($product->name . ' ' . ($product->category->name ?? '') . ' ' . ($product->brand->name ?? '') . ' ' . $product->id) }}"
+                                data-filter-category="{{ $product->category->name ?? '' }}"
+                                data-filter-brand="{{ $product->brand->name ?? '' }}"
+                                data-filter-stockstatus="{{ $stockSt }}">
                                 <!-- Product details & Image -->
                                 <td class="py-4 px-5">
                                     <div class="flex items-center gap-3">

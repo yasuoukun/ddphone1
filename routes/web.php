@@ -10,15 +10,18 @@ Route::get('/', function () {
     $categories = \App\Models\Category::all();
     $popularProducts = \App\Models\Product::with('images')->orderBy('id', 'desc')->take(8)->get();
     
+    // Articles written by admins
+    $articles = \App\Models\Article::where('is_published', true)->orderBy('created_at', 'desc')->take(6)->get();
+
     // CMS Data
     $banners = \App\Models\PromotionalBanner::where('is_active', true)->orderBy('sort_order')->get();
     $settings = [
         'slogan_badge' => \App\Models\HomepageSetting::get('slogan_badge', '🔥 โปรโมชันพิเศษ ลดสูงสุด 50%'),
-        'slogan_title' => \App\Models\HomepageSetting::get('slogan_title', 'dd.it.com จัดเต็มโปรโมชัน!'),
-        'slogan_description' => \App\Models\HomepageSetting::get('slogan_description', "สมาร์ทโฟน แก็ดเจ็ต และบริการซ่อมมือถือครบวงจร\nพร้อมประกันศูนย์และบริการหลังการขายระดับพรีเมียม"),
+        'slogan_title' => \App\Models\HomepageSetting::get('slogan_title', 'DDPHONE ดีดีโฟน จัดเต็มโปรโมชัน!'),
+        'slogan_description' => \App\Models\HomepageSetting::get('slogan_description', "สมาร์ทโฟน แท็บเล็ต แก็ดเจ็ต และบริการซ่อมครบวงจร\nพร้อมประกันศูนย์และบริการหลังการขายระดับพรีเมียม"),
     ];
 
-    return view('welcome', compact('categories', 'popularProducts', 'banners', 'settings'));
+    return view('welcome', compact('categories', 'popularProducts', 'banners', 'settings', 'articles'));
 })->name('home');
 
 Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
@@ -99,6 +102,11 @@ Route::get('/categoryblog', function () {
     $articles = \App\Models\Article::where('is_published', true)->orderBy('created_at', 'desc')->get();
     return view('blog', compact('articles'));
 })->name('categoryblog');
+
+Route::get('/blog/{article}', function (\App\Models\Article $article) {
+    $articles = \App\Models\Article::where('is_published', true)->orderBy('created_at', 'desc')->get();
+    return view('blog', compact('articles', 'article'));
+})->name('blog.show');
 
 Route::get('/tracking', [\App\Http\Controllers\ClaimController::class, 'track'])->name('tracking');
 Route::post('/claims/submit', [\App\Http\Controllers\ClaimController::class, 'store'])->name('claims.submit');
@@ -306,6 +314,23 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/pay/{order}/upload', [\App\Http\Controllers\CheckoutController::class, 'uploadSlip'])->name('checkout.upload_slip');
     Route::post('/checkout/pay/{order}/direct-debit', [\App\Http\Controllers\CheckoutController::class, 'payDirectDebit'])->name('checkout.pay_direct_debit');
     Route::post('/checkout/pay/{order}/omise', [\App\Http\Controllers\CheckoutController::class, 'payOmise'])->name('checkout.pay_omise');
+});
+
+
+// ========================================================
+// 2C2P SCB Payment Gateway Routes
+// ========================================================
+// Webhook: no auth, no CSRF (2C2P server calls this directly)
+Route::post('/payment/2c2p/webhook', [\App\Http\Controllers\TwoC2PController::class, 'webhook'])
+    ->name('payment.2c2p.webhook')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+// Initiate + Return: requires auth
+Route::middleware('auth')->group(function () {
+    Route::post('/payment/2c2p/{order}/initiate', [\App\Http\Controllers\TwoC2PController::class, 'initiate'])
+        ->name('payment.2c2p.initiate');
+    Route::get('/payment/2c2p/return', [\App\Http\Controllers\TwoC2PController::class, 'return'])
+        ->name('payment.2c2p.return');
 });
 
 require __DIR__.'/auth.php';

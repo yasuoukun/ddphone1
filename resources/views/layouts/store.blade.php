@@ -116,50 +116,35 @@
 
     <!-- Navbar -->
     <nav class="navbar" id="main-navbar">
-        <a href="{{ url('/') }}" class="navbar-brand">
-            <img src="{{ asset('images/logodd.png') }}" alt="DDIT Logo" style="height: 38px; width: auto; object-fit: contain;" onerror="this.style.display='none'">
-            <span>ดีดี.ไอที.คอม</span>
+        <a href="{{ url('/') }}" class="navbar-brand" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+            <img src="{{ asset('images/logoddphone.png') }}" alt="DDPHONE Logo" style="height: 44px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));" onerror="this.src='{{ asset('logoddphone.png') }}'">
+            <span style="font-size: 1.2rem; font-weight: 900; color: #FFFFFF; letter-spacing: 0.5px;">DDPHONE ดีดีโฟน</span>
         </a>
         <!-- Search Bar -->
-        <form action="{{ route('products.index') }}" method="GET" style="margin: 0 0.5rem; display: flex; align-items: center; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 12px; width: 210px; max-width: 100%; flex-shrink: 0;">
-            <input type="text" name="q" value="{{ request('q') }}" placeholder="ค้นหา iPad, Mac..." style="background: none; border: none; outline: none; color: white; width: 100%; font-family: 'Prompt', sans-serif; font-size: 0.82rem;">
-            <button type="submit" style="background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; padding: 2px 0 2px 6px;">
+        <form action="{{ route('products.index') }}" method="GET" style="margin: 0 0.5rem; display: flex; align-items: center; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 12px; width: 220px; max-width: 100%; flex-shrink: 0;">
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="ค้นหามือถือ iPhone, iPad มือสอง..." style="background: none; border: none; outline: none; color: white; width: 100%; font-family: 'Prompt', sans-serif; font-size: 0.82rem;">
+            <button type="submit" style="background: none; border: none; color: #FFE600; cursor: pointer; padding: 2px 0 2px 6px;">
                 <i class="fa-solid fa-magnifying-glass" style="font-size: 0.85rem;"></i>
             </button>
         </form>
         <div class="navbar-links">
-            <a href="{{ url('/') }}">หน้าแรก</a>
-            <a href="{{ route('about') }}">เกี่ยวกับเรา</a>
-            <a href="{{ route('products.index') }}">สินค้าทั้งหมด</a>
-            <a href="{{ route('promotions.index') }}">โปรโมชันพิเศษ</a>
+            <a href="{{ url('/') }}" class="nav-clean-link {{ request()->is('/') ? 'active-nav-tab' : '' }}" {!! request()->is('/') ? 'style="background: #FFE600 !important; color: #0F172A !important; font-weight: 900 !important;"' : '' !!}>หน้าแรก</a>
+            <a href="{{ route('products.index') }}" class="nav-clean-link {{ request()->routeIs('products.*') ? 'active-nav-tab' : '' }}" {!! request()->routeIs('products.*') ? 'style="background: #FFE600 !important; color: #0F172A !important; font-weight: 900 !important;"' : '' !!}>📱 มือถือมือสองทั้งหมด</a>
+            <a href="{{ route('promotions.index') }}" class="nav-clean-link {{ request()->routeIs('promotions.*') ? 'active-nav-tab' : '' }}" {!! request()->routeIs('promotions.*') ? 'style="background: #FFE600 !important; color: #0F172A !important; font-weight: 900 !important;"' : '' !!}>🔥 โปรเด็ดมือสอง</a>
             
-            <!-- Services Dropdown -->
+            <!-- Service & Warranty Dropdown -->
             <div class="navbar-item-dropdown">
-                <a href="#" class="navbar-dropdown-trigger" onclick="toggleStoreDropdown(this, event)">
-                    บริการ & โซลูชัน <span style="font-size: 0.7rem;">▼</span>
+                <a href="#" class="navbar-dropdown-trigger nav-clean-link {{ (request()->routeIs('service_center') || request()->routeIs('tracking') || request()->routeIs('help_center')) ? 'active-nav-tab' : '' }}" {!! (request()->routeIs('service_center') || request()->routeIs('tracking') || request()->routeIs('help_center')) ? 'style="background: #FFE600 !important; color: #0F172A !important; font-weight: 900 !important;"' : '' !!} onclick="toggleStoreDropdown(this, event)">
+                    🔧 ศูนย์ซ่อม & เคลมประกัน <span style="font-size: 0.65rem;">▼</span>
                 </a>
                 <div class="navbar-dropdown-menu">
-                    <a href="{{ route('services') }}">🛠️ บริการทั้งหมดของเรา</a>
-                    <a href="{{ route('installment') }}">💳 บริการผ่อนชำระ</a>
-                    <a href="{{ route('education') }}">🎓 โซลูชันเพื่อการศึกษา</a>
-                    <a href="{{ route('business') }}">🏢 โซลูชันสำหรับธุรกิจองค์กร</a>
-                </div>
-            </div>
-            
-            <!-- Service Center Dropdown -->
-            <div class="navbar-item-dropdown">
-                <a href="#" class="navbar-dropdown-trigger" onclick="toggleStoreDropdown(this, event)">
-                    ศูนย์ซ่อม & ติดตาม <span style="font-size: 0.7rem;">▼</span>
-                </a>
-                <div class="navbar-dropdown-menu">
-                    <a href="{{ route('service_center') }}">🔧 ส่งซ่อม/เคลมออนไลน์</a>
-                    <a href="{{ route('tracking') }}">📦 ติดตามสถานะงาน</a>
-                    <a href="{{ route('help_center') }}">❓ ศูนย์ช่วยเหลือ & FAQ</a>
+                    <a href="{{ route('service_center') }}" class="dropdown-item-equal">🔧 ส่งซ่อม/เคลมประกัน</a>
+                    <a href="{{ route('tracking') }}" class="dropdown-item-equal">📦 ติดตามสถานะงานซ่อม</a>
+                    <a href="{{ route('help_center') }}" class="dropdown-item-equal">❓ ศูนย์ช่วยเหลือ & FAQ</a>
                 </div>
             </div>
 
-            <a href="{{ route('categoryblog') }}">ข่าวสารและกิจกรรม</a>
-            <a href="{{ route('quotation.generate') }}">📄 ขอใบเสนอราคา</a>
+            <a href="{{ route('categoryblog') }}" class="nav-clean-link {{ (request()->routeIs('categoryblog') || request()->routeIs('blog.*') || request()->routeIs('articles.*')) ? 'active-nav-tab' : '' }}" {!! (request()->routeIs('categoryblog') || request()->routeIs('blog.*') || request()->routeIs('articles.*')) ? 'style="background: #FFE600 !important; color: #0F172A !important; font-weight: 900 !important;"' : '' !!}>📰 บทความ & รีวิว</a>
         </div>
         
         <!-- Mobile Actions -->

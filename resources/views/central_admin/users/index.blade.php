@@ -32,32 +32,19 @@
             </div>
             @endif
 
-            <!-- Search & Filter Bar -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
-                <form action="{{ route('central_admin.users.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-center">
-                    <div class="relative flex-grow w-full">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" name="q" value="{{ request('q') }}" placeholder="ค้นหาชื่อ, อีเมล หรือเบอร์โทรศัพท์..." 
-                               class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-medium">
-                    </div>
-                    
-                    <select name="role" onchange="this.form.submit()" class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 text-sm font-semibold bg-white min-w-[160px]">
-                        <option value="all" {{ request('role') == 'all' ? 'selected' : '' }}>👥 ทุกสิทธิ์ใช้งาน</option>
-                        <option value="customer" {{ request('role') == 'customer' ? 'selected' : '' }}>👤 ลูกค้าทั่วไป (Customer)</option>
-                        <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>🛠️ แอดมินร้าน (Admin)</option>
-                        <option value="super_admin" {{ request('role') == 'super_admin' ? 'selected' : '' }}>👑 แอดมินกลาง (Super Admin)</option>
-                    </select>
-
-                    <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition shadow-sm">
-                        ค้นหา
-                    </button>
-                </form>
-            </div>
+            <x-real-time-filter table-id="usersTable" placeholder="ค้นหาชื่อ, อีเมล หรือเบอร์โทร..." count-label="สมาชิก">
+                <select id="rtf-usersTable-role" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[180px]">
+                    <option value="all">👥 ทุกสิทธิ์</option>
+                    <option value="customer">👤 ลูกค้า (Customer)</option>
+                    <option value="admin">🛠️ แอดมินร้าน (Admin)</option>
+                    <option value="super_admin">👑 Super Admin</option>
+                </select>
+            </x-real-time-filter>
 
             <!-- Users Table -->
             <div class="bg-white overflow-hidden shadow-sm rounded-3xl border border-gray-100">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table id="usersTable" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-gray-100 text-slate-500 text-xs font-semibold uppercase bg-slate-50/80">
                                 <th class="py-4 px-4 text-center rounded-tl-xl">ผู้ใช้</th>
@@ -70,7 +57,9 @@
                         </thead>
                         <tbody class="divide-y divide-gray-50">
                             @forelse($users as $user)
-                            <tr class="hover:bg-slate-50/50 transition-colors">
+                            <tr class="hover:bg-slate-50/50 transition-colors"
+                                data-searchable="{{ strtolower($user->name . ' ' . $user->email . ' ' . ($user->phone ?? '')) }}"
+                                data-filter-role="{{ $user->role }}">
                                 <td class="py-4 px-4 flex justify-center">
                                     <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-12 h-12 rounded-full object-cover border-2 border-gray-100 shadow-sm">
                                 </td>

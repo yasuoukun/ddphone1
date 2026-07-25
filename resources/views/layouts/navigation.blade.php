@@ -2,15 +2,16 @@
     $pendingOrdersCount = 0;
     $unreadMessagesCount = 0;
 @endphp
-<nav x-data="{ open: false }" class="bg-[#1B2A47] border-b border-[#2A3B5C] shadow-md transition-all duration-300">
+<nav x-data="{ open: false }" class="bg-[#0F172A] border-b border-[#FFE600]/20 shadow-lg transition-all duration-300">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex items-center">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center mr-6">
-                    <a href="{{ route('home') }}" class="font-extrabold text-white text-xl tracking-wider hover:scale-105 transition-transform duration-200">
-                        ดีดี.ไอที.คอม
+                    <a href="{{ route('home') }}" class="flex items-center gap-2 hover:scale-105 transition-transform duration-200">
+                        <img src="{{ asset('images/logoddphone.png') }}" alt="DDPHONE Logo" class="h-10 w-auto object-contain" onerror="this.src='{{ asset('logoddphone.png') }}'">
+                        <span class="font-black text-[#FFE600] text-lg tracking-wider">DDPHONE</span>
                     </a>
                 </div>
 

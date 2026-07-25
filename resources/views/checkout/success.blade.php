@@ -30,7 +30,7 @@
         <!-- Render Styled Fake QR code -->
         <div style="background: white; border: 1px solid var(--color-silver); padding: 1rem; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 1rem;">
             <div style="width: 200px; height: 200px; background: linear-gradient(45deg, #003664 25%, #fff 25%, #fff 50%, #003664 50%, #003664 75%, #fff 75%, #fff 100%); background-size: 20px 20px; border: 10px solid #003664; display: flex; align-items: center; justify-content: center; position: relative;">
-                <div style="background: white; padding: 5px; border-radius: 4px; border: 2px solid #003664; font-weight: 700; font-size: 0.75rem; color: #003664;">ดีดี.ไอที.คอม</div>
+                <div style="background: white; padding: 5px; border-radius: 4px; border: 2px solid #070D1B; font-weight: 800; font-size: 0.75rem; color: #070D1B;">DDPHONE ดีดีโฟน</div>
             </div>
         </div>
 

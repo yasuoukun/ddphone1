@@ -6,7 +6,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-8 bg-gray-50/50 min-h-screen" x-data="{ search: '', statusFilter: 'all' }">
+    <div class="py-8 bg-gray-50/50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             @if(session('success'))
@@ -16,14 +16,8 @@
             </div>
             @endif
 
-            <!-- Search & Filter Bar -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6 flex flex-col md:flex-row gap-4 items-center">
-                <div class="relative flex-grow w-full md:w-auto">
-                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" x-model="search" placeholder="ค้นหาตามชื่อลูกค้า รหัสเคลม หรืออุปกรณ์..." 
-                           class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-medium">
-                </div>
-                <select x-model="statusFilter" class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[180px]">
+            <x-real-time-filter table-id="claimsTable" placeholder="ค้นหาชื่อลูกค้า รหัสเคลม อุปกรณ์..." count-label="รายการเคลม">
+                <select id="rtf-claimsTable-status" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[180px]">
                     <option value="all">📋 ทุกสถานะ</option>
                     <option value="pending">⏳ ได้รับแจ้งเรื่อง</option>
                     <option value="received">📦 ได้รับเครื่องแล้ว</option>
@@ -31,12 +25,17 @@
                     <option value="completed">✅ เสร็จสิ้นส่งคืน</option>
                     <option value="cancelled">❌ ยกเลิก</option>
                 </select>
-            </div>
+                <select id="rtf-claimsTable-claimtype" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[180px]">
+                    <option value="all">🔧 ทุกประเภทงาน</option>
+                    <option value="warranty">🛡️ เคลมประกันศูนย์</option>
+                    <option value="repair">🔧 ส่งซ่อมทั่วไป</option>
+                    <option value="service">⚙️ ตั้งค่า/ลงโปรแกรม</option>
+                </select>
+            </x-real-time-filter>
 
-            <!-- Claims Table -->
             <div class="bg-white overflow-hidden shadow-sm rounded-3xl border border-gray-100">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table id="claimsTable" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-gray-100 text-slate-500 text-xs font-semibold uppercase bg-slate-50/80">
                                 <th class="py-4 px-5 rounded-tl-xl">รหัสเคลม</th>
@@ -51,18 +50,15 @@
                         <tbody class="divide-y divide-gray-50">
                             @forelse($claims as $claim)
                             <tr class="hover:bg-indigo-50/30 transition-colors"
-                                x-show="(statusFilter === 'all' || '{{ $claim->status }}' === statusFilter) && (search === '' || '{{ strtolower($claim->customer_name) }}'.includes(search.toLowerCase()) || '{{ strtolower($claim->id) }}'.includes(search.toLowerCase()) || '{{ strtolower($claim->device_name) }}'.includes(search.toLowerCase()))"
-                                x-cloak>
-                                <td class="py-4 px-5 font-bold text-slate-800 text-sm">
-                                    {{ $claim->id }}
-                                </td>
+                                data-searchable="{{ strtolower($claim->customer_name . ' ' . $claim->customer_phone . ' ' . $claim->device_name . ' ' . $claim->id) }}"
+                                data-filter-status="{{ $claim->status }}"
+                                data-filter-claimtype="{{ $claim->claim_type }}">
+                                <td class="py-4 px-5 font-bold text-slate-800 text-sm">{{ $claim->id }}</td>
                                 <td class="py-4 px-5 text-sm">
                                     <div class="font-semibold text-slate-800">{{ $claim->customer_name }}</div>
                                     <div class="text-xs text-slate-400"><i class="fa-solid fa-phone text-[10px]"></i> {{ $claim->customer_phone }}</div>
                                 </td>
-                                <td class="py-4 px-5 text-sm font-medium text-slate-700">
-                                    {{ $claim->device_name }}
-                                </td>
+                                <td class="py-4 px-5 text-sm font-medium text-slate-700">{{ $claim->device_name }}</td>
                                 <td class="py-4 px-5 text-sm">
                                     @if($claim->claim_type === 'warranty')
                                         <span class="text-emerald-600 font-semibold">🛡️ เคลมประกันศูนย์</span>
@@ -83,13 +79,9 @@
                                         ];
                                         $st = $statusMap[$claim->status] ?? ['ไม่ทราบ', 'bg-gray-100 text-gray-600'];
                                     @endphp
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold {{ $st[1] }}">
-                                        {{ $st[0] }}
-                                    </span>
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold {{ $st[1] }}">{{ $st[0] }}</span>
                                 </td>
-                                <td class="py-4 px-5 text-sm text-slate-500">
-                                    {{ $claim->created_at->format('d/m/Y H:i') }}
-                                </td>
+                                <td class="py-4 px-5 text-sm text-slate-500">{{ $claim->created_at->format('d/m/Y H:i') }}</td>
                                 <td class="py-4 px-5 text-center">
                                     <a href="{{ route('admin.claims.show', $claim->id) }}" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition">
                                         <i class="fa-solid fa-edit"></i> อัปเดตสถานะ
@@ -97,22 +89,14 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr>
-                                <td colspan="7" class="py-16 text-center text-slate-400">
-                                    <i class="fa-solid fa-inbox text-4xl mb-3 block"></i>
-                                    ยังไม่มีคำขอเคลมหรือส่งซ่อมในระบบ
-                                </td>
-                            </tr>
+                            <tr><td colspan="7" class="py-16 text-center text-slate-400"><i class="fa-solid fa-inbox text-4xl mb-3 block"></i>ยังไม่มีคำขอเคลมหรือส่งซ่อมในระบบ</td></tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
-            
-            <div class="mt-4">
-                {{ $claims->links() }}
-            </div>
 
+            <div class="mt-4">{{ $claims->links() }}</div>
         </div>
     </div>
 </x-app-layout>

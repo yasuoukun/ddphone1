@@ -13,7 +13,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-8 bg-gray-50/50 min-h-screen" x-data="{ search: '', brandFilter: 'all', categoryFilter: 'all' }">
+    <div class="py-8 bg-gray-50/50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             @if(session('success'))
@@ -23,31 +23,31 @@
             </div>
             @endif
 
-            <!-- Search & Filter Bar -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6 flex flex-col md:flex-row gap-4 items-center">
-                <div class="relative flex-grow w-full md:w-auto">
-                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" x-model="search" placeholder="ค้นหาชื่อสินค้า, SKU หรือรหัส ID..." 
-                           class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-medium">
-                </div>
-                <select x-model="categoryFilter" class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[160px]">
+            <x-real-time-filter table-id="productsTable" placeholder="ค้นหาชื่อสินค้า, SKU หรือรหัส ID..." count-label="สินค้า">
+                <select id="rtf-productsTable-category" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[160px]">
                     <option value="all">📁 ทุกหมวดหมู่</option>
                     @foreach(\App\Models\Category::all() as $cat)
                         <option value="{{ $cat->name }}">{{ $cat->name }}</option>
                     @endforeach
                 </select>
-                <select x-model="brandFilter" class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[140px]">
+                <select id="rtf-productsTable-brand" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[140px]">
                     <option value="all">🏷️ ทุกแบรนด์</option>
                     @foreach(\App\Models\Brand::all() as $brand)
                         <option value="{{ $brand->name }}">{{ $brand->name }}</option>
                     @endforeach
                 </select>
-            </div>
+                <select id="rtf-productsTable-stock" class="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-semibold bg-white min-w-[140px]">
+                    <option value="all">📦 ทุกสถานะสต็อก</option>
+                    <option value="instock">✅ มีสต็อก</option>
+                    <option value="low">⚠️ ใกล้หมด</option>
+                    <option value="outofstock">❌ หมดสต็อก</option>
+                </select>
+            </x-real-time-filter>
 
             <!-- Products Table -->
             <div class="bg-white overflow-hidden shadow-sm rounded-3xl border border-gray-100">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table id="productsTable" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-gray-100 text-slate-500 text-xs font-semibold uppercase bg-slate-50/80">
                                 <th class="py-4 px-4 text-center rounded-tl-xl">รูปภาพ</th>
@@ -61,9 +61,14 @@
                         </thead>
                         <tbody class="divide-y divide-gray-50">
                             @forelse($products as $product)
+                            @php
+                                $stockStatus = $product->stock > 5 ? 'instock' : ($product->stock > 0 ? 'low' : 'outofstock');
+                            @endphp
                             <tr class="hover:bg-indigo-50/30 transition-colors"
-                                x-show="(search === '' || '{{ strtolower($product->name) }}'.includes(search.toLowerCase()) || '{{ strtolower($product->id) }}'.includes(search.toLowerCase()) || '{{ strtolower($product->sku) }}'.includes(search.toLowerCase())) && (categoryFilter === 'all' || '{{ $product->category->name ?? '' }}' === categoryFilter) && (brandFilter === 'all' || '{{ $product->brand->name ?? '' }}' === brandFilter)"
-                                x-cloak>
+                                data-searchable="{{ strtolower($product->name . ' ' . $product->sku . ' ' . $product->id . ' ' . ($product->category->name ?? '') . ' ' . ($product->brand->name ?? '')) }}"
+                                data-filter-category="{{ $product->category->name ?? '' }}"
+                                data-filter-brand="{{ $product->brand->name ?? '' }}"
+                                data-filter-stock="{{ $stockStatus }}">
                                 <td class="py-4 px-4 flex justify-center">
                                     @if($product->images->where('is_primary', true)->first())
                                         @php $primaryImgPath = $product->images->where('is_primary', true)->first()->image_path; @endphp
@@ -142,6 +147,7 @@
                     </table>
                 </div>
             </div>
+            <div class="mt-4">{{ $products->links() }}</div>
         </div>
     </div>
 </x-app-layout>

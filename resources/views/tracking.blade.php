@@ -1,30 +1,30 @@
 @extends('layouts.store')
 
 @section('content')
-<div class="container" style="max-width: 700px; margin: 0 auto; padding: 3rem 1rem;">
+<div class="container" style="max-width: 750px; margin: 0 auto; padding: 3rem 1rem;">
     <!-- Premium Header -->
-    <div style="text-align: center; margin-bottom: 3rem;">
-        <span style="background: rgba(27, 42, 71, 0.08); color: var(--color-navy); font-size: 0.9rem; font-weight: 600; padding: 6px 16px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">Tracking System</span>
-        <h1 style="font-size: 2.5rem; font-weight: 700; color: var(--color-navy-dark); margin: 10px 0 15px; font-family: 'Prompt', sans-serif;">ติดตามออเดอร์ / สถานะเคลม</h1>
-        <p style="color: var(--color-grey); max-width: 600px; margin: 0 auto; font-size: 1.05rem; line-height: 1.6;">กรอกรหัสออเดอร์ หรือรหัสใบเคลมเพื่อติดตามสถานะการดำเนินงานของเจ้าหน้าที่</p>
+    <div style="text-align: center; margin-bottom: 3.5rem;">
+        <span class="badge-yellow-fun bounce-fun" style="margin-bottom: 0.75rem;">LIVE TRACKING SYSTEM</span>
+        <h1 style="font-size: 2.3rem; font-weight: 900; color: var(--color-navy-dark); margin: 0.5rem 0 10px; font-family: 'Prompt', sans-serif;">📦 ติดตามออเดอร์ / สถานะเคลมประกัน 30 วัน</h1>
+        <p style="color: #64748b; max-width: 600px; margin: 0 auto; font-size: 1.05rem; line-height: 1.6;">กรอกรหัสออเดอร์ หรือรหัสใบเคลมเพื่อติดตามสถานะพัสดุและการดำเนินงานได้ตลอด 24 ชม.</p>
     </div>
 
     <!-- Search Form Box -->
-    <div style="background: white; border: 1px solid var(--color-silver); border-radius: 16px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 2.5rem;">
+    <div class="card-fun-hover" style="background: white; border: 2px solid #E2E8F0; border-radius: 22px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 2.5rem;">
         <form action="{{ route('tracking') }}" method="GET">
-            <div style="display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;">
-                <label style="cursor: pointer; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: 1px solid {{ ($type ?? 'order') === 'order' ? 'var(--color-navy)' : 'var(--color-silver)' }}; background: {{ ($type ?? 'order') === 'order' ? 'rgba(27,42,71,0.02)' : 'transparent' }};">
-                    <input type="radio" name="type" value="order" {{ ($type ?? 'order') === 'order' ? 'checked' : '' }} onchange="this.form.submit()"> 📦 ติดตามออเดอร์
+            <div style="display: flex; gap: 12px; margin-bottom: 18px; justify-content: center; flex-wrap: wrap;">
+                <label style="cursor: pointer; font-weight: 800; padding: 10px 18px; border-radius: 12px; border: 2px solid {{ ($type ?? 'order') === 'order' ? '#FFE600' : '#E2E8F0' }}; background: {{ ($type ?? 'order') === 'order' ? '#070D1B' : 'white' }}; color: {{ ($type ?? 'order') === 'order' ? '#FFE600' : '#475569' }};">
+                    <input type="radio" name="type" value="order" {{ ($type ?? 'order') === 'order' ? 'checked' : '' }} onchange="this.form.submit()"> 📦 ติดตามออเดอร์สินค้า
                 </label>
-                <label style="cursor: pointer; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: 1px solid {{ ($type ?? 'order') === 'claim' ? 'var(--color-navy)' : 'var(--color-silver)' }}; background: {{ ($type ?? 'order') === 'claim' ? 'rgba(27,42,71,0.02)' : 'transparent' }};">
+                <label style="cursor: pointer; font-weight: 800; padding: 10px 18px; border-radius: 12px; border: 2px solid {{ ($type ?? 'order') === 'claim' ? '#FFE600' : '#E2E8F0' }}; background: {{ ($type ?? 'order') === 'claim' ? '#070D1B' : 'white' }}; color: {{ ($type ?? 'order') === 'claim' ? '#FFE600' : '#475569' }};">
                     <input type="radio" name="type" value="claim" {{ ($type ?? 'order') === 'claim' ? 'checked' : '' }} onchange="this.form.submit()"> 🔧 ติดตามงานซ่อม/เคลม
                 </label>
             </div>
 
-            <div style="display: flex; gap: 8px;">
-                <input type="text" name="q" value="{{ $q ?? '' }}" required placeholder="{{ ($type ?? 'order') === 'claim' ? 'ระบุรหัสใบเคลม เช่น CLM-XXXXXX' : 'ระบุรหัสออเดอร์ เช่น ORD-XXXXXX' }}" style="flex: 1; padding: 12px; border: 1px solid var(--color-silver); border-radius: 8px; outline: none;" onfocus="this.style.borderColor='var(--color-navy)'" onblur="this.style.borderColor='var(--color-silver)'">
-                <button type="submit" style="background: var(--color-navy-dark); color: white; border: none; padding: 0 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='var(--color-navy)'" onmouseout="this.style.background='var(--color-navy-dark)'">
-                    ค้นหา
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" name="q" value="{{ $q ?? '' }}" required placeholder="{{ ($type ?? 'order') === 'claim' ? 'ระบุรหัสใบเคลม เช่น CLM-XXXXXX' : 'ระบุรหัสออเดอร์ เช่น ORD-XXXXXX' }}" style="flex: 1 1 240px; padding: 12px 16px; border: 2px solid #FFE600; border-radius: 14px; outline: none; font-size: 0.95rem; font-weight: 600;" onfocus="this.style.borderColor='#FF5722'" onblur="this.style.borderColor='#FFE600'">
+                <button type="submit" class="btn-capsule-yellow">
+                    ค้นหา <span class="circle-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                 </button>
             </div>
         </form>
@@ -93,7 +93,7 @@
                     <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 12px; padding: 1.2rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <span style="color: #92400E; font-size: 0.9rem; font-weight: 600; display: block;">💰 ค่าซ่อมประเมินเบื้องต้น:</span>
-                            <span style="color: #B45309; font-size: 0.8rem;">(ประเมินโดยทีมช่าง ดีดี.ไอที.คอม)</span>
+                            <span style="color: #B45309; font-size: 0.8rem;">(ประเมินโดยทีมช่าง DDPHONE ดีดีโฟน)</span>
                         </div>
                         <strong style="color: #D97706; font-size: 1.4rem; font-weight: 800;">฿{{ number_format($result->estimated_cost, 2) }}</strong>
                     </div>
