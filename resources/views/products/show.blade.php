@@ -1,139 +1,198 @@
 @extends('layouts.store')
 
 @section('content')
-<div class="container" style="padding: 3rem 1rem; max-width: 1200px; margin: 0 auto;">
+<style>
+    .custom-file-upload-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #0F172A;
+        color: #FFE600;
+        padding: 10px 20px;
+        border-radius: 99px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+    .custom-file-upload-label:hover {
+        background: #1E293B;
+        transform: translateY(-2px);
+    }
+    .review-card-item {
+        background: #FAFAFA;
+        border: 1.5px solid #E2E8F0;
+        border-radius: 18px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+        transition: all 0.2s;
+    }
+    .review-card-item:hover {
+        background: white;
+        border-color: #0F172A;
+        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+    }
+</style>
+
+<div class="container fade-in" style="padding: 2.5rem 1rem; max-width: 1200px; margin: 0 auto;">
     
-    <!-- Back button -->
-    <a href="{{ route('products.index') }}" style="display: inline-flex; align-items: center; gap: 8px; color: var(--color-navy); text-decoration: none; font-weight: 600; margin-bottom: 2rem; transition: color 0.2s;" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-navy)'">
+    <!-- Back Button -->
+    <a href="{{ route('products.index') }}" style="display: inline-flex; align-items: center; gap: 8px; color: #0F172A; text-decoration: none; font-weight: 800; margin-bottom: 2rem; font-size: 0.92rem; background: white; padding: 8px 18px; border-radius: 99px; border: 1.5px solid #E2E8F0; box-shadow: 0 2px 8px rgba(15,23,42,0.04);" onmouseover="this.style.background='#0F172A'; this.style.color='#FFE600';" onmouseout="this.style.background='white'; this.style.color='#0F172A';">
         ← กลับไปหน้าสินค้าทั้งหมด
     </a>
 
-    <!-- Product Main Details Card -->
-    <div style="background: white; border: 1px solid var(--color-silver); border-radius: 16px; padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 4rem;">
+    <!-- Product Main Details Grid Card -->
+    <div style="background: white; border: 2px solid #E2E8F0; border-radius: 24px; padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; box-shadow: 0 6px 25px rgba(15,23,42,0.04); margin-bottom: 3.5rem;">
         
-        <!-- Left Column: Product Image Gallery -->
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--color-grey-bg); border-radius: 12px; padding: 2rem; border: 1px solid var(--color-silver-light);">
-            @if($product->images->where('is_primary', true)->first())
+        <!-- Left Column: Product Image Showcase -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Main Large Image Container (Fixed Aspect Ratio & Height to Prevent Layout Shift) -->
+            <div class="product-main-image-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #F8FAFC; border-radius: 20px; padding: 1rem; border: 1.5px solid #E2E8F0; position: relative; width: 100%; aspect-ratio: 1/1; max-height: 420px; overflow: hidden; box-sizing: border-box;">
+                <span style="position: absolute; top: 15px; left: 15px; background: #FFE600; color: #0F172A; font-weight: 900; font-size: 0.75rem; padding: 4px 12px; border-radius: 99px; border: 1px solid #EAB308; z-index: 5;">
+                    GRADE A+ GUARANTEED
+                </span>
+
                 @php
-                    $imgPath = $product->images->where('is_primary', true)->first()->image_path;
+                    $primaryImg = $product->images->where('is_primary', true)->first() ?? $product->images->first();
                 @endphp
-                @if(str_starts_with($imgPath, 'http'))
-                    <img src="{{ $imgPath }}" alt="{{ $product->name }}" style="max-width: 100%; max-height: 400px; object-fit: contain;">
+
+                @if($primaryImg)
+                    @php
+                        $mainSrc = str_starts_with($primaryImg->image_path, 'http') 
+                            ? $primaryImg->image_path 
+                            : '/media/' . ltrim(str_replace(['public/', 'storage/'], '', $primaryImg->image_path), '/');
+                    @endphp
+                    <img id="main-product-img-display" src="{{ $mainSrc }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(15,23,42,0.12)); cursor: pointer; transition: transform 0.3s ease;" title="คลิกเพื่อดูรูปขนาดเต็ม" onclick="openImageModal(this.src)">
                 @else
-                    <img src="{{ Storage::url($imgPath) }}" alt="{{ $product->name }}" style="max-width: 100%; max-height: 400px; object-fit: contain;">
+                    <div style="width: 100%; height: 100%; background: #E2E8F0; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #64748B; font-size: 3rem;">📱</div>
                 @endif
-            @else
-                <div style="width: 100%; height: 350px; background: #eee; display: flex; align-items: center; justify-content: center; color: #999; font-size: 3rem;">📱</div>
+            </div>
+
+            <!-- Gallery Thumbnails (Other Uploaded Images) -->
+            @if($product->images && $product->images->count() > 1)
+            <div style="display: flex; gap: 12px; overflow-x: auto; padding: 6px 2px; scrollbar-width: thin;">
+                @foreach($product->images as $imgIdx => $img)
+                    @php
+                        $imgUrl = str_starts_with($img->image_path, 'http') 
+                            ? $img->image_path 
+                            : '/media/' . ltrim(str_replace(['public/', 'storage/'], '', $img->image_path), '/');
+                        $isActive = ($primaryImg && $primaryImg->id === $img->id);
+                    @endphp
+                    <div class="product-gallery-thumb {{ $isActive ? 'active-thumb' : '' }}" onclick="changeMainImage('{{ $imgUrl }}', this)" style="width: 76px; height: 76px; border-radius: 14px; border: 2.5px solid {{ $isActive ? '#0F172A' : '#E2E8F0' }}; background: white; padding: 4px; cursor: pointer; flex-shrink: 0; transition: all 0.2s; box-shadow: 0 2px 8px rgba(15,23,42,0.04);">
+                        <img src="{{ $imgUrl }}" alt="Product image {{ $imgIdx + 1 }}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
+                    </div>
+                @endforeach
+            </div>
             @endif
         </div>
 
-        <!-- Right Column: Product Specs -->
+        <!-- Right Column: Product Info & Actions -->
         <div style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <!-- Brand & Category & SKU badges -->
+                <!-- Brand & Category & SKU Badges -->
                 <div style="display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <span style="background: var(--color-silver-light); color: var(--color-navy); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                    <span style="background: #0F172A; color: #FFE600; padding: 4px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 900;">
                         แบรนด์: {{ $product->brand->name ?? 'ทั่วไป' }}
                     </span>
-                    <span style="background: rgba(49, 130, 206, 0.1); color: var(--color-accent); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                    <span style="background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; padding: 4px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 900;">
                         หมวดหมู่: {{ $product->category->name ?? 'ทั่วไป' }}
                     </span>
                     @if($product->sku)
-                    <span style="background: #F1F5F9; color: #475569; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; font-family: monospace;">
+                    <span style="background: #F1F5F9; color: #475569; padding: 4px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 800; font-family: monospace;">
                         SKU: {{ $product->sku }}
                     </span>
                     @endif
                 </div>
 
                 <!-- Product Name -->
-                <h1 style="font-size: 2.2rem; color: var(--color-navy-dark); font-weight: 700; margin: 0 0 1rem; line-height: 1.2;">
+                <h1 style="font-size: 2.1rem; color: #0F172A; font-weight: 900; margin: 0 0 1rem; line-height: 1.25;">
                     {{ $product->name }}
                 </h1>
 
                 <!-- Price and Discount -->
-                <div style="display: flex; align-items: baseline; gap: 15px; margin-bottom: 1.5rem;">
+                <div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 1.5rem;">
                     @if($product->discount_price)
-                        <span style="font-size: 2.2rem; font-weight: 700; color: var(--color-danger);">
+                        <span style="font-size: 2.4rem; font-weight: 900; color: #EF4444;">
                             ฿{{ number_format($product->discount_price, 2) }}
                         </span>
-                        <span style="font-size: 1.2rem; text-decoration: line-through; color: var(--color-grey-light);">
+                        <span style="font-size: 1.25rem; text-decoration: line-through; color: #94A3B8; font-weight: 700;">
                             ฿{{ number_format($product->price, 2) }}
                         </span>
                     @else
-                        <span style="font-size: 2.2rem; font-weight: 700; color: var(--color-accent);">
+                        <span style="font-size: 2.4rem; font-weight: 900; color: #0F172A;">
                             ฿{{ number_format($product->price, 2) }}
                         </span>
                     @endif
                 </div>
 
-                <!-- Installment Preview Widget -->
-                @php
-                    $activePrice = $product->discount_price ?? $product->price;
-                @endphp
-                <div style="background: rgba(27, 42, 71, 0.04); border: 1px solid var(--color-silver); border-radius: 8px; padding: 12px 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
-                    <div style="font-size: 0.9rem; color: var(--color-navy-dark);">
-                        💳 ผ่อนชำระเริ่มต้นเพียง <strong style="color: var(--color-accent); font-size: 1.05rem;">฿{{ number_format(round($activePrice / 10)) }}</strong> / เดือน (10 ด.)
+                <!-- Section 7: Conditional Installment Widget (Shown ONLY IF Admin added installment_details) -->
+                @if(!empty($product->installment_details))
+                <div style="background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 16px; padding: 14px 18px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div style="font-size: 0.92rem; color: #0F172A; font-weight: 800;">
+                        💳 <strong style="color: #2563EB;">รายละเอียดการผ่อนชำระ:</strong> {{ $product->installment_details }}
                     </div>
-                    <a href="{{ route('installment') }}?price={{ $activePrice }}" style="color: var(--color-navy); font-weight: bold; font-size: 0.85rem; text-decoration: underline;">
-                        คำนวณดอกเบี้ย
+                    <a href="{{ route('installment') }}" style="color: #2563EB; font-weight: 900; font-size: 0.85rem; text-decoration: underline;">
+                        คำนวณยอดผ่อน ➔
                     </a>
                 </div>
+                @endif
 
                 <!-- Freebie/Gift Widget -->
                 @if($product->freebie)
-                <div style="background: rgba(229, 62, 62, 0.05); border: 1px dashed var(--color-danger); border-radius: 8px; padding: 12px 15px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.3rem;">🎁</span>
-                    <div style="font-size: 0.9rem; color: var(--color-navy-dark); line-height: 1.4;">
-                        <strong style="color: var(--color-danger);">ของแถมพิเศษ:</strong> {{ $product->freebie }}
+                <div style="background: #FEF2F2; border: 1.5px dashed #EF4444; border-radius: 16px; padding: 14px 18px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 1.4rem;">🎁</span>
+                    <div style="font-size: 0.9rem; color: #0F172A; line-height: 1.4; font-weight: 700;">
+                        <strong style="color: #EF4444; font-weight: 900;">ของแถมพิเศษ:</strong> {{ $product->freebie }}
                     </div>
                 </div>
                 @endif
 
                 <!-- Stock availability -->
-                <p style="font-size: 0.95rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 8px;">
-                    <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ $product->stock > 0 ? 'var(--color-success)' : 'var(--color-danger)' }}; display: inline-block;"></span>
-                    <strong style="color: var(--color-navy-dark);">สถานะ:</strong> 
-                    <span style="color: {{ $product->stock > 0 ? 'var(--color-success)' : 'var(--color-danger)' }}; font-weight: 600;">
-                        {{ $product->stock > 0 ? 'สินค้าพร้อมจำหน่าย (เหลือ '.$product->stock.' เครื่อง)' : 'สินค้าหมดชั่วคราว' }}
+                <p style="font-size: 0.95rem; margin-bottom: 1.75rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 10px; height: 10px; border-radius: 50%; background: {{ $product->stock > 0 ? '#10B981' : '#EF4444' }}; display: inline-block;"></span>
+                    <strong style="color: #0F172A; font-weight: 900;">สถานะสินค้า:</strong> 
+                    <span style="color: {{ $product->stock > 0 ? '#10B981' : '#EF4444' }}; font-weight: 800;">
+                        {{ $product->stock > 0 ? 'สินค้าพร้อมจำหน่าย (คงเหลือ '.$product->stock.' เครื่อง)' : 'สินค้าหมดชั่วคราว' }}
                     </span>
                 </p>
 
                 <!-- Description Section -->
-                <div style="border-top: 1px solid var(--color-silver); padding-top: 1.5rem; margin-bottom: 2rem;">
-                    <h3 style="font-size: 1.15rem; color: var(--color-navy-dark); font-weight: 700; margin-top: 0; margin-bottom: 0.75rem;">
-                        รายละเอียดสินค้า
+                <div style="border-top: 1.5px solid #F1F5F9; padding-top: 1.25rem; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.1rem; color: #0F172A; font-weight: 900; margin-top: 0; margin-bottom: 0.5rem;">
+                        📝 รายละเอียดสินค้าเพิ่มเติม
                     </h3>
-                    <p style="color: var(--color-grey); font-size: 1.05rem; line-height: 1.6; margin: 0; white-space: pre-line;">
+                    <p style="color: #475569; font-size: 0.98rem; line-height: 1.65; margin: 0; white-space: pre-line; font-weight: 600;">
                         {{ $product->description ?? 'ไม่มีข้อมูลรายละเอียดสินค้าเพิ่มเติม' }}
                     </p>
                 </div>
 
                 <!-- Specifications Section -->
                 @if($product->specifications)
-                <div style="border-top: 1px solid var(--color-silver); padding-top: 1.5rem; margin-bottom: 2rem;">
-                    <h3 style="font-size: 1.15rem; color: var(--color-navy-dark); font-weight: 700; margin-top: 0; margin-bottom: 0.75rem;">
-                        สเปกสินค้า (Specifications)
+                <div style="border-top: 1.5px solid #F1F5F9; padding-top: 1.25rem; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.1rem; color: #0F172A; font-weight: 900; margin-top: 0; margin-bottom: 0.5rem;">
+                        ⚙️ สเปกสินค้า (Specifications)
                     </h3>
-                    <p style="color: var(--color-grey); font-size: 1.05rem; line-height: 1.6; margin: 0; white-space: pre-line;">
+                    <p style="color: #475569; font-size: 0.98rem; line-height: 1.65; margin: 0; white-space: pre-line; font-weight: 600;">
                         {{ $product->specifications }}
                     </p>
                 </div>
                 @endif
             </div>
 
-            <!-- Actions Section -->
-            <div style="display: flex; gap: 15px; width: 100%;">
+            <!-- Action Buttons Section -->
+            <div style="display: flex; gap: 14px; width: 100%;">
                 <div style="flex-grow: 1;">
                     @if($product->stock > 0)
                     <form action="{{ route('cart.add', $product->id) }}" method="POST" class="ajax-add-to-cart-form" style="margin: 0;">
                         @csrf
-                        <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-navy-light) 100%); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 10px 20px rgba(27,42,71,0.15); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                            <i class="fa-solid fa-basket-shopping"></i> เพิ่มลงตะกร้าสินค้า
+                        <button type="submit" style="width: 100%; padding: 16px; background: #0F172A; color: #FFE600; border: none; border-radius: 99px; font-weight: 900; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 8px 20px rgba(15,23,42,0.2); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'; this.style.background='#1E293B';" onmouseout="this.style.transform='scale(1)'; this.style.background='#0F172A';">
+                            <i class="fa-solid fa-basket-shopping"></i> <span class="cart-btn-label">เพิ่มลงตะกร้าสินค้า</span>
                         </button>
                     </form>
                     @else
-                    <button disabled style="width: 100%; padding: 16px; background: var(--color-grey-light); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 1.1rem; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 12px;">
-                        สินค้าหมดชั่วคราว
+                    <button disabled style="width: 100%; padding: 16px; background: #94A3B8; color: white; border: none; border-radius: 99px; font-weight: 900; font-size: 1.05rem; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 12px;">
+                        <i class="fa-solid fa-ban"></i> <span class="cart-btn-label">สินค้าหมดชั่วคราว</span>
                     </button>
                     @endif
                 </div>
@@ -143,39 +202,39 @@
                     @php 
                         $isFavorite = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
                     @endphp
-                    <button type="button" onclick="toggleWishlist(this, '{{ $product->id }}')" style="background: white; border: 2px solid var(--color-silver); color: {{ $isFavorite ? 'red' : '#999' }}; padding: 16px; min-width: 60px; height: 56px; border-radius: 12px; cursor: pointer; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.02);" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
-                        {{ $isFavorite ? '❤️' : '🤍' }}
+                    <button type="button" class="wishlist-toggle-btn" data-product-id="{{ $product->id }}" style="background: white; border: 2px solid #E2E8F0; color: {{ $isFavorite ? '#EF4444' : '#94A3B8' }}; width: 56px; height: 56px; border-radius: 50%; cursor: pointer; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.borderColor='#EF4444';" onmouseout="this.style.borderColor='#E2E8F0';">
+                        <i class="fa-{{ $isFavorite ? 'solid' : 'regular' }} fa-heart"></i>
                     </button>
                 </div>
             </div>
 
             <!-- LINE OA Contact Button -->
-            <div style="margin-top: 15px;">
-                <a href="https://line.me/ti/p/@dditcom" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 10px; background-color: #06c755; color: white; padding: 12px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 1rem; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(6,199,85,0.2);" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <i class="fa-brands fa-line" style="font-size: 1.4rem;"></i> สอบถามรายละเอียดเพิ่มเติมผ่าน LINE
+            <div style="margin-top: 14px;">
+                <a href="https://line.me/ti/p/@dditcom" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 10px; background-color: #06c755; color: white; padding: 14px; border-radius: 99px; font-weight: 900; text-decoration: none; font-size: 0.98rem; transition: transform 0.2s; box-shadow: 0 6px 16px rgba(6,199,85,0.25);" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <i class="fa-brands fa-line" style="font-size: 1.4rem;"></i> สอบถามรายละเอียดเพิ่มเติมผ่าน LINE OA
                 </a>
             </div>
         </div>
 
     </div>
 
-    <!-- Product Reviews Section -->
-    <div style="background: white; border: 1px solid var(--color-silver); border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 4rem;">
-        <h2 style="font-size: 1.6rem; color: var(--color-navy-dark); margin-bottom: 1.5rem; font-weight: 700; border-left: 5px solid var(--color-navy); padding-left: 12px;">
-            รีวิวและคะแนนสินค้า ({{ count($product->reviews) }})
+    <!-- Product Reviews Section (Section 7: Beautiful Layout & Custom File Button & Show More Toggle) -->
+    <div style="background: white; border: 2px solid #E2E8F0; border-radius: 24px; padding: 2.5rem; box-shadow: 0 6px 25px rgba(15,23,42,0.04); margin-bottom: 4rem;">
+        <h2 style="font-size: 1.65rem; color: #0F172A; margin-bottom: 1.75rem; font-weight: 900; border-left: 5px solid #0F172A; padding-left: 14px; display: flex; align-items: center; gap: 10px;">
+            ⭐ รีวิวและความคิดเห็นจากผู้ซื้อจริง ({{ count($product->reviews) }})
         </h2>
 
-        <!-- Write a Review (Only if logged in) -->
+        <!-- Write a Review Form (Custom File Button & Star Rating) -->
         @auth
-        <div style="background: var(--color-grey-bg); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; border: 1px dashed var(--color-silver);">
-            <h3 style="font-size: 1.1rem; color: var(--color-navy-dark); font-weight: 700; margin: 0 0 1rem;">✍️ เขียนรีวิวสินค้าของคุณ</h3>
+        <div style="background: #F8FAFC; border-radius: 20px; padding: 2rem; margin-bottom: 2.5rem; border: 2px dashed #CBD5E1;">
+            <h3 style="font-size: 1.15rem; color: #0F172A; font-weight: 900; margin: 0 0 1.25rem;">✍️ เขียนรีวิวให้คะแนนสินค้าของคุณ</h3>
             <form action="{{ route('reviews.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                 
-                <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 15px;">
-                    <label style="font-weight: 600; color: var(--color-navy-dark);">คะแนนความพึงพอใจ:</label>
-                    <div style="display: flex; gap: 5px; font-size: 1.8rem; cursor: pointer; color: #cbd5e0;" id="star-rating-container">
+                <div style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 16px;">
+                    <label style="font-weight: 800; color: #0F172A; font-size: 0.95rem;">ให้คะแนนความพึงพอใจ:</label>
+                    <div style="display: flex; gap: 6px; font-size: 2rem; cursor: pointer; color: #CBD5E1;" id="star-rating-container">
                         <span class="star-item" data-value="1" style="transition: color 0.1s;">★</span>
                         <span class="star-item" data-value="2" style="transition: color 0.1s;">★</span>
                         <span class="star-item" data-value="3" style="transition: color 0.1s;">★</span>
@@ -185,99 +244,228 @@
                     <input type="hidden" name="rating" id="rating-hidden-input" value="5" required>
                 </div>
 
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-navy-dark);">ความคิดเห็นของคุณ:</label>
-                    <textarea name="comment" rows="3" placeholder="ระบุรายละเอียดความคิดเห็นเกี่ยวกับสินค้า..." style="width: 100%; padding: 10px; border: 1px solid var(--color-silver); border-radius: 8px; outline: none;" required></textarea>
-                </div>
-
                 <div style="margin-bottom: 1.25rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.35rem; color: var(--color-navy-dark); font-size: 0.9rem;">📷 แนบรูปภาพ / วิดีโอรีวิวสินค้าประกอบการใช้งาน:</label>
-                    <input type="file" name="media[]" multiple accept="image/*,video/*" style="font-size: 0.85rem; color: var(--color-grey);">
+                    <label style="display: block; font-weight: 800; margin-bottom: 0.5rem; color: #0F172A; font-size: 0.95rem;">รายละเอียดความคิดเห็นของคุณ:</label>
+                    <textarea name="comment" rows="3" placeholder="แบ่งปันประสบการณ์การใช้งานสินค้า สภาพเครื่อง การจัดส่ง และบริการ..." style="width: 100%; padding: 12px 16px; border: 1.5px solid #E2E8F0; border-radius: 14px; outline: none; font-family: inherit; font-weight: 600; color: #0F172A; background: white;" required></textarea>
                 </div>
 
-                <button type="submit" style="background: var(--color-navy); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='var(--color-navy-light)'" onmouseout="this.style.background='var(--color-navy)'">ส่งรีวิว</button>
+                <!-- Custom Styled File Upload & Anonymous Option Button -->
+                <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+                    <div>
+                        <label style="display: block; font-weight: 800; margin-bottom: 0.5rem; color: #0F172A; font-size: 0.95rem;">📷 แนบรูปภาพ / วิดีโอรีวิวสินค้า:</label>
+                        <label class="custom-file-upload-label">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span id="file-upload-status-txt">เลือกไฟล์รูปภาพหรือวิดีโอ...</span>
+                            <input type="file" name="media[]" id="custom-media-input" multiple accept="image/*,video/*" style="display: none;" onchange="updateFileNameDisplay(this)">
+                        </label>
+                    </div>
+
+                    <!-- Modern Styled Toggle Pill / Switch for Anonymous Review -->
+                    <div x-data="{ isAnon: false }" style="align-self: flex-end;">
+                        <label @click="isAnon = !isAnon" 
+                               :class="isAnon ? 'shadow-md' : ''"
+                               :style="isAnon ? 'background: #0F172A; color: #FFFFFF; border-color: #0F172A;' : 'background: #F1F5F9; color: #475569; border-color: #E2E8F0;'"
+                               style="display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; border-radius: 99px; border: 2px solid; cursor: pointer; font-size: 0.86rem; font-weight: 800; user-select: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+                            
+                            <!-- iOS Style Slider Switch -->
+                            <div :style="isAnon ? 'background: #22C55E;' : 'background: #CBD5E1;'" 
+                                 style="position: relative; width: 44px; height: 24px; border-radius: 99px; transition: background-color 0.3s ease; flex-shrink: 0; padding: 2px;">
+                                <div :style="isAnon ? 'transform: translateX(20px); background: #FFFFFF;' : 'transform: translateX(0px); background: #FFFFFF;'" 
+                                     style="width: 20px; height: 20px; border-radius: 50%; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                                    <span x-show="isAnon" style="font-size: 0.7rem; line-height: 1;">🕶️</span>
+                                    <span x-show="!isAnon" style="font-size: 0.65rem; color: #94A3B8; line-height: 1;">👤</span>
+                                </div>
+                            </div>
+
+                            <input type="checkbox" name="is_anonymous" value="1" x-model="isAnon" style="display: none;">
+                            <div style="display: flex; flex-direction: column; line-height: 1.25;">
+                                <span style="font-weight: 900; font-size: 0.88rem; display: flex; align-items: center; gap: 6px;">
+                                    โพสต์รีวิวแบบไม่ระบุตัวตน
+                                    <span x-show="isAnon" style="font-size: 0.68rem; background: #FFE600; color: #0F172A; padding: 1px 6px; border-radius: 4px; font-weight: 900;">เปิดใช้งาน</span>
+                                </span>
+                                <span style="font-size: 0.72rem; opacity: 0.75; font-weight: 600;">ซ่อนชื่อและรูปโปรไฟล์ของคุณจากสาธารณะ</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" style="background: #0F172A; color: #FFE600; border: none; padding: 12px 30px; border-radius: 99px; font-weight: 900; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(15,23,42,0.2);" onmouseover="this.style.background='#1E293B'" onmouseout="this.style.background='#0F172A'">
+                    ส่งรีวิวสินค้า ➔
+                </button>
             </form>
         </div>
         @else
-        <div style="background: #FFF8DC; border: 1px solid #FFE4B5; border-radius: 8px; padding: 1rem; text-align: center; color: #B8860B; font-weight: 500; margin-bottom: 2rem;">
-            🔒 กรุณา <a href="{{ route('login') }}" style="color: #FF4500; text-decoration: underline; font-weight: bold;">เข้าสู่ระบบ</a> เพื่อเขียนรีวิวสินค้าชิ้นนี้
+        <div style="background: #FFFBEB; border: 1.5px solid #FCD34D; border-radius: 16px; padding: 1.25rem; text-align: center; color: #92400E; font-weight: 800; margin-bottom: 2.5rem;">
+            🔒 กรุณา <a href="{{ route('login') }}" style="color: #0F172A; text-decoration: underline; font-weight: 900;">เข้าสู่ระบบ</a> เพื่อเขียนรีวิวสินค้าชิ้นนี้
         </div>
         @endauth
 
-        <!-- Reviews List -->
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-            @forelse($product->reviews as $review)
-            <div style="border-bottom: 1px solid var(--color-silver-light); padding-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <div>
-                        <strong style="color: var(--color-navy-dark); font-size: 1.05rem;">👤 {{ $review->user->name ?? 'ลูกค้าทั่วไป' }}</strong>
-                        <span style="color: var(--color-grey); font-size: 0.85rem; margin-left: 10px;">🕒 {{ $review->created_at->format('d/m/Y H:i') }} น.</span>
+        <!-- Reviews Sorted by Likes Count & Limit 3 Items with Show More Button (Section 7) -->
+        @php
+            $sortedReviews = $product->reviews->sortByDesc('likes_count');
+        @endphp
+
+        <div id="reviews-container-wrapper">
+            @forelse($sortedReviews as $idx => $review)
+            <div class="review-card-item {{ $idx >= 3 ? 'extra-review-item' : '' }}" style="{{ $idx >= 3 ? 'display: none;' : '' }}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        @if($review->is_anonymous)
+                            <!-- Anonymous Avatar -->
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: #64748B; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="ผู้ใช้งานไม่ระบุตัวตน">
+                                🕶️
+                            </div>
+                            <div>
+                                <strong style="color: #0F172A; font-size: 1rem; font-weight: 900;">ผู้ใช้งานไม่ระบุตัวตน</strong>
+                                <span style="color: #64748B; font-size: 0.78rem; margin-left: 8px; font-weight: 700;">🕒 {{ $review->created_at->format('d/m/Y H:i') }} น.</span>
+                            </div>
+                        @else
+                            <!-- User Profile Avatar Image -->
+                            <img src="{{ $review->user ? $review->user->avatar_url : 'https://ui-avatars.com/api/?name=User&color=FFFFFF&background=1B2A47' }}" 
+                                 alt="{{ $review->user->name ?? 'ลูกค้าทั่วไป' }}" 
+                                 style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #0F172A; box-shadow: 0 2px 8px rgba(15,23,42,0.12);"
+                                 onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($review->user->name ?? 'User') }}&color=FFFFFF&background=1B2A47'">
+                            <div>
+                                <strong style="color: #0F172A; font-size: 1rem; font-weight: 900;">{{ $review->user->name ?? 'ลูกค้าทั่วไป' }}</strong>
+                                <span style="color: #64748B; font-size: 0.78rem; margin-left: 8px; font-weight: 700;">🕒 {{ $review->created_at->format('d/m/Y H:i') }} น.</span>
+                            </div>
+                        @endif
                     </div>
-                    <div style="color: #FFD700; font-size: 1.1rem; letter-spacing: 2px;">
+                    
+                    <div style="color: #F59E0B; font-size: 1.1rem; letter-spacing: 2px;">
                         @for($i = 1; $i <= 5; $i++)
                             {{ $i <= $review->rating ? '★' : '☆' }}
                         @endfor
                     </div>
                 </div>
-                <p style="margin: 0 0 10px; color: var(--color-navy-dark); font-size: 1rem; line-height: 1.5;">
+
+                <p style="margin: 0 0 12px; color: #0F172A; font-size: 0.98rem; line-height: 1.6; font-weight: 600;">
                     {{ $review->comment }}
                 </p>
 
-                <!-- Render Review Media -->
+                <!-- Media attachments -->
                 @if(!empty($review->media_paths) && count($review->media_paths) > 0)
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
                     @foreach($review->media_paths as $m)
                         @if(str_contains(strtolower($m), '.mp4') || str_contains(strtolower($m), '.mov'))
-                            <video src="{{ Storage::url($m) }}" controls style="height: 100px; border-radius: 8px; border: 1px solid var(--color-silver);"></video>
+                            <video src="{{ Storage::url($m) }}" controls style="height: 110px; border-radius: 10px; border: 1.5px solid #E2E8F0;"></video>
                         @else
-                            <a href="{{ Storage::url($m) }}" target="_blank">
-                                <img src="{{ Storage::url($m) }}" style="height: 90px; width: 90px; object-fit: cover; border-radius: 8px; border: 1px solid var(--color-silver);">
-                            </a>
+                            <img src="{{ Storage::url($m) }}" onclick="openImageModal(this.src)" style="height: 100px; width: 100px; object-fit: cover; border-radius: 10px; border: 1.5px solid #E2E8F0; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="คลิกเพื่อดูรูปขนาดเต็ม">
                         @endif
                     @endforeach
                 </div>
                 @endif
+
+                <!-- Review Like Button (Section 7) -->
+                @php
+                    $isLikedSession = session()->get('liked_review_' . $review->id, false);
+                @endphp
+                <div style="display: flex; justify-content: flex-end; align-items: center;">
+                    <button type="button" onclick="likeReview(this, '{{ $review->id }}')" 
+                            style="background: {{ $isLikedSession ? '#EFF6FF' : '#F1F5F9' }}; border: 1px solid {{ $isLikedSession ? '#2563EB' : '#CBD5E1' }}; color: {{ $isLikedSession ? '#2563EB' : '#0F172A' }}; padding: 4px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                        👍 ถูกใจรีวิวนี้ (<span class="like-count-num">{{ $review->likes_count ?? 0 }}</span>)
+                    </button>
+                </div>
             </div>
             @empty
-            <p style="color: var(--color-grey); text-align: center; padding: 2rem 0; font-style: italic;">ยังไม่มีรีวิวสำหรับสินค้าชิ้นนี้ มาร่วมเป็นคนแรกที่รีวิวกันเถอะ!</p>
+            <div style="text-align: center; padding: 3rem 1rem; color: #94A3B8; font-weight: 700;">
+                <p style="margin: 0; font-size: 0.95rem;">ยังไม่มีรีวิวสำหรับสินค้าชิ้นนี้ มาร่วมเป็นคนแรกที่เขียนรีวิวกันเถอะ!</p>
+            </div>
             @endforelse
         </div>
+
+        <!-- Show More Reviews Toggle Button (Section 7) -->
+        @if(count($sortedReviews) > 3)
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <button id="toggle-more-reviews-btn" onclick="toggleMoreReviews()" style="background: #0F172A; color: #FFE600; border: none; padding: 12px 32px; border-radius: 99px; font-weight: 900; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 12px rgba(15,23,42,0.15); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+                👇 ดูรีวิวเพิ่มเติมทั้งหมด ({{ count($sortedReviews) - 3 }} รายการ)
+            </button>
+        </div>
+        @endif
     </div>
 
-    <!-- Related Products -->
+    <!-- Related Products Section -->
     @if(count($relatedProducts) > 0)
-    <div>
-        <h2 style="font-size: 1.6rem; color: var(--color-navy-dark); margin-bottom: 1.5rem; font-weight: 700; border-left: 5px solid var(--color-navy); padding-left: 12px;">
-            สินค้าอื่น ๆ ในหมวดหมู่นี้
-        </h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+    <div style="margin-bottom: 2rem;">
+        <div style="border-bottom: 2px solid #E2E8F0; padding-bottom: 0.85rem; margin-bottom: 2rem;">
+            <h2 style="font-size: 1.6rem; color: #0F172A; font-weight: 900; margin: 0;">
+                📱 สินค้าอื่น ๆ ในหมวดหมู่นี้
+            </h2>
+        </div>
+        <div class="product-grid-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px;">
             @foreach($relatedProducts as $rel)
-            <a href="{{ route('products.show', $rel->id) }}" style="text-decoration: none; color: inherit; display: block;">
-                <div style="background: white; border: 1px solid var(--color-silver); border-radius: 12px; overflow: hidden; transition: all 0.3s; display: flex; flex-direction: column; justify-content: space-between; height: 100%;" onmouseover="this.style.boxShadow='0 10px 20px rgba(0,0,0,0.06)'; this.style.transform='translateY(-3px)';" onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)';">
-                    <div style="padding: 1rem; text-align: center;">
-                        @if($rel->images->where('is_primary', true)->first())
-                            @php
-                                $relImg = $rel->images->where('is_primary', true)->first()->image_path;
-                            @endphp
-                            @if(str_starts_with($relImg, 'http'))
-                                <img src="{{ $relImg }}" alt="{{ $rel->name }}" style="max-width: 100%; height: 160px; object-fit: contain;">
-                            @else
-                                <img src="{{ Storage::url($relImg) }}" alt="{{ $rel->name }}" style="max-width: 100%; height: 160px; object-fit: contain;">
-                            @endif
-                        @else
-                            <div style="width: 100%; height: 160px; background: #eee; display: flex; align-items: center; justify-content: center; color: #999;">No Image</div>
-                        @endif
-                    </div>
-                    <div style="padding: 1.25rem; border-top: 1px solid var(--color-silver-light);">
-                        <h4 style="font-size: 1rem; margin: 0 0 0.5rem; color: var(--color-navy-dark); font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-                            {{ $rel->name }}
-                        </h4>
-                        <span style="font-size: 1.1rem; font-weight: 700; color: var(--color-accent);">
-                            ฿{{ number_format($rel->price, 2) }}
+            <div class="card-fun-hover shopee-card-style" style="background: white; border: 1px solid #E2E8F0; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04); position: relative; transition: all 0.2s ease;">
+                
+                <!-- Image Box (Shopee 1:1 Square Ratio) -->
+                <a href="{{ route('products.show', $rel->id) }}" style="text-decoration: none; color: inherit; display: block; position: relative; width: 100%; aspect-ratio: 1/1; background: #F8FAFC; overflow: hidden;">
+                    @if($rel->discount_price)
+                        @php $percent = round((($rel->price - $rel->discount_price) / $rel->price) * 100); @endphp
+                        <span style="position: absolute; top: 6px; left: 6px; z-index: 10; font-size: 10px; font-weight: 900; background: #FF5722; color: white; padding: 2px 7px; border-radius: 4px; box-shadow: 0 2px 6px rgba(255,87,34,0.3);">
+                            -{{ $percent }}%
                         </span>
+                    @endif
+
+                    @if($rel->stock <= 0)
+                        <span style="position: absolute; top: 6px; right: 6px; z-index: 10; font-size: 9px; font-weight: 900; background: #EF4444; color: white; padding: 2px 6px; border-radius: 4px;">หมด</span>
+                    @else
+                        <span style="position: absolute; top: 6px; right: 6px; z-index: 10; font-size: 9px; font-weight: 900; background: #FFE600; color: #0F172A; padding: 2px 6px; border-radius: 4px; border: 1px solid #EAB308;">พร้อมส่ง</span>
+                    @endif
+
+                    @if($rel->primary_image_url)
+                        <img src="{{ $rel->primary_image_url }}" alt="{{ $rel->name }}" style="width: 100%; height: 100%; object-fit: contain; padding: 0.6rem; transition: transform 0.3s ease;">
+                    @else
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                            <i class="fa-solid fa-mobile-screen text-4xl"></i>
+                        </div>
+                    @endif
+                </a>
+                
+                <!-- Details & Pricing Box (Shopee Info Specs) -->
+                <div style="padding: 0.5rem 0.55rem 0.45rem; background: white; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; gap: 3px;">
+                    <a href="{{ route('products.show', $rel->id) }}" style="text-decoration: none; color: inherit;">
+                        <h3 style="font-size: 0.78rem; font-weight: 700; color: #0F172A; margin: 0; min-height: 2.1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;">
+                            {{ $rel->name }}
+                        </h3>
+                    </a>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <div style="display: flex; align-items: baseline; gap: 4px;">
+                            @if($rel->discount_price)
+                                <span style="font-size: 0.98rem; font-weight: 900; color: #FF5722; line-height: 1;">฿{{ number_format($rel->discount_price) }}</span>
+                                <span style="font-size: 0.65rem; text-decoration: line-through; color: #94A3B8; line-height: 1;">฿{{ number_format($rel->price) }}</span>
+                            @else
+                                <span style="font-size: 0.98rem; font-weight: 900; color: #FF5722; line-height: 1;">฿{{ number_format($rel->price) }}</span>
+                            @endif
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                            @php
+                                $avgRating = round($rel->reviews()->avg('rating') ?? 5.0, 1);
+                                $reviewCount = $rel->reviews()->count();
+                            @endphp
+                            <span style="font-size: 0.62rem; color: #64748B; font-weight: 600;">
+                                ⭐ {{ number_format($avgRating, 1) }} <span style="color: #CBD5E1;">|</span> {{ $reviewCount > 0 ? 'รีวิว ' . $reviewCount : 'สินค้าใหม่' }}
+                            </span>
+                            
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                @php 
+                                    $isFav = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $rel->id)->exists();
+                                @endphp
+                                <button type="button" class="wishlist-toggle-btn" data-product-id="{{ $rel->id }}" onclick="animateHeartBtn(this)" title="เพิ่มในสินค้าที่ชอบ" style="background: #F8FAFC; border: 1px solid #E2E8F0; color: {{ $isFav ? '#EF4444' : '#94A3B8' }}; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                                    <i class="fa-{{ $isFav ? 'solid' : 'regular' }} fa-heart"></i>
+                                </button>
+
+                                <form action="{{ route('cart.add', $rel) }}" method="POST" class="ajax-add-to-cart-form" style="margin: 0;">
+                                    @csrf
+                                    <button type="submit" onclick="animateBasketBtn(this)" title="เพิ่มลงตะกร้า" style="background: #FF5722; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; font-weight: 900; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 2px 6px rgba(255, 87, 34, 0.3);">
+                                        <i class="fa-solid fa-basket-shopping"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </a>
+            </div>
             @endforeach
         </div>
     </div>
@@ -286,34 +474,82 @@
 </div>
 
 <script>
-    // AJAX wishlist toggle
-    function toggleWishlist(btn, productId) {
-        if (!{{ auth()->check() ? 'true' : 'false' }}) {
-            window.location.href = "{{ route('login') }}";
-            return;
+    // Switch Main Product Image from Thumbnail Click
+    function changeMainImage(url, thumbEl) {
+        const mainImg = document.getElementById('main-product-img-display');
+        if (mainImg) {
+            mainImg.src = url;
         }
-        
-        fetch(`/wishlist/toggle/${productId}`, {
+        document.querySelectorAll('.product-gallery-thumb').forEach(el => {
+            el.classList.remove('active-thumb');
+            el.style.borderColor = '#E2E8F0';
+        });
+        if (thumbEl) {
+            thumbEl.classList.add('active-thumb');
+            thumbEl.style.borderColor = '#0F172A';
+        }
+    }
+
+    // File Input Label Display Update
+    function updateFileNameDisplay(input) {
+        const txt = document.getElementById('file-upload-status-txt');
+        if (input.files && input.files.length > 0) {
+            txt.innerText = `เลือกแล้ว ${input.files.length} ไฟล์`;
+        } else {
+            txt.innerText = `เลือกไฟล์รูปภาพหรือวิดีโอ...`;
+        }
+    }
+
+    // Toggle More Reviews Display
+    let isReviewsExpanded = false;
+    function toggleMoreReviews() {
+        const extraItems = document.querySelectorAll('.extra-review-item');
+        const btn = document.getElementById('toggle-more-reviews-btn');
+        if (!isReviewsExpanded) {
+            extraItems.forEach(el => el.style.display = 'block');
+            btn.innerText = '👆 ย่อรายการรีวิว';
+            isReviewsExpanded = true;
+        } else {
+            extraItems.forEach(el => el.style.display = 'none');
+            btn.innerText = '👇 ดูรีวิวเพิ่มเติมทั้งหมด';
+            isReviewsExpanded = false;
+        }
+    }
+
+    // Secure Like Review Function (Server-side validation & Toggle)
+    function likeReview(btn, reviewId) {
+        if (btn.disabled) return;
+        btn.disabled = true;
+
+        fetch('/reviews/' + reviewId + '/like', {
             method: 'POST',
             headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
             if (data.success) {
-                if (data.added) {
-                    btn.innerHTML = '❤️';
-                    btn.style.color = 'red';
+                const numSpan = btn.querySelector('.like-count-num');
+                if (numSpan) numSpan.innerText = data.likes_count;
+
+                if (data.liked) {
+                    btn.style.color = '#2563EB';
+                    btn.style.borderColor = '#2563EB';
+                    btn.style.background = '#EFF6FF';
                 } else {
-                    btn.innerHTML = '🤍';
-                    btn.style.color = '#999';
+                    btn.style.color = '#0F172A';
+                    btn.style.borderColor = '#CBD5E1';
+                    btn.style.background = '#F1F5F9';
                 }
             }
         })
-        .catch(err => console.error(err));
+        .catch(err => console.error('Like review error:', err))
+        .finally(() => {
+            btn.disabled = false;
+        });
     }
 
     // Dynamic Star Rating Interaction
@@ -327,14 +563,13 @@
                 stars.forEach(star => {
                     const starVal = parseInt(star.getAttribute('data-value'));
                     if (starVal <= val) {
-                        star.style.color = '#FFD700'; // Gold
+                        star.style.color = '#F59E0B'; // Gold
                     } else {
-                        star.style.color = '#cbd5e0'; // Grey
+                        star.style.color = '#CBD5E1'; // Grey
                     }
                 });
             }
 
-            // Default to 5 stars
             setStars(5);
 
             stars.forEach(star => {
@@ -356,14 +591,34 @@
             });
         }
     });
-</script>
 
-<style>
-    @media (max-width: 768px) {
-        div[style*="grid-template-columns: 1fr 1fr"] {
-            grid-template-columns: 1fr !important;
-            gap: 2rem !important;
+    // Image Lightbox Modal Functions (Works on Desktop PC & Mobile)
+    function openImageModal(imgSrc) {
+        const modal = document.getElementById('image-lightbox-modal');
+        const modalImg = document.getElementById('lightbox-modal-img');
+        if (modal && modalImg) {
+            modalImg.src = imgSrc;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
         }
     }
-</style>
+
+    function closeImageModal() {
+        const modal = document.getElementById('image-lightbox-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+</script>
+
+<!-- Global Image Lightbox Modal Popup (PC & Mobile Fit) -->
+<div id="image-lightbox-modal" onclick="closeImageModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); z-index: 999999; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box; cursor: zoom-out;">
+    <div style="position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="event.stopPropagation()">
+        <button type="button" onclick="closeImageModal()" style="position: absolute; top: -45px; right: -10px; background: #FFE600; color: #0F172A; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 10;">
+            ✕
+        </button>
+        <img id="lightbox-modal-img" src="" alt="ภาพสินค้าขยายเต็มจอ" style="max-width: 90vw; max-height: 82vh; object-fit: contain; border-radius: 16px; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.5); background: white;">
+    </div>
+</div>
 @endsection

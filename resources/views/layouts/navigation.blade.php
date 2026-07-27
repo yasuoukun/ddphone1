@@ -2,7 +2,7 @@
     $pendingOrdersCount = 0;
     $unreadMessagesCount = 0;
 @endphp
-<nav x-data="{ open: false }" class="bg-[#0F172A] border-b border-[#FFE600]/20 shadow-lg transition-all duration-300">
+<nav x-data="{ open: false }" class="bg-[#0F172A] border-b border-[#FFE600]/20 shadow-lg transition-all duration-300 {{ !request()->routeIs('admin.*') && !request()->routeIs('central_admin.*') && !request()->routeIs('dashboard') ? 'hidden' : '' }}">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -19,12 +19,7 @@
                 <div class="hidden sm:flex sm:items-center">
                     @if(auth()->user()->role !== 'customer')
                         @php
-                            $lastViewedOrdersAt = session('last_viewed_orders_at');
-                            $ordersQuery = \App\Models\Order::where('status', 'pending_verification');
-                            if ($lastViewedOrdersAt) {
-                                $ordersQuery->where('created_at', '>', $lastViewedOrdersAt);
-                            }
-                            $pendingOrdersCount = $ordersQuery->count();
+                            $pendingOrdersCount = \App\Models\Order::whereIn('status', ['pending_verification', 'pending'])->count();
 
                             $unreadMessagesCount = \App\Models\Message::whereNull('receiver_id')
                                 ->where('is_read', false)
@@ -58,7 +53,7 @@
                                          x-transition:enter="transition ease-out duration-100"
                                          x-transition:enter-start="transform opacity-0 scale-95"
                                          x-transition:enter-end="transform opacity-100 scale-100"
-                                         class="absolute left-0 mt-2 w-48 rounded-xl bg-slate-900 border border-slate-700/80 shadow-2xl py-2 z-50"
+                                         class="admin-nav-dropdown-menu absolute left-0 mt-2 w-48 rounded-xl bg-slate-900 border border-slate-700/80 shadow-2xl py-2 z-50"
                                          style="display: none;">
                                         
                                         <a href="{{ route('central_admin.products.create') }}" 
@@ -91,35 +86,28 @@
                                         class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative {{ (request()->routeIs('admin.orders.*') || request()->routeIs('admin.claims.*') || request()->routeIs('admin.quotations.*')) ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md' : 'text-slate-300 hover:bg-[#2A3B5C] hover:text-white' }}">
                                     <i class="fa-solid fa-cart-shopping text-sm"></i>
                                     <span>ขาย & บริการ</span>
-                                    @if($pendingOrdersCount > 0)
-                                        <span class="absolute -top-1 -right-1 bg-rose-600 text-white rounded-full text-[9px] w-4 h-4 flex items-center justify-center font-extrabold shadow-md animate-bounce">
-                                            {{ $pendingOrdersCount }}
-                                        </span>
-                                    @endif
+                                    <span class="nav-order-badge absolute -top-1 -right-1 bg-rose-600 text-white rounded-full text-[9px] w-4 h-4 flex items-center justify-center font-extrabold shadow-md animate-bounce" style="{{ $pendingOrdersCount > 0 ? '' : 'display:none' }}">
+                                        {{ $pendingOrdersCount }}
+                                    </span>
                                     <i class="fa-solid fa-chevron-down text-[9px] transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                                 </button>
                                 <div x-show="open" 
                                      x-transition:enter="transition ease-out duration-100"
                                      x-transition:enter-start="transform opacity-0 scale-95"
                                      x-transition:enter-end="transform opacity-100 scale-100"
-                                     class="absolute left-0 mt-2 w-48 rounded-xl bg-slate-900 border border-slate-700/80 shadow-2xl py-2 z-50"
+                                     class="admin-nav-dropdown-menu absolute left-0 mt-2 w-48 rounded-xl bg-slate-900 border border-slate-700/80 shadow-2xl py-2 z-50"
                                      style="display: none;">
                                     
                                     <a href="{{ route('admin.orders.index') }}" 
                                        class="flex items-center justify-between px-4 py-2 text-xs font-bold transition-all {{ request()->routeIs('admin.orders.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                                         <span class="flex items-center gap-2"><i class="fa-solid fa-receipt w-4"></i> ออเดอร์สั่งซื้อ</span>
-                                        @if($pendingOrdersCount > 0)
-                                            <span class="bg-rose-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">{{ $pendingOrdersCount }}</span>
-                                        @endif
+                                        <span class="nav-order-badge bg-rose-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold" style="{{ $pendingOrdersCount > 0 ? '' : 'display:none' }}">{{ $pendingOrdersCount }}</span>
                                     </a>
                                     <a href="{{ route('admin.claims.index') }}" 
                                        class="flex items-center gap-2 px-4 py-2 text-xs font-bold transition-all {{ request()->routeIs('admin.claims.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                                         <i class="fa-solid fa-wrench w-4"></i> งานซ่อม/เคลม
                                     </a>
-                                    <a href="{{ route('admin.quotations.index') }}" 
-                                       class="flex items-center gap-2 px-4 py-2 text-xs font-bold transition-all {{ request()->routeIs('admin.quotations.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                                        <i class="fa-solid fa-file-invoice-dollar w-4"></i> ใบเสนอราคา
-                                    </a>
+                                    {{-- Quotation link removed --}}
                                 </div>
                             </div>
 
@@ -136,7 +124,7 @@
                                          x-transition:enter="transition ease-out duration-100"
                                          x-transition:enter-start="transform opacity-0 scale-95"
                                          x-transition:enter-end="transform opacity-100 scale-100"
-                                         class="absolute left-0 mt-2 w-48 rounded-xl bg-slate-900 border border-slate-700/80 shadow-2xl py-2 z-50"
+                                         class="admin-nav-dropdown-menu absolute left-0 mt-2 w-48 rounded-xl bg-slate-900 border border-slate-700/80 shadow-2xl py-2 z-50"
                                          style="display: none;">
                                         
                                         <a href="{{ route('central_admin.coupons.index') }}" 
@@ -305,88 +293,241 @@
 
 @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'super_admin'))
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let currentUnreadChats = {{ $unreadMessagesCount }};
-        let currentPendingOrders = {{ $pendingOrdersCount }};
+    if (!window.DDPhoneAudio) {
+        window.DDPhoneAudio = (function() {
+            let ctx = null;
 
-        // Synthesize nice digital chime for admin alerts using Web Audio API
-        function playAdminNotificationSound() {
-            try {
-                let ctx = new (window.AudioContext || window.webkitAudioContext)();
-                let playNote = (frequency, startTime, duration) => {
-                    let osc = ctx.createOscillator();
-                    let gain = ctx.createGain();
-                    
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(frequency, startTime);
-                    
-                    gain.gain.setValueAtTime(0.15, startTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-                    
+            // Get or create AudioContext — NEVER plays any sound
+            function getCtx() {
+                if (!ctx) {
+                    try {
+                        ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    } catch(e) {}
+                }
+                return ctx;
+            }
+
+            // Resume suspended context silently (browser autoplay policy)
+            function ensureRunning() {
+                const c = getCtx();
+                if (c && c.state === 'suspended') {
+                    c.resume().catch(() => {});
+                }
+                return c;
+            }
+
+            // Auto-resume on ANY user gesture (no sound, just resumes context)
+            const _resume = () => { ensureRunning(); };
+            ['click','touchstart','keydown','scroll'].forEach(e =>
+                window.addEventListener(e, _resume, {passive: true})
+            );
+
+            // Play a single oscillator tone — pure WebAudio, no HTML5 audio
+            function playTone(freq, delay, dur, vol) {
+                const c = ensureRunning();
+                if (!c) return;
+                try {
+                    const now = c.currentTime;
+                    const osc  = c.createOscillator();
+                    const gain = c.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + delay);
+                    gain.gain.setValueAtTime(vol, now + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + dur);
                     osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    
-                    osc.start(startTime);
-                    osc.stop(startTime + duration);
-                };
-                
-                let now = ctx.currentTime;
-                playNote(523.25, now, 0.12); // C5
-                playNote(659.25, now + 0.08, 0.12); // E5
-                playNote(783.99, now + 0.16, 0.25); // G5
-            } catch(e) {
-                console.log('Audio playback blocked or failed:', e);
+                    gain.connect(c.destination);
+                    osc.start(now + delay);
+                    osc.stop(now + delay + dur + 0.05);
+                } catch(e) {}
+            }
+
+            return {
+                // Unlock ONLY resumes AudioContext — does NOT play any sound
+                unlock() { ensureRunning(); },
+
+                // Order notification: 4-note ascending chime
+                playNotification() {
+                    playTone(523.25, 0,    0.15, 0.7);
+                    playTone(659.25, 0.18, 0.15, 0.8);
+                    playTone(783.99, 0.36, 0.15, 0.9);
+                    playTone(1046.5, 0.54, 0.25, 1.0);
+                },
+
+                // Chat notification: 2-note short ping
+                playChat() {
+                    playTone(1046.5,  0,    0.12, 0.7);
+                    playTone(1318.51, 0.15, 0.18, 0.8);
+                }
+            };
+        })();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // ─── Initial state from server ────────────────────────────────────────
+        let currentUnreadChats   = {{ $unreadMessagesCount }};
+        let currentPendingOrders = {{ $pendingOrdersCount }};
+        let isInitialPoll        = true;
+
+        // ─── Persist alerted order IDs in sessionStorage (survives page navigation) ──
+        const STORAGE_KEY = 'ddphone_alerted_order_ids';
+        function getAlertedIds() {
+            try { return new Set(JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]')); }
+            catch(e) { return new Set(); }
+        }
+        function saveAlertedId(id) {
+            try {
+                const ids = getAlertedIds();
+                ids.add(id);
+                // Keep only last 50 IDs to avoid storage bloat
+                const arr = [...ids].slice(-50);
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+            } catch(e) {}
+        }
+        function hasAlerted(id) { return getAlertedIds().has(id); }
+
+        // Cooldown timestamp (also persisted so page-change doesn't reset it)
+        function getLastAlertTime() {
+            return parseInt(sessionStorage.getItem('ddphone_last_alert_time') || '0');
+        }
+        function setLastAlertTime() {
+            sessionStorage.setItem('ddphone_last_alert_time', String(Date.now()));
+        }
+
+        // ─── Play sound exactly 3 times then stop (with 900ms gap) ───────────
+        function playOrderSound() {
+            let played = 0;
+            function tick() {
+                if (played >= 3) return;
+                played++;
+                if (window.DDPhoneAudio) window.DDPhoneAudio.playNotification();
+                if (played < 3) setTimeout(tick, 900);
+            }
+            tick();
+        }
+
+        // ─── Inline DOM Toast ─────────────────────────────────────────────────
+        function showToast(emoji, title, text, bgColor, href) {
+            const existing = document.getElementById('ddphone-admin-toast');
+            if (existing) existing.remove();
+
+            if (!document.getElementById('ddToastStyle')) {
+                const st = document.createElement('style');
+                st.id = 'ddToastStyle';
+                st.textContent = `@keyframes ddToastIn{from{transform:translateY(-30px) scale(0.85);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}`;
+                document.head.appendChild(st);
+            }
+
+            const toast = document.createElement('div');
+            toast.id = 'ddphone-admin-toast';
+            toast.style.cssText = `position:fixed;top:20px;right:20px;z-index:99999;background:${bgColor};color:#fff;padding:14px 20px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3);font-family:inherit;font-weight:700;max-width:340px;cursor:pointer;animation:ddToastIn 0.35s cubic-bezier(0.34,1.56,0.64,1);display:flex;flex-direction:column;gap:4px;`;
+            toast.innerHTML = `<div style="font-size:1.05rem;">${emoji} ${title}</div><div style="font-size:0.83rem;opacity:0.92;font-weight:500;">${text}</div><div style="font-size:0.75rem;opacity:0.7;margin-top:2px;">คลิกเพื่อดูรายละเอียด →</div>`;
+            if (href) toast.onclick = () => window.location.href = href;
+            document.body.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 12000);
+
+            // SweetAlert2 (if loaded) — replaces DOM toast
+            if (typeof Swal !== 'undefined') {
+                toast.style.display = 'none';
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'warning',
+                    title: `${emoji} ${title}`, text: text,
+                    showConfirmButton: true,
+                    confirmButtonText: href && href.includes('order') ? '📦 ดูออเดอร์' : '💬 ดูแชท',
+                    timer: 12000, timerProgressBar: true
+                }).then(r => { if (r.isConfirmed && href) window.location.href = href; });
             }
         }
 
+        // ─── Alert triggers ───────────────────────────────────────────────────
+        function triggerOrderAlert(orderId, orderNum, count) {
+            // Guard: don't alert if this specific order ID was already alerted in this session
+            if (hasAlerted(orderId)) return;
+
+            saveAlertedId(orderId);
+            sessionStorage.setItem('ddphone_last_order_alert_time', String(Date.now()));
+
+            playOrderSound(); // ring exactly 3 times then stop
+            showToast(
+                '🔔',
+                'ลูกค้าชำระเงินแล้ว! #' + (orderNum || orderId),
+                'มีสลิปโอนเงินรอตรวจสอบ ' + count + ' รายการ',
+                'linear-gradient(135deg,#dc2626,#b91c1c)',
+                "{{ route('admin.orders.index') }}"
+            );
+        }
+
+        function triggerChatAlert(chatCount) {
+            const now = Date.now();
+            const lastChatAlert = parseInt(sessionStorage.getItem('ddphone_last_chat_alert_time') || '0');
+            const CHAT_COOLDOWN = 15000; // 15s cooldown for chat alerts
+
+            if ((now - lastChatAlert) < CHAT_COOLDOWN) return;
+            sessionStorage.setItem('ddphone_last_chat_alert_time', String(now));
+
+            if (window.DDPhoneAudio) window.DDPhoneAudio.playChat();
+            showToast(
+                '💬', 'มีข้อความแชทใหม่!',
+                'มีลูกค้าทักแชทเข้ามา ' + chatCount + ' ข้อความ',
+                'linear-gradient(135deg,#2563eb,#1d4ed8)',
+                "{{ route('admin.chats.index') }}"
+            );
+        }
+
+        // ─── Main Poll (every 3s) ─────────────────────────────────────────────
         function pollNotifications() {
             fetch('/admin/notification-counts?_t=' + Date.now(), {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'Cache-Control': 'no-cache',
+                    'Cache-Control': 'no-cache, no-store',
                     'Pragma': 'no-cache'
                 }
             })
             .then(res => res.json())
             .then(data => {
-                if (data.unread_chats > currentUnreadChats) {
-                    playAdminNotificationSound();
+                const newOrders = data.pending_orders  || 0;
+                const newChats  = data.unread_chats    || 0;
+                const latestId  = data.latest_order_id || null;
+                const latestNum = data.latest_order_num || (latestId ? String(latestId).padStart(5,'0') : '');
+
+                if (!isInitialPoll) {
+                    // New paid order: latestId is known but not yet alerted
+                    if (latestId && !hasAlerted(latestId) && newOrders > 0) {
+                        triggerOrderAlert(latestId, latestNum, newOrders);
+                    }
+                    // New chat
+                    if (newChats > currentUnreadChats) {
+                        triggerChatAlert(newChats);
+                    }
                 }
-                
-                currentUnreadChats = data.unread_chats;
-                currentPendingOrders = data.pending_orders;
 
-                // Update UI badges in the navigation bar (desktop and mobile responsive)
+                isInitialPoll        = false;
+                currentUnreadChats   = newChats;
+                currentPendingOrders = newOrders;
+
+                // Update nav badges
                 document.querySelectorAll('.nav-chat-badge').forEach(el => {
-                    el.textContent = data.unread_chats;
-                    if (data.unread_chats > 0) {
-                        el.style.display = 'inline-flex';
-                    } else {
-                        el.style.display = 'none';
-                    }
+                    el.textContent   = newChats;
+                    el.style.display = newChats  > 0 ? 'inline-flex' : 'none';
                 });
-
                 document.querySelectorAll('.nav-order-badge').forEach(el => {
-                    el.textContent = data.pending_orders;
-                    if (data.pending_orders > 0) {
-                        el.style.display = 'inline-flex';
-                    } else {
-                        el.style.display = 'none';
-                    }
+                    el.textContent   = newOrders;
+                    el.style.display = newOrders > 0 ? 'inline-flex' : 'none';
                 });
             })
-            .catch(err => console.error('Error polling admin notifications:', err));
+            .catch(err => console.warn('Notification poll error:', err));
         }
 
-        // Poll every 3 seconds for real-time notifications
-        setInterval(pollNotifications, 3000);
+        setInterval(pollNotifications, 3000); // poll every 3s (stable & light)
+        pollNotifications();                  // immediate first run
 
-        // Real-time broadcast listener
+        // WebSocket fallback
         if (typeof window.Echo !== 'undefined') {
             window.Echo.channel('admin-notifications')
                 .listen('.new.order', (e) => {
-                    playAdminNotificationSound();
-                    pollNotifications(); // Immediately refresh the counts
+                    const oid  = e.order_id || null;
+                    const onum = oid ? String(oid).padStart(5,'0') : '';
+                    if (oid) triggerOrderAlert(oid, onum, currentPendingOrders + 1);
+                    pollNotifications();
                 });
         }
     });
@@ -421,31 +562,31 @@
 </nav>
 
 <script>
+    // ใช้ data-attribute แทน style.display เพื่อไม่ชนกับ Alpine.js x-show
     function toggleAdminNavDropdown(btn) {
         const container = btn.closest('.relative');
         if (!container) return;
-        const menu = container.querySelector('.absolute');
-        if (!menu) return;
 
-        const isHidden = menu.style.display === 'none' || getComputedStyle(menu).display === 'none';
-
-        // Close all other nav dropdowns first
-        document.querySelectorAll('nav .relative .absolute').forEach(el => {
-            if (el !== menu) el.style.display = 'none';
-        });
-
-        if (isHidden) {
-            menu.style.display = 'block';
-        } else {
-            menu.style.display = 'none';
+        // ดึง Alpine component instance ของ container นี้
+        const alpineEl = container.__x;
+        if (alpineEl) {
+            // ปิด dropdown อื่นๆ ทั้งหมดก่อน (via Alpine)
+            document.querySelectorAll('nav .relative[x-data]').forEach(el => {
+                if (el !== container && el.__x) {
+                    el.__x.$data.open = false;
+                }
+            });
+            // Toggle ของตัวเอง
+            alpineEl.$data.open = !alpineEl.$data.open;
         }
     }
 
     document.addEventListener('click', function(e) {
         if (!e.target.closest('nav .relative')) {
-            document.querySelectorAll('nav .relative .absolute').forEach(el => {
-                el.style.display = 'none';
+            document.querySelectorAll('nav .relative[x-data]').forEach(el => {
+                if (el.__x) el.__x.$data.open = false;
             });
         }
     });
 </script>
+

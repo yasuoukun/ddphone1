@@ -146,11 +146,11 @@
                 </div>
                 <div style="display: flex; gap: 15px; align-items: center;">
                     <span style="color: #FF5722; font-size: 1.2rem;"><i class="fa-solid fa-phone"></i></span>
-                    <span><strong>เบอร์โทร:</strong> 083-828-9414, 044-822-388</span>
+                    <span><strong>เบอร์โทร:</strong> 086-869-9666</span>
                 </div>
                 <div style="display: flex; gap: 15px; align-items: center;">
                     <span style="color: #FF5722; font-size: 1.2rem;"><i class="fa-solid fa-envelope"></i></span>
-                    <span><strong>อีเมล:</strong> ddit.com.88@gmail.com</span>
+                    <span><strong>อีเมล:</strong> ddphonechaiyaphume@gmail.com</span>
                 </div>
             </div>
         </div>

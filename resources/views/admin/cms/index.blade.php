@@ -104,38 +104,91 @@
             @endif
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Column 1: Slogan Settings Form -->
-                <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm lg:col-span-1 h-fit">
-                    <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-pen-nib text-indigo-600"></i>
-                        คำโฆษณาและสโลแกนหน้าแรก
-                    </h3>
-                    <p class="text-xs text-gray-400 mb-6">ข้อความนี้จะแสดงในส่วน Hero Banner ด้านบนสุดของหน้าแรกเพื่อดึงดูดลูกค้า</p>
+                <!-- Column 1: Slogan Settings Form & Showcase Banner 2 Form -->
+                <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm lg:col-span-1 h-fit space-y-6">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-nib text-indigo-600"></i>
+                            คำโฆษณา Slogan และแบนเนอร์ Showcase
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-4">ปรับแต่งข้อความแบนเนอร์หน้าแรก และแบนเนอร์สมาร์ทโฟน 3D Showcase ได้ที่นี่</p>
 
-                    <form action="{{ route('central_admin.cms.update_settings') }}" method="POST" class="space-y-4">
-                        @csrf
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">ข้อความ Badge (หัวข้อสีเด่น)</label>
-                            <input type="text" name="slogan_badge" value="{{ $settings['slogan_badge'] }}" placeholder="เช่น 🔥 โปรโมชันพิเศษ!" 
-                                   class="w-full rounded-xl border-gray-200 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-medium">
-                        </div>
+                        <form action="{{ route('central_admin.cms.update_settings') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                            @csrf
+                            
+                            <!-- Hero Banner Slogan -->
+                            <div class="p-4 bg-indigo-50/40 rounded-2xl border border-indigo-100 space-y-3">
+                                <h4 class="font-bold text-sm text-indigo-900 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-flag text-indigo-600"></i> 1. แบนเนอร์สไลด์ด้านบนสุด (Hero)
+                                </h4>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">ข้อความ Badge (หัวข้อสีเด่น)</label>
+                                    <input type="text" name="slogan_badge" value="{{ $settings['slogan_badge'] }}" placeholder="เช่น 🔥 โปรโมชันพิเศษ!" 
+                                           class="w-full rounded-xl border-gray-200 focus:ring-indigo-200 focus:border-indigo-400 text-xs font-medium">
+                                </div>
 
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">หัวข้อ Slogan หลัก (ตัวหนาขนาดใหญ่)</label>
-                            <input type="text" name="slogan_title" value="{{ $settings['slogan_title'] }}" required placeholder="เช่น ดีดี.ไอที.คอม ยินดีต้อนรับ" 
-                                   class="w-full rounded-xl border-gray-200 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-medium">
-                        </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">หัวข้อ Slogan หลัก</label>
+                                    <input type="text" name="slogan_title" value="{{ $settings['slogan_title'] }}" required placeholder="เช่น ดีดี.ไอที.คอม ยินดีต้อนรับ" 
+                                           class="w-full rounded-xl border-gray-200 focus:ring-indigo-200 focus:border-indigo-400 text-xs font-medium">
+                                </div>
 
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">รายละเอียดสโลแกน</label>
-                            <textarea name="slogan_description" rows="4" placeholder="ระบุข้อความบรรยายสั้นๆ..." 
-                                      class="w-full rounded-xl border-gray-200 focus:ring-indigo-200 focus:border-indigo-400 text-sm font-medium">{{ $settings['slogan_description'] }}</textarea>
-                        </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">รายละเอียดสโลแกน</label>
+                                    <textarea name="slogan_description" rows="2" placeholder="ระบุข้อความบรรยายสั้นๆ..." 
+                                              class="w-full rounded-xl border-gray-200 focus:ring-indigo-200 focus:border-indigo-400 text-xs font-medium">{{ $settings['slogan_description'] }}</textarea>
+                                </div>
+                            </div>
 
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md">
-                            บันทึกการตั้งค่า
-                        </button>
-                    </form>
+                            <!-- Showcase Banner 2 -->
+                            <div class="p-4 bg-slate-900 text-white rounded-2xl border border-slate-700 space-y-3">
+                                <h4 class="font-bold text-sm text-amber-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-mobile-screen text-amber-400"></i> 2. แบนเนอร์ Showcase สมาร์ทโฟน
+                                </h4>
+                                
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 mb-1">ข้อความ Badge กล่องสีเหลือง</label>
+                                    <input type="text" name="showcase_badge" value="{{ $settings['showcase_badge'] ?? '📱 DDPHONE 3D SHOWCASE' }}" 
+                                           class="w-full rounded-xl border-slate-700 bg-slate-800 text-white text-xs font-medium">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 mb-1">หัวข้อหลัก แบนเนอร์ที่ 2</label>
+                                    <input type="text" name="showcase_title" value="{{ $settings['showcase_title'] ?? "สมาร์ทโฟนมือสองเกรด A+\nสวยกริ๊บ ไร้รอย สภาพ 99%" }}" 
+                                           class="w-full rounded-xl border-slate-700 bg-slate-800 text-white text-xs font-medium">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 mb-1">รายละเอียดคำบรรยาย</label>
+                                    <textarea name="showcase_description" rows="2" 
+                                              class="w-full rounded-xl border-slate-700 bg-slate-800 text-white text-xs font-medium">{{ $settings['showcase_description'] ?? 'คัดสรรไอโฟนและสมาร์ทโฟนแท้ 100% แบตอึด สแกนนิ้ว/กล้องเพอร์เฟกต์ การันตีประกันร้าน 30 วัน พร้อมบริการจัดส่งฟรีทั่วประเทศ' }}</textarea>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 mb-1">ข้อความปุ่มกด</label>
+                                    <input type="text" name="showcase_button_text" value="{{ $settings['showcase_button_text'] ?? 'ช้อปมือถือโปรเด็ด ➔' }}" 
+                                           class="w-full rounded-xl border-slate-700 bg-slate-800 text-white text-xs font-medium">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 mb-1">ลิงก์ URL เมื่อกดปุ่ม</label>
+                                    <input type="text" name="showcase_button_url" value="{{ $settings['showcase_button_url'] ?? '/products' }}" 
+                                           class="w-full rounded-xl border-slate-700 bg-slate-800 text-white text-xs font-medium">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-300 mb-1">รูปภาพไร้พื้นหลัง (Transparent PNG Cutout)</label>
+                                    <input type="file" name="showcase_image_file" accept="image/png,image/webp,image/gif" 
+                                           class="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-400 file:text-slate-900 hover:file:bg-amber-300 cursor-pointer">
+                                    <span class="text-[10px] text-slate-400 block mt-1">แนะนำใช้ไฟล์ PNG ไร้พื้นหลังสีขาว (Transparent PNG)</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md text-sm">
+                                บันทึกการตั้งค่าทั้งหมด
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Column 2 & 3: Banners Management -->

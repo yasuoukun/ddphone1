@@ -5,7 +5,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'DDPHONE ดีดีโฟน') }}</title>
+
+        <!-- Favicon / Website Icon -->
+        <link rel="icon" type="image/png" href="{{ asset('images/logoddphone.png') }}">
+        <link rel="shortcut icon" type="image/png" href="{{ asset('images/logoddphone.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/logoddphone.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -16,6 +21,10 @@
 
         <!-- Alpine.js CDN (Guarantees reactive dropdowns & UI components load) -->
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+        <!-- SweetAlert2 (admin toast notifications) -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])

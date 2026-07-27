@@ -16,6 +16,14 @@ class CmsController extends Controller
             'slogan_badge' => HomepageSetting::get('slogan_badge', '🔥 โปรโมชันพิเศษ ลดสูงสุด 50%'),
             'slogan_title' => HomepageSetting::get('slogan_title', 'dd.it.com จัดเต็มโปรโมชัน!'),
             'slogan_description' => HomepageSetting::get('slogan_description', "สมาร์ทโฟน แก็ดเจ็ต และบริการซ่อมมือถือครบวงจร\nพร้อมประกันศูนย์และบริการหลังการขายระดับพรีเมียม"),
+            
+            // Showcase Banner 2 settings
+            'showcase_badge' => HomepageSetting::get('showcase_badge', '📱 DDPHONE 3D SHOWCASE'),
+            'showcase_title' => HomepageSetting::get('showcase_title', "สมาร์ทโฟนมือสองเกรด A+\nสวยกริ๊บ ไร้รอย สภาพ 99%"),
+            'showcase_description' => HomepageSetting::get('showcase_description', 'คัดสรรไอโฟนและสมาร์ทโฟนแท้ 100% แบตอึด สแกนนิ้ว/กล้องเพอร์เฟกต์ การันตีประกันร้าน 30 วัน พร้อมบริการจัดส่งฟรีทั่วประเทศ'),
+            'showcase_button_text' => HomepageSetting::get('showcase_button_text', 'ช้อปมือถือโปรเด็ด ➔'),
+            'showcase_button_url' => HomepageSetting::get('showcase_button_url', '/products'),
+            'showcase_image' => HomepageSetting::get('showcase_image', ''),
         ];
 
         $banners = PromotionalBanner::orderBy('sort_order')->get();
@@ -29,13 +37,31 @@ class CmsController extends Controller
             'slogan_badge' => 'nullable|string|max:100',
             'slogan_title' => 'required|string|max:200',
             'slogan_description' => 'nullable|string|max:1000',
+            
+            'showcase_badge' => 'nullable|string|max:100',
+            'showcase_title' => 'nullable|string|max:200',
+            'showcase_description' => 'nullable|string|max:1000',
+            'showcase_button_text' => 'nullable|string|max:100',
+            'showcase_button_url' => 'nullable|string|max:255',
+            'showcase_image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:51200',
         ]);
 
-        foreach ($validated as $key => $val) {
-            HomepageSetting::set($key, $val);
+        if ($request->hasFile('showcase_image_file')) {
+            $path = $request->file('showcase_image_file')->store('showcase', 'public');
+            @mkdir(dirname(public_path('storage/' . $path)), 0777, true);
+            @copy(storage_path('app/public/' . $path), public_path('storage/' . $path));
+            HomepageSetting::set('showcase_image', $path);
         }
 
-        return redirect()->back()->with('success', 'บันทึกการตั้งค่าคำโฆษณา Slogan เรียบร้อยแล้ว');
+        unset($validated['showcase_image_file']);
+
+        foreach ($validated as $key => $val) {
+            if ($val !== null) {
+                HomepageSetting::set($key, $val);
+            }
+        }
+
+        return redirect()->back()->with('success', 'บันทึกการตั้งค่าคำโฆษณา Slogan และแบนเนอร์ Showcase เรียบร้อยแล้ว');
     }
 
     public function storeBanner(Request $request)

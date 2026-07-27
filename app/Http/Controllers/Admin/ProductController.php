@@ -35,11 +35,15 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'specifications' => 'nullable|string',
             'freebie' => 'nullable|string|max:255',
+            'installment_details' => 'nullable|string|max:255',
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048'
+            'images' => 'required|array|min:1',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:51200'
+        ], [
+            'images.required' => 'กรุณาอัปโหลดรูปภาพสินค้าอย่างน้อย 1 รูปภาพ',
+            'images.min' => 'กรุณาอัปโหลดรูปภาพสินค้าอย่างน้อย 1 รูปภาพ'
         ]);
 
         $validatedData = $validated;
@@ -54,6 +58,8 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $file) {
                 $path = $file->store('products', 'public');
+                @mkdir(dirname(public_path('storage/' . $path)), 0777, true);
+                @copy(storage_path('app/public/' . $path), public_path('storage/' . $path));
                 ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => $path,
@@ -91,11 +97,12 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'specifications' => 'nullable|string',
             'freebie' => 'nullable|string|max:255',
+            'installment_details' => 'nullable|string|max:255',
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048'
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:51200'
         ]);
 
         $validatedData = $validated;
@@ -106,6 +113,8 @@ class ProductController extends Controller
             $hasPrimary = $product->images()->where('is_primary', true)->exists();
             foreach ($request->file('images') as $index => $file) {
                 $path = $file->store('products', 'public');
+                @mkdir(dirname(public_path('storage/' . $path)), 0777, true);
+                @copy(storage_path('app/public/' . $path), public_path('storage/' . $path));
                 ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => $path,

@@ -152,6 +152,30 @@
                         </div>
                     </div>
 
+                    <!-- Section 8.2: Installment Options (มีผ่อนชำระ / ไม่มีผ่อนชำระ) -->
+                    <div class="mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-200" x-data="{ hasInstallment: {{ old('installment_details', $product->installment_details) ? 'true' : 'false' }} }">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-credit-card text-blue-600"></i> เงื่อนไขการผ่อนชำระสินค้า
+                            </label>
+                            <div class="flex items-center gap-4">
+                                <label class="inline-flex items-center cursor-pointer gap-2 font-bold text-xs text-slate-700">
+                                    <input type="radio" name="has_installment_radio" value="0" @click="hasInstallment = false" :checked="!hasInstallment" class="text-indigo-600">
+                                    <span>ไม่มีผ่อนชำระ</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer gap-2 font-bold text-xs text-blue-600">
+                                    <input type="radio" name="has_installment_radio" value="1" @click="hasInstallment = true" :checked="hasInstallment" class="text-indigo-600">
+                                    <span>มีผ่อนชำระ</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div x-show="hasInstallment" style="display: {{ old('installment_details', $product->installment_details) ? 'block' : 'none' }};" class="mt-3">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">ระบุรายละเอียดผ่อนชำระ (เช่น ผ่อนเริ่มต้น ฿2,990 / เดือน นาน 10 เดือน)</label>
+                            <input type="text" name="installment_details" value="{{ old('installment_details', $product->installment_details) }}" class="block w-full rounded-xl border-gray-200 shadow-sm focus:border-blue-500 font-semibold text-sm" placeholder="เช่น ผ่อนชำระเริ่มต้น ฿2,990 / เดือน (สูงสุด 10 เดือน)">
+                            <p class="text-[11px] text-blue-600 font-semibold mt-1">* หากเลือก 'มีผ่อนชำระ' และระบุรายละเอียด รายละเอียดผ่อนชำระนี้จะไปแสดงผลในหน้าสินค้า</p>
+                        </div>
+                    </div>
+
                     <!-- Upload New Images -->
                     <div class="mb-8" x-data="{ previewImages: [] }">
                         <label class="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">

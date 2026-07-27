@@ -9,7 +9,7 @@ class Product extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ["name", "sku", "description", "specifications", "freebie", "price", "discount_price", "stock", "category_id", "brand_id", "is_promotion", "is_popular"];
+    protected $fillable = ["name", "sku", "description", "specifications", "freebie", "price", "discount_price", "stock", "category_id", "brand_id", "is_promotion", "is_popular", "installment_details"];
 
     protected static function boot()
     {
@@ -61,14 +61,18 @@ class Product extends Model
 
     public function getPrimaryImageUrlAttribute()
     {
-        $primary = $this->images->where('is_primary', true)->first() ?? $this->images->first();
+        $primary = $this->images->first(function($img) {
+            return (bool)$img->is_primary;
+        }) ?? $this->images->first();
+
         if ($primary && !empty($primary->image_path)) {
             if (\Illuminate\Support\Str::startsWith($primary->image_path, 'http')) {
                 return $primary->image_path;
             }
-            return asset('storage/' . ltrim($primary->image_path, '/'));
+            $clean = ltrim(str_replace(['public/', 'storage/', 'media/'], '', $primary->image_path), '/');
+            return '/media/' . $clean;
         }
-        return 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=300&auto=format&fit=crop';
+        return null;
     }
 
     public function getEffectivePriceAttribute()

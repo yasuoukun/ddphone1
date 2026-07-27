@@ -18,32 +18,9 @@
             'ต้องการเปลี่ยนที่อยู่จัดส่ง หรือรายละเอียดสินค้าส่วนไหนสามารถแจ้งได้เลยครับ',
             'ดำเนินการแก้ไขให้เรียบร้อยแล้วครับ ขอบพระคุณสำหรับข้อมูลครับ 🙏'
         ],
-         playNotificationSound() {
-            try {
-                let ctx = new (window.AudioContext || window.webkitAudioContext)();
-                let playNote = (frequency, startTime, duration) => {
-                    let osc = ctx.createOscillator();
-                    let gain = ctx.createGain();
-                    
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(frequency, startTime);
-                    
-                    gain.gain.setValueAtTime(0.15, startTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-                    
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    
-                    osc.start(startTime);
-                    osc.stop(startTime + duration);
-                };
-                
-                let now = ctx.currentTime;
-                playNote(523.25, now, 0.12); // C5
-                playNote(659.25, now + 0.08, 0.12); // E5
-                playNote(783.99, now + 0.16, 0.25); // G5
-            } catch(e) {
-                console.log('Audio playback blocked or failed:', e);
+        playNotificationSound() {
+            if (window.DDPhoneAudio) {
+                window.DDPhoneAudio.playChat();
             }
         },
         getReplyingAdmins() {
@@ -58,7 +35,6 @@
             return admins;
         },
         init() {
-            // Initial unread count summation
             this.unreadChatsCount = this.users.reduce((acc, u) => acc + (u.unread_count || 0), 0);
 
             if (window.Echo) {
@@ -69,10 +45,7 @@
                             this.scrollToBottom();
                             this.playNotificationSound();
                         }
-                        let userExists = this.users.some(u => u.id === e.message.sender_id);
-                        if (!userExists) {
-                            this.fetchUsers();
-                        }
+                        this.fetchUsers();
                     });
             }
 
@@ -83,7 +56,6 @@
                         .then(res => res.json())
                         .then(data => {
                             if (data.length > this.messages.length) {
-                                // If active, play sound if new message is from customer
                                 let newCustomerMsg = data.slice(this.messages.length).some(m => m.sender_id === this.activeChat.id);
                                 if (newCustomerMsg) {
                                     this.playNotificationSound();
@@ -98,7 +70,7 @@
                             }
                         });
                 }
-            }, 3000);
+            }, 1500);
         },
         fetchUsers() {
             fetch('{{ route('admin.chats.list_ajax') }}?_t=' + Date.now(), { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } })
@@ -108,11 +80,18 @@
                 });
         },
         getFilteredUsers() {
-            if (!this.searchQuery) return this.users;
-            return this.users.filter(u => 
-                (u.name && u.name.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
-                (u.email && u.email.toLowerCase().includes(this.searchQuery.toLowerCase()))
-            );
+            let list = this.users;
+            if (this.searchQuery) {
+                list = this.users.filter(u => 
+                    (u.name && u.name.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
+                    (u.email && u.email.toLowerCase().includes(this.searchQuery.toLowerCase()))
+                );
+            }
+            return list.slice().sort((a, b) => {
+                let timeA = a.last_message_time ? new Date(a.last_message_time).getTime() : 0;
+                let timeB = b.last_message_time ? new Date(b.last_message_time).getTime() : 0;
+                return timeB - timeA;
+            });
         },
         selectUser(user) {
             this.activeChat = user;
@@ -168,6 +147,7 @@
                 this.messages.push(data);
                 this.newMessage = '';
                 this.scrollToBottom();
+                this.fetchUsers();
             });
         },
         scrollToBottom() {
@@ -195,14 +175,6 @@
                             el.style.display = 'none';
                         }
                     });
-                    document.querySelectorAll('.nav-order-badge').forEach(el => {
-                        if (data.pending_orders > 0) {
-                            el.textContent = data.pending_orders;
-                            el.style.display = '';
-                        } else {
-                            el.style.display = 'none';
-                        }
-                    });
                 });
             this.fetchUsers();
         }
@@ -225,7 +197,7 @@
                     </div>
                 </div>
                 
-                <div class="flex-grow overflow-y-auto">
+                <div class="flex-grow overflow-y-auto p-2 space-y-1">
                     <template x-if="getFilteredUsers().length === 0">
                         <div class="py-12 px-4 text-center text-gray-400 text-sm">
                             ไม่พบรายชื่อลูกค้าที่ติดต่อ
@@ -233,32 +205,43 @@
                     </template>
                     
                     <template x-for="user in getFilteredUsers()" :key="user.id">
+                        <!-- Distinct Vibrant Color for Currently Active Chat Session Item -->
                         <div @click="selectUser(user)" 
-                             :class="activeChat && activeChat.id === user.id ? 'bg-slate-50 border-r-4 border-slate-900' : 'border-r-4 border-transparent hover:bg-gray-50'"
-                             class="p-4 border-b border-gray-50 cursor-pointer transition flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-sm overflow-hidden border border-gray-200">
+                             :style="activeChat && activeChat.id === user.id 
+                                ? 'background: linear-gradient(135deg, #0284C7 0%, #2563EB 100%); color: #ffffff; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35); border-radius: 14px;' 
+                                : 'background: #ffffff; color: #1E293B; hover:bg-gray-50; border-radius: 14px; border-bottom: 1px solid #F1F5F9;'"
+                             class="p-3.5 cursor-pointer transition-all duration-200 flex items-center gap-3">
+                            
+                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-sm overflow-hidden border border-gray-200 flex-shrink-0">
                                 <img :src="user.avatar_url ? user.avatar_url : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name)" :alt="user.name" class="w-full h-full object-cover">
                             </div>
+                            
                             <div class="flex-grow min-w-0">
-                                <div class="font-semibold text-gray-800 truncate" x-text="user.name ? user.name : (user.email ? user.email : 'ลูกค้า #' + user.id)"></div>
+                                <div class="font-bold text-sm truncate" 
+                                     :style="activeChat && activeChat.id === user.id ? 'color: #FFFFFF;' : 'color: #0F172A;'"
+                                     x-text="user.name ? user.name : (user.email ? user.email : 'ลูกค้า #' + user.id)"></div>
+                                
                                 <template x-if="user.last_message_content">
                                     <div class="text-xs truncate mt-1 flex items-center gap-1"
-                                         :class="user.unread_count > 0 ? 'text-slate-800 font-bold' : 'text-gray-500'">
+                                         :style="activeChat && activeChat.id === user.id ? 'color: #E0F2FE;' : (user.unread_count > 0 ? 'color: #0F172A; font-weight: 800;' : 'color: #64748B;')">
                                         <template x-if="user.last_message_sender_id === user.id">
-                                            <span class="text-blue-500 font-semibold">[ลูกค้า]</span>
+                                            <span :style="activeChat && activeChat.id === user.id ? 'background: rgba(255,255,255,0.25); color: #FFFFFF;' : 'background: #E0F2FE; color: #0284C7;'" 
+                                                  class="px-1.5 py-0.5 rounded text-[10px] font-bold">[ลูกค้า]</span>
                                         </template>
                                         <template x-if="user.last_message_sender_id !== user.id">
-                                            <span class="text-slate-400">[คุณ]</span>
+                                            <span :style="activeChat && activeChat.id === user.id ? 'background: rgba(255,255,255,0.2); color: #FFFFFF;' : 'background: #F3E8FF; color: #7E22CE;'" 
+                                                  class="px-1.5 py-0.5 rounded text-[10px] font-bold">[คุณ]</span>
                                         </template>
-                                        <span x-text="user.last_message_content"></span>
+                                        <span class="truncate" x-text="user.last_message_content"></span>
                                     </div>
                                 </template>
                                 <template x-if="!user.last_message_content">
-                                    <div class="text-xs text-gray-400 truncate" x-text="user.email"></div>
+                                    <div class="text-xs truncate" :style="activeChat && activeChat.id === user.id ? 'color: #BAE6FD;' : 'color: #94A3B8;'" x-text="user.email"></div>
                                 </template>
                             </div>
-                            <div x-show="user.unread_count && user.unread_count > 0">
-                                <span class="bg-blue-500 text-white rounded-full text-[10px] min-w-[20px] h-5 flex items-center justify-center font-bold px-1.5" x-text="user.unread_count"></span>
+                            
+                            <div x-show="user.unread_count && user.unread_count > 0" class="flex-shrink-0">
+                                <span class="bg-red-500 text-white rounded-full text-[10px] min-w-[20px] h-5 flex items-center justify-center font-bold px-1.5 shadow-sm" x-text="user.unread_count"></span>
                             </div>
                         </div>
                     </template>

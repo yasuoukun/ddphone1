@@ -3,240 +3,311 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>DDIT | จำหน่ายโทรศัพท์มือถือและสินค้าไอทีทุกประเภท ครบวงจร</title>
+    <title>DDPHONE ดีดีโฟน | ศูนย์รวมสมาร์ทโฟนและไอแพดมือสองคัดเกรด A+ คุณภาพสูง</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Favicon / Website Icon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/logoddphone.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logoddphone.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logoddphone.png') }}">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js" defer></script>
     
-    <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/theme.css') }}?v={{ time() }}">
     <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="antialiased" data-logged-in="{{ auth()->check() ? 'true' : 'false' }}">
-    <div x-data="{ mobileMenuOpen: false }">
-
-    <!-- Top Bar -->
-    <div class="topbar" style="position: relative; z-index: 1100;">
-        <div class="topbar-left">
-            <a href="#"><i class="fa-brands fa-facebook"></i> Facebook</a>
-            <a href="#"><i class="fa-brands fa-line"></i> Line</a>
-        </div>
-        <div class="topbar-right" x-data="{ openProfile: false }">
-            @auth
-                <div style="position: relative; display: inline-block; z-index: 1200;">
-                    <button @click="openProfile = !openProfile" @click.away="openProfile = false" style="background: none; border: none; color: white; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; font-family: 'Prompt', sans-serif;">
-                        <img src="{{ auth()->user()->avatar_url }}" alt="" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(255,255,255,0.6);">
-                        <span>{{ auth()->user()->name }}</span> <span style="font-size: 0.75rem;">▼</span>
-                    </button>
-                    <div x-show="openProfile" x-transition style="display: none; position: absolute; right: 0; top: 100%; margin-top: 8px; background: white; border: 1px solid var(--color-silver); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 9999; min-width: 180px; text-align: left; padding: 0.5rem 0;">
-                        <a href="{{ route('dashboard') }}" style="display: block; padding: 10px 15px; color: var(--color-navy-dark); text-decoration: none; font-weight: 500; font-size: 0.9rem;" onmouseover="this.style.background='var(--color-grey-bg)'" onmouseout="this.style.background='transparent'">
-                            💻 แดชบอร์ด/โปรไฟล์
-                        </a>
-                        <hr style="border: 0; border-top: 1px solid var(--color-silver); margin: 0.25rem 0;">
-                        <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
-                            @csrf
-                            <button type="submit" style="width: 100%; text-align: left; background: none; border: none; padding: 10px 15px; color: var(--color-danger); cursor: pointer; font-weight: 600; font-size: 0.9rem; font-family: 'Prompt', sans-serif;" onmouseover="this.style.background='rgba(239, 68, 68, 0.08)'" onmouseout="this.style.background='transparent'">
-                                🚪 ออกจากระบบ
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            @else
-                <a href="{{ route('login') }}">เข้าสู่ระบบ</a>
-                <a href="{{ route('register') }}">สมัครสมาชิก</a>
-            @endauth
-            @auth
-                @if(auth()->user()->role === 'customer')
-                <a href="javascript:void(0)" onclick="window.dispatchEvent(new CustomEvent('open-customer-chat'))" title="แชทติดต่อสอบถามกับร้านค้า" style="margin-left: 1.25rem; position: relative; display: inline-flex; align-items: center; color: white;">
-                    <i class="fa-solid fa-comment-dots" style="font-size: 1.15rem;"></i>
-                    <span class="customer-nav-chat-badge" style="display: none; position: absolute; top: -7px; right: -8px; background: #ef4444; color: white; border-radius: 50%; padding: 1px 5px; font-size: 0.65rem; font-weight: bold; min-width: 14px; text-align: center; line-height: 1.2;"></span>
-                </a>
-                @endif
-            @endauth
-            <!-- Notification Bell -->
-            <div x-data="{ openNotification: false }" style="position: relative; display: inline-block; margin-left: 1.25rem; z-index: 1200;">
-                <button @click="openNotification = !openNotification" @click.away="openNotification = false" title="การแจ้งเตือน" style="background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; position: relative;">
-                    <i class="fa-solid fa-bell" style="font-size: 1.1rem;"></i>
-                    @auth
-                        @if(auth()->user()->unreadNotifications->count() > 0)
-                            <span style="position: absolute; top: -6px; right: -8px; background: #ef4444; color: white; border-radius: 50%; padding: 1px 5px; font-size: 0.65rem; font-weight: bold; min-width: 14px; text-align: center; line-height: 1.2;">
-                                {{ auth()->user()->unreadNotifications->count() }}
-                            </span>
-                        @endif
-                    @endauth
-                </button>
-                @auth
-                    <div x-show="openNotification" x-transition style="display: none; position: absolute; right: 0; top: 100%; margin-top: 15px; background: white; border: 1px solid var(--color-silver); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 9999; width: 320px; text-align: left; padding: 0; overflow: hidden;">
-                        <div style="padding: 12px 15px; background: var(--color-grey-bg); border-bottom: 1px solid var(--color-silver); display: flex; justify-content: space-between; align-items: center;">
-                            <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--color-navy-dark);">การแจ้งเตือน</h4>
-                            @if(auth()->user()->unreadNotifications->count() > 0)
-                                <form action="{{ route('notifications.markAllAsRead') }}" method="POST" style="margin: 0;">
-                                    @csrf
-                                    <button type="submit" style="background: none; border: none; color: var(--color-accent); font-size: 0.75rem; cursor: pointer; font-weight: 600;">อ่านทั้งหมด</button>
-                                </form>
-                            @endif
-                        </div>
-                        <div style="max-height: 300px; overflow-y: auto;">
-                            @forelse(auth()->user()->notifications()->take(10)->get() as $notification)
-                                <a href="{{ $notification->data['url'] ?? '#' }}" style="display: block; padding: 12px 15px; text-decoration: none; border-bottom: 1px solid rgba(226, 232, 240, 0.5); {{ $notification->read_at ? 'background: white;' : 'background: #f0fdfa;' }} transition: background 0.2s;" onmouseover="this.style.background='var(--color-grey-bg)'" onmouseout="this.style.background='{{ $notification->read_at ? 'white' : '#f0fdfa' }}'">
-                                    <div style="display: flex; gap: 10px;">
-                                        @if(isset($notification->data['image']) && $notification->data['image'])
-                                            <img src="{{ Storage::url($notification->data['image']) }}" alt="" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                        @else
-                                            <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--color-accent); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem;">
-                                                <i class="fa-solid fa-bullhorn"></i>
-                                            </div>
-                                        @endif
-                                        <div>
-                                            <h5 style="margin: 0 0 4px; font-size: 0.85rem; font-weight: 700; color: var(--color-navy-dark); line-height: 1.3;">{{ $notification->data['title'] ?? 'การแจ้งเตือน' }}</h5>
-                                            <p style="margin: 0 0 6px; font-size: 0.75rem; color: #64748b; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $notification->data['message'] ?? '' }}</p>
-                                            <span style="font-size: 0.65rem; color: #94a3b8;">{{ $notification->created_at->diffForHumans() }}</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            @empty
-                                <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 0.85rem;">
-                                    ไม่มีการแจ้งเตือน
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
-                @endauth
-            </div>
-            <a href="{{ route('dashboard', ['tab' => 'wishlist']) }}" title="สินค้าที่ชอบ" style="margin-left: 1.25rem;"><i class="fa-solid fa-heart" style="color: #ef4444; font-size: 1.1rem;"></i></a>
-            <a href="{{ route('cart.index') }}" id="cart-badge-link" title="ตะกร้าสินค้า" style="margin-left: 1.25rem; display: inline-flex; align-items: center; gap: 6px;">
-                <i class="fa-solid fa-basket-shopping" style="font-size: 1.1rem;"></i>
-                <span id="cart-count" class="cart-count-badge" style="background: #ef4444; color: white; border-radius: 50%; padding: 1px 6px; font-size: 0.75rem; font-weight: bold; min-width: 18px; text-align: center; display: inline-block; line-height: 1.4;">{{ count(session('cart', [])) }}</span>
-            </a>
+    <!-- Vibrant Animated Ambient Background -->
+    <div class="animated-bg-container" aria-hidden="true">
+        <div class="bg-blob blob-1"></div>
+        <div class="bg-blob blob-2"></div>
+        <div class="bg-blob blob-3"></div>
+        <div class="bg-blob blob-4"></div>
+        <div class="bg-grid-pattern"></div>
+        <div class="bg-particles">
+            <div class="bg-particle"></div>
+            <div class="bg-particle"></div>
+            <div class="bg-particle"></div>
+            <div class="bg-particle"></div>
+            <div class="bg-particle"></div>
+            <div class="bg-particle"></div>
         </div>
     </div>
 
-    <!-- Navbar -->
-    <nav class="navbar" id="main-navbar">
-        <a href="{{ url('/') }}" class="navbar-brand" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
-            <img src="{{ asset('images/logoddphone.png') }}" alt="DDPHONE Logo" style="height: 44px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));" onerror="this.src='{{ asset('logoddphone.png') }}'">
-            <span style="font-size: 1.2rem; font-weight: 900; color: #FFFFFF; letter-spacing: 0.5px;">DDPHONE ดีดีโฟน</span>
-        </a>
-        <!-- Search Bar -->
-        <form action="{{ route('products.index') }}" method="GET" style="margin: 0 0.5rem; display: flex; align-items: center; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 12px; width: 220px; max-width: 100%; flex-shrink: 0;">
-            <input type="text" name="q" value="{{ request('q') }}" placeholder="ค้นหามือถือ iPhone, iPad มือสอง..." style="background: none; border: none; outline: none; color: white; width: 100%; font-family: 'Prompt', sans-serif; font-size: 0.82rem;">
-            <button type="submit" style="background: none; border: none; color: #FFE600; cursor: pointer; padding: 2px 0 2px 6px;">
-                <i class="fa-solid fa-magnifying-glass" style="font-size: 0.85rem;"></i>
-            </button>
-        </form>
-        <div class="navbar-links">
-            <a href="{{ url('/') }}" class="nav-clean-link {{ request()->is('/') ? 'active-nav-tab' : '' }}" {!! request()->is('/') ? 'style="background: #FFE600 !important; color: #0F172A !important; font-weight: 900 !important;"' : '' !!}>หน้าแรก</a>
-            <a href="{{ route('products.index') }}" class="nav-clean-link {{ request()->routeIs('products.*') ? 'active-nav-tab' : '' }}" {!! request()->routeIs('products.*') ? 'style="background: #FFE600 !important; color: #0F172A !important; font-weight: 900 !important;"' : '' !!}>📱 มือถือมือสองทั้งหมด</a>
-            <a href="{{ route('promotions.index') }}" class="nav-clean-link {{ request()->routeIs('promotions.*') ? 'active-nav-tab' : '' }}" {!! request()->routeIs('promotions.*') ? 'style="background: #FFE600 !important; color: #0F172A !important; font-weight: 900 !important;"' : '' !!}>🔥 โปรเด็ดมือสอง</a>
-            
-            <!-- Service & Warranty Dropdown -->
-            <div class="navbar-item-dropdown">
-                <a href="#" class="navbar-dropdown-trigger nav-clean-link {{ (request()->routeIs('service_center') || request()->routeIs('tracking') || request()->routeIs('help_center')) ? 'active-nav-tab' : '' }}" {!! (request()->routeIs('service_center') || request()->routeIs('tracking') || request()->routeIs('help_center')) ? 'style="background: #FFE600 !important; color: #0F172A !important; font-weight: 900 !important;"' : '' !!} onclick="toggleStoreDropdown(this, event)">
-                    🔧 ศูนย์ซ่อม & เคลมประกัน <span style="font-size: 0.65rem;">▼</span>
-                </a>
-                <div class="navbar-dropdown-menu">
-                    <a href="{{ route('service_center') }}" class="dropdown-item-equal">🔧 ส่งซ่อม/เคลมประกัน</a>
-                    <a href="{{ route('tracking') }}" class="dropdown-item-equal">📦 ติดตามสถานะงานซ่อม</a>
-                    <a href="{{ route('help_center') }}" class="dropdown-item-equal">❓ ศูนย์ช่วยเหลือ & FAQ</a>
+    <div x-data="{ mobileMenuOpen: false }">
+
+    @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'super_admin']))
+        @include('layouts.navigation')
+    @endif
+
+    <!-- Fixed Translucent Glass Header Container (Guaranteed to follow screen on scroll) -->
+    <header class="header-sticky-wrapper" style="position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 9990;">
+        <!-- Top Bar (Section 1: Soft Ice-Blue Glass Header) -->
+        <div class="topbar">
+            <div class="topbar-left" style="display: flex; align-items: center; gap: 15px;">
+                <a href="https://www.facebook.com/dditcom" target="_blank" style="display: inline-flex; align-items: center; gap: 5px; color: #0F172A;"><i class="fa-brands fa-facebook" style="color: #1877f2;"></i> <span class="topbar-txt-label">Facebook</span></a>
+                <a href="https://line.me/ti/p/@dditcom" target="_blank" style="display: inline-flex; align-items: center; gap: 5px; color: #0F172A;"><i class="fa-brands fa-line" style="color: #06c755;"></i> <span class="topbar-txt-label">Line</span></a>
+                <a href="tel:0868699666" style="display: inline-flex; align-items: center; gap: 5px; color: #0284C7;"><i class="fa-solid fa-phone" style="color: #0284C7;"></i> <span class="topbar-txt-label">086-869-9666</span></a>
+            </div>
+            <div class="topbar-right" style="display: flex; align-items: center; gap: 14px;" x-data="{ openProfile: false }">
+                @auth
+                    <!-- User Profile Title Box -->
+                    <div style="position: relative; display: inline-block; z-index: 1200;">
+                        <button @click="openProfile = !openProfile" @click.away="openProfile = false" style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.2); color: #0F172A; padding: 3px 12px; border-radius: 99px; cursor: pointer; font-weight: 800; display: flex; align-items: center; gap: 8px; font-family: 'Prompt', sans-serif; font-size: 0.8rem; transition: all 0.2s;" onmouseover="this.style.background='rgba(2, 132, 199, 0.15)'" onmouseout="this.style.background='rgba(2, 132, 199, 0.08)'">
+                            <img src="{{ auth()->user()->avatar_url }}" alt="" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid #0F172A;">
+                            <span>{{ auth()->user()->name }}</span> <span style="font-size: 0.7rem; color: #0F172A;">▼</span>
+                        </button>
+                        <div x-show="openProfile" x-transition style="display: none; position: absolute; right: 0; top: 100%; margin-top: 8px; background: white; border: 1.5px solid #E2E8F0; border-radius: 14px; box-shadow: 0 10px 30px rgba(15,23,42,0.18); z-index: 9999; min-width: 190px; text-align: left; padding: 0.5rem 0;">
+                            <a href="{{ route('dashboard') }}" style="display: block; padding: 10px 16px; color: #0F172A; text-decoration: none; font-weight: 700; font-size: 0.88rem; transition: background 0.2s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='transparent'">
+                                👤 ข้อมูลส่วนตัว
+                            </a>
+                            <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 0.25rem 0;">
+                            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                                @csrf
+                                <button type="submit" style="width: 100%; text-align: left; background: none; border: none; padding: 10px 16px; color: #EF4444; cursor: pointer; font-weight: 800; font-size: 0.88rem; font-family: 'Prompt', sans-serif; transition: background 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.08)'" onmouseout="this.style.background='transparent'">
+                                    🚪 ออกจากระบบ
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" style="color: #0F172A; font-weight: 800; text-decoration: none; font-size: 0.82rem;">เข้าสู่ระบบ</a>
+                    <span style="color: #94A3B8;">|</span>
+                    <a href="{{ route('register') }}" style="color: #0284C7; font-weight: 800; text-decoration: none; font-size: 0.82rem;">สมัครสมาชิก</a>
+                @endauth
+
+                @auth
+                    @if(auth()->user()->role === 'customer')
+                    <a href="javascript:void(0)" onclick="window.dispatchEvent(new CustomEvent('open-customer-chat'))" title="แชทติดต่อสอบถามกับร้านค้า" style="position: relative; display: inline-flex; align-items: center; color: #0F172A; text-decoration: none;">
+                        <i class="fa-solid fa-comment-dots" style="font-size: 1.15rem;"></i>
+                        <span class="customer-nav-chat-badge" style="display: none; position: absolute; top: -7px; right: -8px; background: #ef4444; color: white; border-radius: 50%; padding: 1px 5px; font-size: 0.65rem; font-weight: bold; min-width: 14px; text-align: center; line-height: 1.2;"></span>
+                    </a>
+                    @endif
+                @endauth
+
+                <!-- Notification Bell - Alpine.js Real-time Component -->
+                @auth
+                <div x-data="notificationBell()" @click.away="open = false" style="position: relative; display: inline-block; z-index: 999998;">
+                    <button type="button" @click="toggleBell()" title="การแจ้งเตือน" style="background: none; border: none; color: #0F172A; cursor: pointer; display: flex; align-items: center; position: relative; padding: 2px;">
+                        <i class="fa-solid fa-bell animate-bell-period" style="font-size: 1.15rem;"></i>
+                        <span x-show="unreadCount > 0" 
+                              x-text="unreadCount" 
+                              style="position: absolute; top: -6px; right: -8px; background: #ef4444; color: white; border-radius: 50%; padding: 1px 5px; font-size: 0.65rem; font-weight: bold; min-width: 14px; text-align: center; line-height: 1.2;">
+                        </span>
+                    </button>
+                    <!-- Dropdown pinned to top-right corner of viewport (never overflows) -->
+                    <div x-show="open"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                         style="display:none; position: fixed; right: 20px; top: 82px; background: white; border: 1.5px solid #E2E8F0; border-radius: 16px; box-shadow: 0 12px 35px rgba(15,23,42,0.2); z-index: 999999; width: 310px; max-width: calc(100vw - 40px); text-align: left; padding: 0; overflow: hidden;">
+                        <div style="padding: 12px 16px; background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); border-bottom: 1px solid #BAE6FD; display: flex; justify-content: space-between; align-items: center; border-radius: 16px 16px 0 0;">
+                            <h4 style="margin: 0; font-size: 0.92rem; font-weight: 800; color: #0369A1; display: flex; align-items: center; gap: 7px;">🔔 การแจ้งเตือน</h4>
+                            <span x-show="unreadCount > 0" style="background: #ef4444; color: white; font-size: 0.68rem; font-weight: 900; padding: 1px 8px; border-radius: 9999px;" x-text="unreadCount + ' ใหม่'"></span>
+                        </div>
+                        <div style="max-height: 340px; overflow-y: auto; border-radius: 0 0 16px 16px;">
+                            <div x-show="notifications.length === 0" style="padding: 28px 16px; text-align: center; color: #94a3b8; font-size: 0.85rem;">
+                                <div style="font-size: 1.8rem; margin-bottom: 6px;">🔕</div>
+                                ไม่มีรายการแจ้งเตือนในขณะนี้
+                            </div>
+                            <template x-for="item in notifications" :key="item.id">
+                                <div
+                                     :style="item.is_read ? 'background: white;' : 'background: #EFF6FF;'"
+                                     style="padding: 11px 14px; cursor: pointer; border-bottom: 1px solid #F1F5F9; transition: background 0.15s;"
+                                     @mouseenter="$el.style.background='#F0F9FF'"
+                                     @mouseleave="$el.style.background = item.is_read ? 'white' : '#EFF6FF'"
+                                     @click="openNotifPopup(item)">
+                                    <div style="display: flex; gap: 10px; pointer-events: none; align-items: flex-start;">
+                                        <div x-show="item.image" style="flex-shrink: 0;">
+                                            <img :src="item.image" style="width: 38px; height: 38px; border-radius: 8px; object-fit: cover;">
+                                        </div>
+                                        <div x-show="!item.image" style="width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.95rem; box-shadow: 0 3px 8px rgba(2,132,199,0.25); margin-top: 1px;">
+                                            <i class="fa-solid fa-bullhorn"></i>
+                                        </div>
+                                        <div style="flex-grow: 1; min-width: 0;">
+                                            <h5 style="margin: 0 0 2px; font-size: 0.83rem; font-weight: 800; color: #0F172A; line-height: 1.3;" x-text="item.title"></h5>
+                                            <p style="margin: 0 0 4px; font-size: 0.76rem; color: #64748b; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" x-text="item.message"></p>
+                                            <span style="font-size: 0.66rem; color: #0284C7; font-weight: 800;" x-text="item.time_ago"></span>
+                                        </div>
+                                        <div x-show="!item.is_read" style="flex-shrink: 0; width: 8px; height: 8px; background: #3B82F6; border-radius: 50%; margin-top: 5px;"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
                 </div>
+                @endauth
+
+                <!-- Heart Wishlist Icon with Periodic Motion -->
+                <a href="{{ route('dashboard', ['tab' => 'wishlist']) }}" title="สินค้าที่ชอบ" style="display: inline-flex; align-items: center; color: #FF2A55; text-decoration: none;">
+                    <i class="fa-solid fa-heart animate-heart-period" style="font-size: 1.15rem; color: #FF2A55 !important; filter: drop-shadow(0 2px 8px rgba(255, 42, 85, 0.45));"></i>
+                </a>
+
+                <!-- Cart Icon (Always renders badge, styled as notification badge overlay) -->
+                <a href="{{ route('cart.index') }}" id="cart-badge-link" title="ตะกร้าสินค้า" style="display: inline-flex; align-items: center; justify-content: center; position: relative; width: 36px; height: 36px; color: #0F172A; text-decoration: none;">
+                    <i class="fa-solid fa-basket-shopping" style="font-size: 1.25rem;"></i>
+                    @php $cartCount = session('cart') ? count(session('cart')) : 0; @endphp
+                    <span id="cart-count" class="cart-count-badge" style="{{ $cartCount > 0 ? '' : 'display: none !important;' }} position: absolute; top: -2px; right: -4px; background: #EF4444; color: white; border-radius: 9999px; padding: 2px 5px; font-size: 0.68rem; font-weight: 900; min-width: 17px; height: 17px; text-align: center; line-height: 1.1; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4); border: 1.5px solid white;">
+                        {{ $cartCount }}
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Navbar (Section 1: Translucent Golden-Yellow Glass Header) -->
+        <nav class="navbar" id="main-navbar">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <a href="{{ url('/') }}" class="navbar-brand" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+                    <img src="{{ asset('images/logoddphone.png') }}" alt="DDPHONE Logo" style="height: 35px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.15));" onerror="this.src='{{ asset('logoddphone.png') }}'">
+                    <span style="font-size: 1.12rem; font-weight: 900; color: #0F172A; letter-spacing: 0.3px;">DDPHONE ดีดีโฟน</span>
+                </a>
+                <!-- Search Bar Attached right next to Logo -->
+                <form action="{{ route('products.index') }}" method="GET" style="margin: 0; display: flex; align-items: center; background: #FFFFFF; border: 1.5px solid rgba(15, 23, 42, 0.18); border-radius: 99px; padding: 2px 4px 2px 14px; width: 215px; max-width: 100%; flex-shrink: 0; box-shadow: 0 2px 8px rgba(15,23,42,0.06);">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="ค้นหามือถือ iPhone, iPad มือสอง..." style="background: none; border: none; outline: none; color: #0F172A; font-weight: 700; width: 100%; font-family: 'Prompt', sans-serif; font-size: 0.78rem;">
+                    <button type="submit" style="background: #0F172A; border: none; color: #FFE600; cursor: pointer; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                        <i class="fa-solid fa-magnifying-glass" style="font-size: 0.72rem;"></i>
+                    </button>
+                </form>
             </div>
 
-            <a href="{{ route('categoryblog') }}" class="nav-clean-link {{ (request()->routeIs('categoryblog') || request()->routeIs('blog.*') || request()->routeIs('articles.*')) ? 'active-nav-tab' : '' }}" {!! (request()->routeIs('categoryblog') || request()->routeIs('blog.*') || request()->routeIs('articles.*')) ? 'style="background: #FFE600 !important; color: #0F172A !important; font-weight: 900 !important;"' : '' !!}>📰 บทความ & รีวิว</a>
+
+
+            <div class="navbar-links">
+                <a href="{{ url('/') }}" class="nav-clean-link {{ request()->is('/') ? 'active-nav-tab' : '' }}">หน้าแรก</a>
+                <a href="{{ route('products.index') }}" class="nav-clean-link {{ request()->routeIs('products.*') ? 'active-nav-tab' : '' }}">📱 มือถือมือสองทั้งหมด</a>
+                <a href="{{ route('promotions.index') }}" class="nav-clean-link {{ request()->routeIs('promotions.*') ? 'active-nav-tab' : '' }}">🔥 โปรเด็ดมือสอง</a>
+                
+                <!-- Service & Warranty Dropdown (Hover to Open seamlessly) -->
+                <div class="navbar-item-dropdown">
+                    <a href="javascript:void(0)" class="navbar-dropdown-trigger nav-clean-link {{ (request()->routeIs('service_center') || request()->routeIs('tracking') || request()->routeIs('help_center')) ? 'active-nav-tab' : '' }}">
+                        🔧 ศูนย์ซ่อม & เคลมประกัน <span style="font-size: 0.65rem;">▼</span>
+                    </a>
+                    <div class="navbar-dropdown-menu">
+                        <a href="{{ route('service_center') }}" class="dropdown-item-equal">🔧 ส่งซ่อม/เคลมออนไลน์</a>
+                        <a href="{{ route('tracking') }}" class="dropdown-item-equal">📦 ติดตามสถานะงานซ่อม</a>
+                        <a href="{{ route('help_center') }}" class="dropdown-item-equal">❓ ศูนย์ช่วยเหลือ & คำถามพบบ่อย</a>
+                    </div>
+                </div>
+
+                <!-- Articles and Reviews -->
+                <a href="{{ route('categoryblog') }}" class="nav-clean-link {{ request()->routeIs('categoryblog*') ? 'active-nav-tab' : '' }}">📰 บทความ & รีวิว</a>
+            </div>
+        </nav>
+    </header>
+    <!-- Spacer element to reserve header height so page content starts cleanly -->
+    <div class="header-spacer"></div>
+
+    <!-- Invisible overlay to close popup on outside click -->
+    <div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="toggleMobileMenu()"></div>
+
+    <!-- Mobile Navigation Dropdown Popup -->
+    <div class="mobile-drawer" id="mobile-drawer-popup">
+
+        <!-- User/Auth Section -->
+        <div style="padding: 0.5rem 0.25rem; border-bottom: 1px solid #F1F5F9; margin-bottom: 0.25rem;">
+            @auth
+                <div style="display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: #F0F9FF;">
+                    <img src="{{ auth()->user()->avatar_url }}" alt="" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid #0284C7; flex-shrink: 0;">
+                    <div>
+                        <div style="font-size: 0.78rem; font-weight: 800; color: #0F172A; line-height: 1.2;">{{ auth()->user()->name }}</div>
+                        <div style="font-size: 0.65rem; color: #64748B; font-weight: 600;">{{ auth()->user()->email }}</div>
+                    </div>
+                </div>
+            @else
+                <div style="display: flex; gap: 6px;">
+                    <a href="{{ route('login') }}" style="flex: 1; text-align: center; padding: 7px; border-radius: 8px; background: #F8FAFC; border: 1px solid #E2E8F0; color: #0F172A; text-decoration: none; font-size: 0.76rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        🔑 เข้าสู่ระบบ
+                    </a>
+                    <a href="{{ route('register') }}" style="flex: 1; text-align: center; padding: 7px; border-radius: 8px; background: #0284C7; color: white; text-decoration: none; font-size: 0.76rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        📝 สมัครสมาชิก
+                    </a>
+                </div>
+            @endauth
         </div>
-        
-        <!-- Mobile Actions -->
-        <div class="mobile-actions">
-            <a href="{{ route('cart.index') }}" title="ตะกร้าสินค้า" style="color: white; text-decoration: none; position: relative; display: flex; align-items: center; margin-right: 8px;">
-                <i class="fa-solid fa-basket-shopping" style="font-size: 1.15rem;"></i>
-                <span class="cart-count-badge" style="position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; border-radius: 50%; padding: 1px 5px; font-size: 0.6rem; font-weight: bold; min-width: 13px; text-align: center; line-height: 1.2;">{{ count(session('cart', [])) }}</span>
+
+        <!-- Navigation Links -->
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+            <a href="{{ url('/') }}" class="menu-popup-item" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: #0F172A; font-size: 0.84rem; font-weight: 800; transition: all 0.15s ease;">
+                <span class="menu-icon-box" style="width: 32px; height: 32px; background: #FEF9C3; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; transition: transform 0.2s ease;">🏠</span>
+                <span style="flex-grow: 1;">หน้าแรก</span>
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.65rem; color: #CBD5E1;"></i>
             </a>
-            <button type="button" onclick="toggleMobileMenu()" style="background: none; border: none; color: white; font-size: 1.15rem; cursor: pointer; display: flex; align-items: center; padding: 4px;">
-                <i class="fa-solid fa-bars"></i>
-            </button>
+            <a href="{{ route('products.index') }}" class="menu-popup-item" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: #0F172A; font-size: 0.84rem; font-weight: 800; transition: all 0.15s ease;">
+                <span class="menu-icon-box" style="width: 32px; height: 32px; background: #EFF6FF; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; transition: transform 0.2s ease;">📱</span>
+                <span style="flex-grow: 1;">มือถือมือสองทั้งหมด</span>
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.65rem; color: #CBD5E1;"></i>
+            </a>
+            <a href="{{ route('promotions.index') }}" class="menu-popup-item" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: #0F172A; font-size: 0.84rem; font-weight: 800; transition: all 0.15s ease;">
+                <span class="menu-icon-box" style="width: 32px; height: 32px; background: #FFF7ED; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; transition: transform 0.2s ease;">🔥</span>
+                <span style="flex-grow: 1;">โปรเด็ดมือสอง</span>
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.65rem; color: #CBD5E1;"></i>
+            </a>
+            <a href="{{ route('service_center') }}" class="menu-popup-item" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: #0F172A; font-size: 0.84rem; font-weight: 800; transition: all 0.15s ease;">
+                <span class="menu-icon-box" style="width: 32px; height: 32px; background: #F0FDF4; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; transition: transform 0.2s ease;">🔧</span>
+                <span style="flex-grow: 1;">ส่งซ่อม / เคลมออนไลน์</span>
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.65rem; color: #CBD5E1;"></i>
+            </a>
+            <a href="{{ route('tracking') }}" class="menu-popup-item" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: #0F172A; font-size: 0.84rem; font-weight: 800; transition: all 0.15s ease;">
+                <span class="menu-icon-box" style="width: 32px; height: 32px; background: #F0F9FF; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; transition: transform 0.2s ease;">📦</span>
+                <span style="flex-grow: 1;">ติดตามสถานะงานซ่อม</span>
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.65rem; color: #CBD5E1;"></i>
+            </a>
+            <a href="{{ route('categoryblog') }}" class="menu-popup-item" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: #0F172A; font-size: 0.84rem; font-weight: 800; transition: all 0.15s ease;">
+                <span class="menu-icon-box" style="width: 32px; height: 32px; background: #FDF4FF; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; transition: transform 0.2s ease;">📰</span>
+                <span style="flex-grow: 1;">บทความและรีวิว</span>
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.65rem; color: #CBD5E1;"></i>
+            </a>
         </div>
-    </nav>
 
-    <!-- Mobile Drawer Backdrop Overlay -->
-    <div class="mobile-drawer-overlay" onclick="toggleMobileMenu()"></div>
+        <!-- Auth Actions (if logged in) -->
+        @auth
+        <div style="border-top: 1px solid #F1F5F9; margin-top: 0.25rem; padding-top: 0.5rem; display: flex; flex-direction: column; gap: 4px;">
+            <a href="{{ route('dashboard') }}" style="display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; text-decoration: none; color: #0F172A; font-size: 0.82rem; font-weight: 700; background: #F8FAFC;">
+                <span style="width: 28px; height: 28px; background: #F0F9FF; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0;">👤</span>
+                ข้อมูลส่วนตัว
+            </a>
+            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                @csrf
+                <button type="submit" style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; background: #FEF2F2; border: none; color: #EF4444; font-size: 0.82rem; font-weight: 800; cursor: pointer; font-family: 'Prompt', sans-serif; text-align: left;">
+                    <span style="width: 28px; height: 28px; background: #FECACA; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0;">🚪</span>
+                    ออกจากระบบ
+                </button>
+            </form>
+        </div>
+        @endauth
+    </div>
 
-    <!-- Mobile Navigation Drawer -->
-    <div class="mobile-drawer">
-         
-         <!-- Drawer Header -->
-         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;">
-             <span style="font-size: 1.15rem; font-weight: 700; color: white; font-family: 'Prompt', sans-serif;">ดีดี.ไอที.คอม</span>
-             <button type="button" onclick="toggleMobileMenu()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; padding: 2px;">
-                 <i class="fa-solid fa-xmark"></i>
-             </button>
-         </div>
 
-         <!-- Mobile Search Bar (Compact) -->
-         <form action="{{ route('products.index') }}" method="GET" style="margin: 0; display: flex; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px;">
-             <input type="text" name="q" value="{{ request('q') }}" placeholder="ค้นหาสินค้า..." style="background: none; border: none; outline: none; color: white; width: 100%; font-family: 'Prompt', sans-serif; font-size: 0.8rem;">
-             <button type="submit" style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; display: flex; align-items: center; padding: 0;">
-                 <i class="fa-solid fa-magnifying-glass" style="font-size: 0.85rem;"></i>
-             </button>
-         </form>
-
-         <!-- Mobile Menu Links (Compact) -->
-         <div style="display: flex; flex-direction: column; gap: 0.9rem; font-family: 'Prompt', sans-serif;">
-             <a href="{{ url('/') }}" style="color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-house" style="width: 20px; color: var(--color-silver-light); font-size: 0.85rem;"></i> หน้าแรก</a>
-             <a href="{{ route('about') }}" style="color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-circle-info" style="width: 20px; color: var(--color-silver-light); font-size: 0.85rem;"></i> เกี่ยวกับเรา</a>
-             <a href="{{ route('products.index') }}" style="color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-box" style="width: 20px; color: var(--color-silver-light); font-size: 0.85rem;"></i> สินค้าทั้งหมด</a>
-             <a href="{{ route('promotions.index') }}" style="color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-tags" style="width: 20px; color: var(--color-silver-light); font-size: 0.85rem;"></i> โปรโมชันพิเศษ</a>
-
-             <!-- Services Group -->
-             <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                 <button type="button" onclick="toggleMobileSubmenu('services-sub', this)" style="background: none; border: none; padding: 6px 8px; color: white; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; justify-content: space-between; width: 100%; cursor: pointer; text-align: left; font-family: 'Prompt', sans-serif; border-radius: 6px;">
-                     <span style="display: flex; align-items: center; gap: 10px; color: white;"><i class="fa-solid fa-handshake-angle" style="width: 20px; color: var(--color-silver-light); font-size: 0.85rem;"></i> บริการ & โซลูชัน</span>
-                     <i class="fa-solid fa-chevron-down submenu-arrow" style="font-size: 0.75rem; transition: transform 0.2s ease; color: var(--color-silver-light);"></i>
-                 </button>
-                 <div id="services-sub" style="display: none; flex-direction: column; gap: 0.5rem; padding-left: 1.25rem; border-left: 1.5px solid rgba(255,255,255,0.08); margin-left: 18px; margin-top: 0.15rem;">
-                     <a href="{{ route('services') }}" style="color: var(--color-silver); text-decoration: none; font-size: 0.8rem;">🛠️ บริการทั้งหมดของเรา</a>
-                     <a href="{{ route('installment') }}" style="color: var(--color-silver); text-decoration: none; font-size: 0.8rem;">💳 บริการผ่อนชำระ</a>
-                     <a href="{{ route('education') }}" style="color: var(--color-silver); text-decoration: none; font-size: 0.8rem;">🎓 โซลูชันเพื่อการศึกษา</a>
-                     <a href="{{ route('business') }}" style="color: var(--color-silver); text-decoration: none; font-size: 0.8rem;">🏢 โซลูชันสำหรับธุรกิจองค์กร</a>
-                 </div>
-             </div>
-
-             <!-- Service Center Group -->
-             <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                 <button type="button" onclick="toggleMobileSubmenu('center-sub', this)" style="background: none; border: none; padding: 6px 8px; color: white; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; justify-content: space-between; width: 100%; cursor: pointer; text-align: left; font-family: 'Prompt', sans-serif; border-radius: 6px;">
-                     <span style="display: flex; align-items: center; gap: 10px; color: white;"><i class="fa-solid fa-screwdriver-wrench" style="width: 20px; color: var(--color-silver-light); font-size: 0.85rem;"></i> ศูนย์ซ่อม & ติดตาม</span>
-                     <i class="fa-solid fa-chevron-down submenu-arrow" style="font-size: 0.75rem; transition: transform 0.2s ease; color: var(--color-silver-light);"></i>
-                 </button>
-                 <div id="center-sub" style="display: none; flex-direction: column; gap: 0.5rem; padding-left: 1.25rem; border-left: 1.5px solid rgba(255,255,255,0.08); margin-left: 18px; margin-top: 0.15rem;">
-                     <a href="{{ route('service_center') }}" style="color: var(--color-silver); text-decoration: none; font-size: 0.8rem;">🔧 ส่งซ่อม/เคลมออนไลน์</a>
-                     <a href="{{ route('tracking') }}" style="color: var(--color-silver); text-decoration: none; font-size: 0.8rem;">📦 ติดตามสถานะงาน</a>
-                     <a href="{{ route('help_center') }}" style="color: var(--color-silver); text-decoration: none; font-size: 0.8rem;">❓ ศูนย์ช่วยเหลือ & FAQ</a>
-                 </div>
-             </div>
-
-             <a href="{{ route('categoryblog') }}" style="color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-newspaper" style="width: 24px; color: var(--color-silver-light); font-size: 0.85rem;"></i> ข่าวสารและกิจกรรม</a>
-             <a href="{{ route('quotation.generate') }}" style="color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-file-invoice" style="width: 24px; color: var(--color-silver-light); font-size: 0.85rem;"></i> ขอใบเสนอราคา</a>
-         </div>
-
-         <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.06); margin: 0.25rem 0;">
-
-         <!-- Mobile Auth/Profile (Compact) -->
-         <div style="display: flex; flex-direction: column; gap: 0.6rem; font-family: 'Prompt', sans-serif;">
-             @auth
-                 <div style="color: white; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">👤 {{ auth()->user()->name }}</div>
-                 <a href="{{ route('dashboard') }}" style="color: white; text-decoration: none; background: rgba(255,255,255,0.06); padding: 8px 12px; border-radius: 6px; text-align: center; font-weight: 600; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.1); display: block;">💻 โปรไฟล์/แดชบอร์ด</a>
-                 <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
-                     @csrf
-                     <button type="submit" style="width: 100%; background: var(--color-danger); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 700; cursor: pointer; font-family: 'Prompt', sans-serif; font-size: 0.8rem;">🚪 ออกจากระบบ</button>
-                 </form>
-             @else
-                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                     <a href="{{ route('login') }}" style="color: white; text-decoration: none; background: rgba(255,255,255,0.06); padding: 8px; border-radius: 6px; text-align: center; font-weight: 600; font-size: 0.78rem; border: 1px solid rgba(255,255,255,0.1);">เข้าสู่ระบบ</a>
-                     <a href="{{ route('register') }}" style="color: white; text-decoration: none; background: var(--color-accent); padding: 8px; border-radius: 6px; text-align: center; font-weight: 600; font-size: 0.78rem;">สมัครสมาชิก</a>
-                 </div>
-             @endauth
-         </div>
+    <!-- Shopee-Style Mobile Bottom Floating Navigation Bar -->
+    <div class="shopee-mobile-bottom-nav">
+        <a href="{{ url('/') }}" class="nav-item {{ request()->is('/') ? 'active' : '' }}">
+            <i class="fa-solid fa-house"></i>
+            <span>หน้าแรก</span>
+        </a>
+        <a href="{{ route('products.index') }}" class="nav-item {{ request()->routeIs('products.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-mobile-screen"></i>
+            <span>สินค้า</span>
+        </a>
+        <a href="{{ route('cart.index') }}" class="nav-item {{ request()->routeIs('cart.*') ? 'active' : '' }}" style="position: relative;">
+            <i class="fa-solid fa-cart-shopping"></i>
+            @php $cartCount = session('cart') ? count(session('cart')) : 0; @endphp
+            @if($cartCount > 0)
+                <span class="bottom-cart-badge">{{ $cartCount }}</span>
+            @endif
+            <span>ตะกร้า</span>
+        </a>
+        <a href="{{ route('promotions.index') }}" class="nav-item {{ request()->routeIs('promotions.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-fire"></i>
+            <span>โปรเด็ด</span>
+        </a>
+        <a href="javascript:void(0)" id="mobile-menu-toggle-btn" onclick="toggleMobileMenu()" class="nav-item">
+            <i class="fa-solid fa-bars" id="mobile-menu-icon"></i>
+            <span>เมนู</span>
+        </a>
     </div>
 
     <!-- Main Content -->
@@ -250,83 +321,350 @@
     </a>
 
     <!-- Footer -->
-    <footer class="footer" style="border-top: 1px solid rgba(255,255,255,0.05);">
-        <div class="container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2.5rem;">
+    <footer class="footer-houkbank-style">
+        <div class="houkbank-top-waves-wrapper">
+            <svg class="houkbank-top-waves-svg" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+                <defs>
+                    <path id="gentle-wave-top-path" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+                </defs>
+                <g class="parallax-waves">
+                    <use href="#gentle-wave-top-path" x="48" y="0" fill="rgba(186, 230, 253, 0.4)" />
+                    <use href="#gentle-wave-top-path" x="48" y="3" fill="rgba(14, 116, 144, 0.6)" />
+                    <use href="#gentle-wave-top-path" x="48" y="5" fill="rgba(3, 105, 161, 0.85)" />
+                    <use href="#gentle-wave-top-path" x="48" y="7" fill="#0C4A6E" />
+                </g>
+            </svg>
+        </div>
+
+        <div class="container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2.5rem; max-width: 1200px; margin: 0 auto; padding-top: 3.5rem;">
             <div>
-                <h3 style="font-weight: 700; font-size: 1.3rem; color: white; margin-bottom: 1rem;">บริษัท ดีดี.ไอที.คอม จำกัด</h3>
-                <p style="color: rgba(160, 174, 192, 0.9); line-height: 1.7; font-size: 0.9rem;">ผู้เชี่ยวชาญทางด้านสินค้าโทรศัพท์มือถือและสินค้าไอทีแบบครบวงจร</p>
-                <p style="color: rgba(160, 174, 192, 0.7); font-size: 0.85rem; margin-top: 0.75rem;">📍 72/47-48ก ถนนชัยประสิทธิ์ ต.ในเมือง<br>อ.เมือง จ.ชัยภูมิ 36000</p>
-                <a href="https://maps.app.goo.gl/YyGucac8fsKzP4q28" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='white'" onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'; this.style.color='#f87171'">
-                    <i class="fa-solid fa-map-location-dot"></i> ดูแผนที่บน Google Maps ↗
-                </a>
+                <h3 style="font-weight: 900; font-size: 1.35rem; color: #FFE600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px;">
+                    <img src="{{ asset('images/logoddphone.png') }}" alt="DDPHONE Logo" style="height: 36px; width: auto; filter: drop-shadow(0 2px 4px rgba(255,230,0,0.3));" onerror="this.src='{{ asset('logoddphone.png') }}'">
+                    <span>DDPHONE ดีดีโฟน</span>
+                </h3>
+                <p style="color: #FFFFFF; line-height: 1.7; font-size: 0.9rem; font-weight: 700;">
+                    ศูนย์รวมโทรศัพท์มือถือ iPhone, iPad มือสองคัดเกรด A+ คุณภาพสูง รับประกันร้าน 30 วัน และบริการซ่อมครบวงจร (บริษัท ดีดี.ไอที.คอม จำกัด)
+                </p>
+                <p style="color: #FFFFFF; font-size: 0.88rem; margin-top: 1rem; font-weight: 800; line-height: 1.6;">
+                    📍 <strong style="color: #FFE600;">ที่ตั้งหน้าร้าน:</strong> 72/47-48ก ถนนชัยประสิทธิ์ ต.ในเมือง อ.เมือง จ.ชัยภูมิ 36000
+                </p>
             </div>
+
             <div>
-                <h3 style="font-weight: 700; font-size: 1rem; color: white; margin-bottom: 1rem;">ช่องทางติดต่อ</h3>
-                <p style="color: rgba(160, 174, 192, 0.9); font-size: 0.9rem; margin-bottom: 0.5rem;">📞 083-828-941</p>
-                <p style="color: rgba(160, 174, 192, 0.9); font-size: 0.9rem; margin-bottom: 0.5rem;">✉️ ddit.com.88@gmail.com</p>
-                <p style="color: rgba(160, 174, 192, 0.7); font-size: 0.85rem; margin-top: 0.5rem;">⏰ ทำการทุกวัน: 09:00 - 19:00 น.</p>
-                <div style="display: flex; gap: 12px; margin-top: 1rem;">
-                    <a href="https://www.facebook.com/dditcom" target="_blank" style="width: 36px; height: 36px; background: rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--color-silver); transition: all 0.2s; text-decoration: none;" onmouseover="this.style.background='#1877f2'; this.style.color='white'" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--color-silver)'"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="https://line.me/ti/p/@dditcom" target="_blank" style="width: 36px; height: 36px; background: rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--color-silver); transition: all 0.2s; text-decoration: none;" onmouseover="this.style.background='#06c755'; this.style.color='white'" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--color-silver)'"><i class="fa-brands fa-line"></i></a>
+                <h3 style="font-weight: 900; font-size: 1.15rem; color: #FFE600; margin-bottom: 1.25rem;">
+                    📞 ติดต่อร้าน DDPHONE
+                </h3>
+                <p style="color: #FFFFFF; font-size: 0.92rem; margin-bottom: 0.6rem; font-weight: 700;">
+                    📞 <strong style="color: #FFE600;">เบอร์โทรศัพท์:</strong> <a href="tel:0868699666" style="color: #FFFFFF; text-decoration: underline; font-weight: 900;">086-869-9666</a>
+                </p>
+                <p style="color: #FFFFFF; font-size: 0.92rem; margin-bottom: 0.6rem; font-weight: 700;">
+                    ✉️ <strong style="color: #FFE600;">อีเมล:</strong> ddphonechaiyaphume@gmail.com
+                </p>
+                <p style="color: #FFFFFF; font-size: 0.88rem; margin-top: 0.6rem; font-weight: 700;">
+                    ⏰ <strong style="color: #FFE600;">เวลาทำการ:</strong> เปิดให้บริการทุกวัน 09:00 - 19:00 น.
+                </p>
+                
+                <div style="display: flex; gap: 12px; margin-top: 1.25rem;">
+                    <a href="https://www.facebook.com/dditcom" target="_blank" title="Facebook Page" 
+                       style="width: 44px; height: 44px; background: #1877F2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; transition: transform 0.2s; text-decoration: none; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);"
+                       onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+                    <a href="https://line.me/ti/p/@dditcom" target="_blank" title="Line Official" 
+                       style="width: 44px; height: 44px; background: #06C755; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; transition: transform 0.2s; text-decoration: none; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(6, 199, 85, 0.4);"
+                       onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                        <i class="fa-brands fa-line"></i>
+                    </a>
                 </div>
             </div>
+
             <div>
-                <h3 style="font-weight: 700; font-size: 1rem; color: white; margin-bottom: 1rem;">บริการพิเศษ</h3>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <a href="{{ route('installment') }}" style="color: rgba(160, 174, 192, 0.9); text-decoration: none; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(160, 174, 192, 0.9)'">คำนวณยอดผ่อนชำระ</a>
-                    <a href="{{ route('education') }}" style="color: rgba(160, 174, 192, 0.9); text-decoration: none; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(160, 174, 192, 0.9)'">โซลูชันเพื่อการศึกษา</a>
-                    <a href="{{ route('business') }}" style="color: rgba(160, 174, 192, 0.9); text-decoration: none; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(160, 174, 192, 0.9)'">โซลูชันสำหรับธุรกิจองค์กร</a>
+                <h3 style="font-weight: 900; font-size: 1.15rem; color: #FFE600; margin-bottom: 1.25rem;">
+                    🔧 บริการ & ช่วยเหลือ
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="{{ route('service_center') }}" style="color: #FFFFFF; text-decoration: none; font-size: 0.92rem; font-weight: 700; transition: color 0.2s;" onmouseover="this.style.color='#FFE600'" onmouseout="this.style.color='#FFFFFF'">🔧 ศูนย์ซ่อม & เคลมประกันออนไลน์</a>
+                    <a href="{{ route('tracking') }}" style="color: #FFFFFF; text-decoration: none; font-size: 0.92rem; font-weight: 700; transition: color 0.2s;" onmouseover="this.style.color='#FFE600'" onmouseout="this.style.color='#FFFFFF'">📦 ติดตามสถานะงานซ่อม</a>
+                    <a href="{{ route('help_center') }}" style="color: #FFFFFF; text-decoration: none; font-size: 0.92rem; font-weight: 700; transition: color 0.2s;" onmouseover="this.style.color='#FFE600'" onmouseout="this.style.color='#FFFFFF'">❓ ศูนย์ช่วยเหลือ & คำถามที่พบบ่อย (FAQ)</a>
                 </div>
             </div>
+
             <div>
-                <h3 style="font-weight: 700; font-size: 1rem; color: white; margin-bottom: 1rem;">📍 แผนที่ร้านค้า (Google Maps)</h3>
-                <a href="https://maps.app.goo.gl/YyGucac8fsKzP4q28" target="_blank" style="display: block; position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-decoration: none; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                    <img src="{{ asset('images/store_map.png') }}" alt="แผนที่หน้าร้าน DD.IT.COM" style="width: 100%; height: 130px; object-fit: cover; display: block;">
-                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(15, 23, 42, 0.95)); padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; color: white;">
-                        <span style="font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">📍 นำทางไปยังร้านค้า</span>
-                        <span style="font-size: 0.72rem; background: #ef4444; color: white; padding: 2px 8px; border-radius: 10px; font-weight: 700;">เปิด Google Maps ↗</span>
-                    </div>
-                </a>
+                <h3 style="font-weight: 900; font-size: 1.15rem; color: #FFE600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-map-location-dot" style="color: #FFE600;"></i> 📍 ปักหมุดหน้าร้าน DDPHONE
+                </h3>
+                <div style="border-radius: 18px; overflow: hidden; border: 2px solid #FFE600; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); background: #1E293B; transition: transform 0.25s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <iframe src="https://maps.google.com/maps?q=15.8078,102.0308&hl=th&z=16&output=embed" 
+                            width="100%" height="145" style="border:0; display:block;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
             </div>
         </div>
-        <div style="border-top: 1px solid rgba(255,255,255,0.06); margin-top: 2rem; padding-top: 1.5rem; text-align: center; color: rgba(160, 174, 192, 0.5); font-size: 0.8rem;">
-            © {{ date('Y') }} บริษัท ดีดี.ไอที.คอม จำกัด — All rights reserved.
+
+        <div style="border-top: 1.5px solid rgba(255, 255, 255, 0.1); margin-top: 3rem; padding-top: 1.5rem; text-align: center; color: #94A3B8; font-size: 0.85rem; font-weight: 700;">
+            © {{ date('Y') }} DDPHONE ดีดีโฟน (บริษัท ดีดี.ไอที.คอม จำกัด) — สงวนลิขสิทธิ์ทุกประการ
         </div>
     </footer>
 
     <x-chat-widget />
 
-    @if (session('sweet_success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'สำเร็จ!',
-                text: '{{ session('sweet_success') }}',
-                confirmButtonColor: '#1B2A47'
-            });
-        </script>
-    @endif
-    
-    @if (session('error'))
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'ผิดพลาด',
-                text: '{{ session('error') }}',
-                confirmButtonColor: '#1B2A47'
-            });
-        </script>
-    @endif
-
     <script>
+        // Global Crystal-Clear Web Audio Manager for DDPHONE Notifications & Chat
+        window.DDPhoneAudio = (function() {
+            let ctx = null;
+
+            function getAudioContext() {
+                if (!ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        ctx = new AudioCtx();
+                    }
+                }
+                if (ctx && ctx.state === 'suspended') {
+                    ctx.resume().catch(() => {});
+                }
+                return ctx;
+            }
+
+            const unlockEvents = ['click', 'touchstart', 'touchend', 'keydown', 'scroll', 'mousemove'];
+            function unlockAudioContext() {
+                const audioCtx = getAudioContext();
+                if (audioCtx && audioCtx.state === 'running') {
+                    unlockEvents.forEach(evt => window.removeEventListener(evt, unlockAudioContext, true));
+                }
+            }
+            unlockEvents.forEach(evt => window.addEventListener(evt, unlockAudioContext, true));
+
+            function playNote(freq, startTime, duration, type = 'sine', maxVol = 0.25) {
+                const audioCtx = getAudioContext();
+                if (!audioCtx) return;
+
+                const triggerSound = () => {
+                    try {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+
+                        osc.type = type;
+                        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + startTime);
+
+                        gain.gain.setValueAtTime(maxVol, audioCtx.currentTime + startTime);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + startTime + duration);
+
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.start(audioCtx.currentTime + startTime);
+                        osc.stop(audioCtx.currentTime + startTime + duration);
+                    } catch(e) {
+                        console.warn('Audio tone play error:', e);
+                    }
+                };
+
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().then(triggerSound).catch(() => {});
+                } else {
+                    triggerSound();
+                }
+            }
+
+            return {
+                unlock() {
+                    getAudioContext();
+                },
+                playNotification() {
+                    // 3-note cheerful notification bell: G5 (783.99Hz) -> C6 (1046.50Hz) -> E6 (1318.51Hz)
+                    playNote(783.99, 0, 0.18, 'sine', 0.25);
+                    playNote(1046.50, 0.12, 0.22, 'sine', 0.28);
+                    playNote(1318.51, 0.26, 0.35, 'sine', 0.30);
+                },
+                playChat() {
+                    // 2-note message chime: High C6 (1046.50Hz) -> G6 (1567.98Hz)
+                    playNote(1046.50, 0, 0.12, 'sine', 0.22);
+                    playNote(1567.98, 0.09, 0.22, 'sine', 0.25);
+                }
+            };
+        })();
+
+        function notificationBell() {
+            return {
+                open: false,
+                notifications: [],
+                unreadCount: 0,
+                lastId: null,
+                polling: null,
+                init() {
+                    this.fetchNotifications(true);
+                    this.polling = setInterval(() => this.fetchNotifications(false), 2500);
+                    if ('Notification' in window && Notification.permission === 'default') {
+                        Notification.requestPermission();
+                    }
+                },
+                playBellSound() {
+                    if (window.DDPhoneAudio) {
+                        window.DDPhoneAudio.playNotification();
+                    }
+                },
+                showToast(title, message) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true,
+                        }).fire({ icon: 'info', title: title, text: message });
+                    }
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification(title, { body: message, icon: '/images/logoddphone.png' });
+                    }
+                },
+                fetchNotifications(isInitial = false) {
+                    fetch('/notifications/unread-data?_t=' + Date.now(), {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'Cache-Control': 'no-cache',
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+                    .then(data => {
+                        let newLatestId = data.latest_id;
+                        let newUnread = data.unread_count || 0;
+                        let newNotifs = data.notifications || [];
+
+                        if (!isInitial) {
+                            let hasNew = (newLatestId && this.lastId && newLatestId !== this.lastId)
+                                      || (newUnread > this.unreadCount);
+                            if (hasNew) {
+                                this.playBellSound();
+                                if (newNotifs.length > 0) this.showToast(newNotifs[0].title, newNotifs[0].message);
+                                let bellEl = document.querySelector('.animate-bell-period');
+                                if (bellEl) {
+                                    bellEl.classList.add('bell-shake');
+                                    setTimeout(() => bellEl.classList.remove('bell-shake'), 1000);
+                                }
+                            }
+                        }
+                        this.notifications = newNotifs;
+                        this.unreadCount = newUnread;
+                        this.lastId = newLatestId;
+                    })
+                    .catch(() => {});
+                },
+                openNotifPopup(item) {
+                    this.open = false;
+                    item.is_read = true;
+                    if (typeof Swal === 'undefined') {
+                        alert((item.title || '') + '\n\n' + (item.message || ''));
+                        return;
+                    }
+                    Swal.fire({
+                        title: item.title || 'การแจ้งเตือน',
+                        html: '<div style="text-align:left;font-size:0.93rem;line-height:1.7;color:#0F172A;padding:6px 0">'
+                            + '<p style="white-space:pre-wrap;font-weight:700;color:#334155;margin-bottom:12px">' + (item.message || '') + '</p>'
+                            + '<div style="font-size:0.77rem;color:#0284C7;font-weight:800">🕒 ' + (item.time_ago || '') + '</div>'
+                            + '</div>',
+                        icon: 'info',
+                        showCancelButton: !!(item.url && item.url !== '#'),
+                        confirmButtonText: (item.url && item.url !== '#') ? 'ไปยังหน้าเกี่ยวข้อง ➔' : 'รับทราบ',
+                        cancelButtonText: 'ปิด',
+                        confirmButtonColor: '#0284C7',
+                        cancelButtonColor: '#94A3B8',
+                    }).then((result) => {
+                        if (result.isConfirmed && item.url && item.url !== '#') {
+                            window.location.href = item.url;
+                        }
+                    });
+                },
+                toggleBell() {
+                    if (window.DDPhoneAudio) window.DDPhoneAudio.unlock();
+                    this.open = !this.open;
+                    if (this.open && this.unreadCount > 0) {
+                        this.unreadCount = 0;
+                        fetch('/notifications/mark-all-read', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            credentials: 'same-origin'
+                        }).then(r => r.json())
+                          .then(() => { this.notifications = this.notifications.map(n => ({...n, is_read: true})); })
+                          .catch(() => {});
+                    }
+                }
+            };
+        }
+
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Ajax add to cart
+
+            // Flying Basket Animation Function
+            window.flyToCart = function(startBtn) {
+                const targetCart = document.querySelector('#cart-badge-link i') || document.querySelector('.fa-basket-shopping');
+                if (!startBtn || !targetCart) return;
+
+                const btnRect = startBtn.getBoundingClientRect();
+                const cartRect = targetCart.getBoundingClientRect();
+
+                // Create flying element
+                const flyer = document.createElement('div');
+                flyer.innerHTML = '<i class="fa-solid fa-basket-shopping" style="color: #FFE600; font-size: 1.2rem;"></i>';
+                flyer.style.cssText = `
+                    position: fixed;
+                    z-index: 9999999;
+                    left: ${btnRect.left + btnRect.width / 2 - 18}px;
+                    top: ${btnRect.top + btnRect.height / 2 - 18}px;
+                    width: 36px;
+                    height: 36px;
+                    background: #0F172A;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.4);
+                    pointer-events: none;
+                    transition: all 0.75s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+                `;
+                document.body.appendChild(flyer);
+
+                // Trigger animation on next tick
+                requestAnimationFrame(() => {
+                    flyer.style.left = `${cartRect.left + cartRect.width / 2 - 14}px`;
+                    flyer.style.top = `${cartRect.top + cartRect.height / 2 - 14}px`;
+                    flyer.style.transform = 'scale(0.35) rotate(360deg)';
+                    flyer.style.opacity = '0.7';
+                });
+
+                // Remove element after animation completes and bounce cart badge
+                setTimeout(() => {
+                    if (flyer.parentNode) flyer.parentNode.removeChild(flyer);
+                    
+                    const cartLink = document.querySelector('#cart-badge-link');
+                    if (cartLink) {
+                        cartLink.style.transition = 'transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                        cartLink.style.transform = 'scale(1.4)';
+                        setTimeout(() => {
+                            cartLink.style.transform = 'scale(1)';
+                        }, 250);
+                    }
+                }, 750);
+            };
+
+            // AJAX add to cart
             document.body.addEventListener('submit', function(e) {
                 if (e.target && e.target.classList.contains('ajax-add-to-cart-form')) {
                     e.preventDefault();
                     const form = e.target;
                     const actionUrl = form.action;
                     const formData = new FormData(form);
+                    const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('button');
+
+                    // Trigger Flying Animation Immediately on Click
+                    if (submitBtn) {
+                        window.flyToCart(submitBtn);
+                    }
 
                     fetch(actionUrl, {
                         method: 'POST',
@@ -341,17 +679,18 @@
                         if (data.success) {
                             document.querySelectorAll('.cart-count-badge').forEach(el => {
                                 el.textContent = data.cart_count;
+                                el.style.display = data.cart_count > 0 ? 'inline-block' : 'none';
                             });
                             const Toast = Swal.mixin({
                                 toast: true,
-                                position: 'top-end',
+                                position: 'bottom-end',
                                 showConfirmButton: false,
                                 timer: 2500,
                                 timerProgressBar: true
                             });
                             Toast.fire({
                                 icon: 'success',
-                                title: data.message || 'เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว!'
+                                title: data.message || '🛒 เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว!'
                             });
                         } else {
                             Swal.fire({
@@ -368,7 +707,7 @@
                 }
             });
 
-            // AJAX Wishlist Toggle (heart buttons)
+            // AJAX Wishlist Toggle
             document.body.addEventListener('click', function(e) {
                 const btn = e.target.closest('.wishlist-toggle-btn');
                 if (!btn) return;
@@ -408,8 +747,7 @@
                 .catch(err => console.error(err));
             });
         });
-    </script>
-    <script>
+
         window.addEventListener('scroll', function() {
             const nav = document.getElementById('main-navbar');
             if (nav) {
@@ -420,19 +758,47 @@
                 }
             }
         });
+
         function toggleMobileMenu() {
             const drawer = document.querySelector('.mobile-drawer');
             const overlay = document.querySelector('.mobile-drawer-overlay');
+            const btn = document.getElementById('mobile-menu-toggle-btn');
+            const icon = document.getElementById('mobile-menu-icon');
             if (drawer && overlay) {
+                const isOpening = !drawer.classList.contains('open');
+
+                // Press bounce effect on the button
+                if (btn) {
+                    btn.style.transform = 'scale(0.82)';
+                    btn.style.transition = 'transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    setTimeout(() => {
+                        btn.style.transform = 'scale(1.08)';
+                        setTimeout(() => { btn.style.transform = 'scale(1)'; }, 100);
+                    }, 90);
+                }
+
+                // Icon swap: bars ↔ xmark
+                if (icon) {
+                    icon.style.transform = 'rotate(90deg) scale(0.7)';
+                    icon.style.transition = 'transform 0.18s ease';
+                    setTimeout(() => {
+                        if (isOpening) {
+                            icon.className = 'fa-solid fa-xmark';
+                        } else {
+                            icon.className = 'fa-solid fa-bars';
+                        }
+                        icon.style.transform = 'rotate(0deg) scale(1)';
+                    }, 160);
+                }
+
                 drawer.classList.toggle('open');
                 overlay.classList.toggle('open');
-                if (drawer.classList.contains('open')) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = '';
-                }
+
+                // No body scroll lock since it's a small popup now
+                document.body.style.overflow = '';
             }
         }
+
         function toggleMobileSubmenu(id, buttonEl) {
             const sub = document.getElementById(id);
             const arrow = buttonEl.querySelector('.submenu-arrow');
@@ -445,6 +811,8 @@
                     if (arrow) arrow.style.transform = 'rotate(0deg)';
                 }
             }
+        }
+
         function toggleStoreDropdown(element, event) {
             if (event) event.preventDefault();
             const parent = element.closest('.navbar-item-dropdown');
@@ -464,6 +832,49 @@
                 });
             }
         });
+
+        // Sticky Header & Smart Auto-Fold Topbar (100% Gapless Unified Motion)
+        let lastScrollY = window.scrollY;
+
+        window.addEventListener('scroll', function() {
+            const currentScrollY = window.scrollY;
+            const headerWrapper = document.querySelector('.header-sticky-wrapper');
+            const nav = document.getElementById('main-navbar');
+            
+            if (currentScrollY > 40) {
+                if (headerWrapper) headerWrapper.classList.add('scrolled-header');
+                if (nav) nav.classList.add('navbar-scrolled');
+                
+                // Detect Scroll Direction to move the entire header wrapper as one solid block (0px gap!)
+                if (currentScrollY > lastScrollY + 4) {
+                    // Scrolling DOWN -> Shift entire wrapper up by 35px so topbar hides seamlessly
+                    if (headerWrapper) headerWrapper.classList.add('topbar-hidden');
+                } else if (currentScrollY < lastScrollY - 4) {
+                    // Scrolling UP -> Shift entire wrapper down to reveal topbar seamlessly
+                    if (headerWrapper) headerWrapper.classList.remove('topbar-hidden');
+                }
+            } else {
+                // At top of page -> Keep both bars fully visible
+                if (headerWrapper) {
+                    headerWrapper.classList.remove('scrolled-header');
+                    headerWrapper.classList.remove('topbar-hidden');
+                }
+                if (nav) nav.classList.remove('navbar-scrolled');
+            }
+            
+            lastScrollY = currentScrollY;
+        }, { passive: true });
+
+        // Global Button Animation Helpers
+        window.animateHeartBtn = function(btn) {
+            btn.classList.add('heart-pop-anim');
+            setTimeout(() => btn.classList.remove('heart-pop-anim'), 450);
+        };
+
+        window.animateBasketBtn = function(btn) {
+            btn.classList.add('basket-bounce-anim');
+            setTimeout(() => btn.classList.remove('basket-bounce-anim'), 450);
+        };
     </script>
 </div>
 </body>

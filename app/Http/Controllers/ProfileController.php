@@ -32,8 +32,15 @@ class ProfileController extends Controller
         if ($request->hasFile('avatar')) {
             if ($user->avatar && !\Illuminate\Support\Str::startsWith($user->avatar, 'http')) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+                @unlink(public_path('storage/' . $user->avatar));
             }
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = $path;
+
+            // Mirror file to public/storage for Windows webserver compatibility
+            @mkdir(dirname(public_path('storage/' . $path)), 0777, true);
+            @copy(storage_path('app/public/' . $path), public_path('storage/' . $path));
         }
 
         $user->fill($validated);
@@ -42,9 +49,16 @@ class ProfileController extends Controller
             $user->email_verified_at = null;
         }
 
+        if ($request->filled('password')) {
+            $request->validate([
+                'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            ]);
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+
         $user->save();
 
-        return Redirect::back()->with('sweet_success', 'อัปเดตข้อมูลส่วนตัวเรียบร้อยแล้ว!');
+        return Redirect::back()->with('sweet_success', 'อัปเดตข้อมูลส่วนตัวและรูปโปรไฟล์เรียบร้อยแล้ว!');
     }
 
     /**

@@ -29,7 +29,12 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar) {
-            return str_starts_with($this->avatar, 'http') ? $this->avatar : \Illuminate\Support\Facades\Storage::url($this->avatar);
+            if (str_starts_with($this->avatar, 'http')) {
+                return $this->avatar;
+            }
+            $url = \Illuminate\Support\Facades\Storage::url($this->avatar);
+            $timestamp = $this->updated_at ? $this->updated_at->timestamp : time();
+            return $url . '?v=' . $timestamp;
         }
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=FFFFFF&background=1B2A47';
     }

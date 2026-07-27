@@ -76,17 +76,37 @@
 
                 <!-- Payment Slip Display -->
                 @php
-                    $payment = \App\Models\Payment::where('order_id', $order->id)->first();
+                    $payment = $order->payments->first() ?? \App\Models\Payment::where('order_id', $order->id)->first();
+                    $slipUrl = null;
+                    if ($payment && !empty($payment->slip_image)) {
+                        $rawPath = ltrim(str_replace(['public/', 'storage/'], '', $payment->slip_image), '/');
+                        $slipUrl = '/storage/' . $rawPath;
+                    }
                 @endphp
-                @if($payment && $payment->slip_image)
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <h3 class="font-bold text-lg mb-4">หลักฐานการโอนเงิน (สลิป)</h3>
-                    <a href="{{ Storage::url($payment->slip_image) }}" target="_blank">
-                        <img src="{{ Storage::url($payment->slip_image) }}" alt="Slip Image" class="max-w-full h-auto rounded border hover:opacity-90">
-                    </a>
-                    <p class="text-xs text-gray-500 mt-2">* คลิกที่รูปเพื่อเปิดภาพขนาดเต็ม</p>
+                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-file-invoice-dollar text-indigo-600"></i>
+                        หลักฐานการโอนเงิน (สลิป)
+                    </h3>
+                    @if($slipUrl)
+                        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-center">
+                            <div onclick="Swal.fire({ title: '📄 สลิปโอนเงิน ออเดอร์ #{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}', imageUrl: '{{ $slipUrl }}', imageAlt: 'สลิปชำระเงิน', showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', confirmButtonColor: '#4f46e5', customClass: { popup: 'rounded-3xl' } })" 
+                                 class="inline-block relative group cursor-pointer">
+                                <img src="{{ $slipUrl }}" 
+                                     alt="Slip Image #{{ $order->id }}" 
+                                     class="max-w-full h-auto max-h-[420px] mx-auto rounded-xl border border-slate-200 shadow-md group-hover:scale-[1.02] transition-transform duration-200"
+                                     onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='/media/{{ ltrim(str_replace(['public/','storage/'], '', $payment->slip_image), '/') }}';}">
+                                <div class="mt-2 text-xs text-indigo-600 font-bold flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-expand"></i> คลิกเพื่อเปิดกล่องหน้าต่างเด้งดูรูปภาพ
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs font-semibold text-center">
+                            ⚠️ ลูกค้ายังไม่ได้อัปโหลดรูปภาพสลิปชำระเงิน
+                        </div>
+                    @endif
                 </div>
-                @endif
             </div>
 
         </div>

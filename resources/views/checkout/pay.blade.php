@@ -86,8 +86,9 @@
                 <div class="tabs-buttons">
                     <button @click="paymentType = 'promptpay'" 
                             :class="paymentType === 'promptpay' ? 'active-tab' : 'inactive-tab'">
-                        <span class="tab-icon">📱</span> PromptPay QR
+                        <span class="tab-icon">📱</span> PromptPay QR & โอนผ่านหมายเลขบัญชี
                     </button>
+                    @if(false)
                     <button @click="paymentType = 'direct_debit'" 
                             :class="paymentType === 'direct_debit' ? 'active-tab' : 'inactive-tab'">
                         <span class="tab-icon">🏦</span> หักบัญชีธนาคาร
@@ -106,6 +107,7 @@
                             style="background: linear-gradient(135deg, #059669, #047857); color: white; border: none;">
                         <span class="tab-icon">🏧</span> SCB บัตรเครดิต/เดบิต
                     </button>
+                    @endif
                 </div>
                 
                 <!-- TAB 1: PromptPay -->
@@ -149,6 +151,7 @@
                     </form>
                 </div>
 
+                @if(false)
                 <!-- TAB 2: Direct Debit Bank Transfer -->
                 <div x-show="paymentType === 'direct_debit'" class="tab-content fade-in" x-cloak>
                     @if($paymentMethods->isEmpty())
@@ -230,9 +233,9 @@
                     </div>
                 </div>
 
-                {{-- TAB: SCB PromptPay / QR (2C2P) --}}
+                <!-- TAB: SCB PromptPay / QR (2C2P) -->
                 <div x-show="paymentType === 'scb_qr'" class="tab-content fade-in" x-cloak>
-                    <div style="background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 20px; padding: 2.5rem; text-align: center; border: 1.5px solid #c4b5fd;">
+                    <div style="background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 20px; padding: 2.5rem; text-align: text; border: 1.5px solid #c4b5fd;">
                         <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 1rem;">
                             <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #4f46e5, #7c3aed); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(79,70,229,0.35);">
                                 <i class="fa-solid fa-qrcode" style="color: white; font-size: 1.5rem;"></i>
@@ -269,7 +272,7 @@
                     </div>
                 </div>
 
-                {{-- TAB: SCB Credit/Debit Card (2C2P) --}}
+                <!-- TAB: SCB Credit/Debit Card (2C2P) -->
                 <div x-show="paymentType === 'scb_card'" class="tab-content fade-in" x-cloak>
                     <div style="background: linear-gradient(135deg, #ecfdf5, #f0fdf4); border-radius: 20px; padding: 2.5rem; text-align: center; border: 1.5px solid #86efac;">
                         <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 1rem;">
@@ -312,6 +315,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
             </div>
         </div>
@@ -493,7 +497,7 @@
     }
 
     .payment-header {
-        background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-navy-light) 100%);
+        background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
         color: white;
         padding: 1.75rem 2rem;
     }

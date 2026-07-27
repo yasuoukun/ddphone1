@@ -7,6 +7,11 @@
 
         <title>DDPHONE ดีดีโฟน - เข้าสู่ระบบ / สมัครสมาชิก</title>
 
+        <!-- Favicon / Website Icon -->
+        <link rel="icon" type="image/png" href="{{ asset('images/logoddphone.png') }}">
+        <link rel="shortcut icon" type="image/png" href="{{ asset('images/logoddphone.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/logoddphone.png') }}">
+
         <!-- Fonts & Icons -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -1,5 +1,5 @@
 @if(auth()->check() && auth()->user()->role === 'customer')
-<div x-data="chatWidget()" x-init="initChat()" @open-customer-chat.window="open = true; fetchMessages(); scrollDown();" style="position: fixed; bottom: 25px; right: 25px; z-index: 9999; font-family: 'Prompt', sans-serif;">
+<div x-data="chatWidget()" x-init="initChat()" @open-customer-chat.window="open = true; fetchMessages(); scrollDown();" style="position: fixed; bottom: 25px; right: 25px; z-index: 9999999; font-family: 'Prompt', sans-serif;">
      
     <!-- Chat Window -->
     <div x-show="open" x-cloak
@@ -137,37 +137,15 @@ function chatWidget() {
                     this.scrollDown();
                 });
 
-            // Start normal polling
-            setInterval(() => this.fetchMessages(), 3000);
+            // Start fast real-time polling (1.2s interval)
+            setInterval(() => this.fetchMessages(), 1200);
         },
         unreadCount() {
             return this.messages.filter(m => m.sender_id !== this.userId && !m.is_read).length;
         },
         playChime() {
-            try {
-                let ctx = new (window.AudioContext || window.webkitAudioContext)();
-                let playNote = (frequency, startTime, duration) => {
-                    let osc = ctx.createOscillator();
-                    let gain = ctx.createGain();
-                    
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(frequency, startTime);
-                    
-                    gain.gain.setValueAtTime(0.15, startTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-                    
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    
-                    osc.start(startTime);
-                    osc.stop(startTime + duration);
-                };
-                
-                let now = ctx.currentTime;
-                playNote(587.33, now, 0.12); // D5
-                playNote(880.00, now + 0.1, 0.25); // A5
-            } catch(e) {
-                console.log('Chime error:', e);
+            if (window.DDPhoneAudio) {
+                window.DDPhoneAudio.playChat();
             }
         },
         fetchMessages() {

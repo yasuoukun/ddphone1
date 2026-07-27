@@ -59,9 +59,9 @@
         </div>
 
         <!-- Submit Button -->
-            <button type="submit" class="btn-capsule-yellow" style="width: 100%; justify-content: center; font-size: 0.95rem !important;">
-                เข้าสู่ระบบ <span class="circle-icon"><i class="fa-solid fa-right-to-bracket"></i></span>
-            </button>
+        <button type="submit" class="btn-primary-navy">
+            <i class="fa-solid fa-right-to-bracket" style="font-size: 0.95rem; color: #FFE600;"></i> เข้าสู่ระบบ
+        </button>
     </form>
 
     <!-- Divider & Secondary Action -->

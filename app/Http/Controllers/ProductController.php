@@ -13,9 +13,24 @@ class ProductController extends Controller
     {
         $query = Product::with(['images', 'brand', 'category']);
 
-        // Search by keyword
+        // Smart Multi-word search across name, description, sku, brand name, category name
         if ($request->filled('q')) {
-            $query->where('name', 'like', '%' . $request->input('q') . '%');
+            $keywords = array_filter(explode(' ', trim($request->input('q'))));
+            $query->where(function($q) use ($keywords) {
+                foreach ($keywords as $word) {
+                    $q->where(function($sub) use ($word) {
+                        $sub->where('name', 'like', "%{$word}%")
+                            ->orWhere('description', 'like', "%{$word}%")
+                            ->orWhere('sku', 'like', "%{$word}%")
+                            ->orWhereHas('brand', function($b) use ($word) {
+                                $b->where('name', 'like', "%{$word}%");
+                            })
+                            ->orWhereHas('category', function($c) use ($word) {
+                                $c->where('name', 'like', "%{$word}%");
+                            });
+                    });
+                }
+            });
         }
 
         // Filter by multiple Brand IDs (Checkboxes)
@@ -34,7 +49,7 @@ class ProductController extends Controller
             $query->where('category_id', $request->input('category_id'));
         }
 
-        // Filter by Min/Max Price (Checks discount_price if available, otherwise regular price)
+        // Filter by Min/Max Price
         if ($request->filled('min_price')) {
             $query->where(function($q) use ($request) {
                 $q->where(function($sub) use ($request) {
@@ -60,12 +75,40 @@ class ProductController extends Controller
 
         // Filter for discounted/on-sale products only
         if ($request->boolean('on_sale')) {
-            $query->whereNotNull('discount_price');
+            $query->whereNotNull('discount_price')->where('discount_price', '>', 0);
+        }
+
+        // Sorting
+        $sort = $request->input('sort', 'latest');
+        switch ($sort) {
+            case 'price_low':
+                $query->orderByRaw('COALESCE(discount_price, price) ASC');
+                break;
+            case 'price_high':
+                $query->orderByRaw('COALESCE(discount_price, price) DESC');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'latest':
+            default:
+                $query->orderBy('id', 'desc');
+                break;
         }
 
         $products = $query->paginate(12)->withQueryString();
         $brands = Brand::all();
         $categories = Category::all();
+
+        if ($request->ajax() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            $gridHtml = view('products.partials.product_grid', compact('products'))->render();
+            $paginationHtml = $products->links()->toHtml();
+            return response()->json([
+                'html' => $gridHtml,
+                'total' => $products->total(),
+                'pagination' => $paginationHtml
+            ]);
+        }
 
         return view('products.index', compact('products', 'brands', 'categories'));
     }

@@ -11,7 +11,7 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
-        $totalOrders = Order::count();
+        $totalOrders = Order::where('status', '!=', 'pending')->count();
         $pendingOrders = Order::where('status', 'pending_verification')->count();
         $confirmedOrders = Order::where('status', 'confirmed')->count();
         $totalProducts = Product::count();
@@ -19,10 +19,41 @@ class AdminDashboardController extends Controller
 
         // Financial stats
         $totalRevenue = Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])->sum('total_amount');
+        
+        // Today vs Yesterday Revenue
+        $todayRevenue = Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])
+            ->whereDate('created_at', now()->today())
+            ->sum('total_amount');
+        $yesterdayRevenue = Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])
+            ->whereDate('created_at', now()->yesterday())
+            ->sum('total_amount');
+        $dailyGrowth = $yesterdayRevenue > 0 
+            ? round((($todayRevenue - $yesterdayRevenue) / $yesterdayRevenue) * 100, 1) 
+            : ($todayRevenue > 0 ? 100 : 0);
+
+        // This Month vs Last Month Revenue
         $monthlyRevenue = Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->sum('total_amount');
+        $lastMonthRevenue = Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])
+            ->whereMonth('created_at', now()->subMonth()->month)
+            ->whereYear('created_at', now()->subMonth()->year)
+            ->sum('total_amount');
+        $monthlyGrowth = $lastMonthRevenue > 0 
+            ? round((($monthlyRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100, 1) 
+            : ($monthlyRevenue > 0 ? 100 : 0);
+
+        // This Week vs Last Week Revenue
+        $thisWeekRevenue = Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])
+            ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
+            ->sum('total_amount');
+        $lastWeekRevenue = Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])
+            ->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
+            ->sum('total_amount');
+        $weeklyGrowth = $lastWeekRevenue > 0 
+            ? round((($thisWeekRevenue - $lastWeekRevenue) / $lastWeekRevenue) * 100, 1) 
+            : ($thisWeekRevenue > 0 ? 100 : 0);
 
         // Sales last 7 days for line chart
         $salesLast7Days = [];
@@ -91,9 +122,62 @@ class AdminDashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'totalOrders', 'pendingOrders', 'confirmedOrders', 'totalProducts', 'unreadChats',
-            'totalRevenue', 'monthlyRevenue', 'salesLast7Days', 'labelsLast7Days', 'orderStatuses',
+            'totalRevenue', 'monthlyRevenue', 'todayRevenue', 'thisWeekRevenue', 'dailyGrowth', 'weeklyGrowth', 'monthlyGrowth',
+            'salesLast7Days', 'labelsLast7Days', 'orderStatuses',
             'topSellingProducts', 'mostWishlistedProducts', 'topRatedProducts', 'lowStockProducts',
             'totalWishlistsCount', 'totalReviewsCount', 'avgRating'
         ));
+    }
+
+    public function getSalesChartData(Request $request)
+    {
+        $period = $request->query('period', 'day');
+        $labels = [];
+        $data = [];
+
+        if ($period === 'day') {
+            for ($i = 6; $i >= 0; $i--) {
+                $date = now()->subDays($i)->format('Y-m-d');
+                $sum = Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])
+                    ->whereDate('created_at', $date)
+                    ->sum('total_amount');
+                $data[] = (float)$sum;
+                $labels[] = now()->subDays($i)->locale('th')->translatedFormat('j M');
+            }
+        } elseif ($period === 'week') {
+            for ($i = 7; $i >= 0; $i--) {
+                $startOfWeek = now()->subWeeks($i)->startOfWeek();
+                $endOfWeek = now()->subWeeks($i)->endOfWeek();
+                $sum = Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])
+                    ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
+                    ->sum('total_amount');
+                $data[] = (float)$sum;
+                $labels[] = $startOfWeek->locale('th')->translatedFormat('j M') . ' - ' . $endOfWeek->locale('th')->translatedFormat('j M');
+            }
+        } elseif ($period === 'month') {
+            for ($i = 11; $i >= 0; $i--) {
+                $date = now()->subMonths($i);
+                $sum = Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])
+                    ->whereMonth('created_at', $date->month)
+                    ->whereYear('created_at', $date->year)
+                    ->sum('total_amount');
+                $data[] = (float)$sum;
+                $labels[] = $date->locale('th')->translatedFormat('M Y');
+            }
+        } elseif ($period === 'year') {
+            for ($i = 4; $i >= 0; $i--) {
+                $year = now()->subYears($i)->year;
+                $sum = Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])
+                    ->whereYear('created_at', $year)
+                    ->sum('total_amount');
+                $data[] = (float)$sum;
+                $labels[] = (string)($year + 543);
+            }
+        }
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data
+        ]);
     }
 }

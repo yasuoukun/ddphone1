@@ -94,19 +94,45 @@
                         </div>
                     </div>
 
+                    <!-- Section 8.2: Installment Options (มีผ่อนชำระ / ไม่มีผ่อนชำระ) -->
+                    <div class="mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-200" x-data="{ hasInstallment: {{ old('installment_details') ? 'true' : 'false' }} }">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-credit-card text-blue-600"></i> เงื่อนไขการผ่อนชำระสินค้า
+                            </label>
+                            <div class="flex items-center gap-4">
+                                <label class="inline-flex items-center cursor-pointer gap-2 font-bold text-xs text-slate-700">
+                                    <input type="radio" name="has_installment_radio" value="0" @click="hasInstallment = false" :checked="!hasInstallment" class="text-indigo-600">
+                                    <span>ไม่มีผ่อนชำระ</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer gap-2 font-bold text-xs text-blue-600">
+                                    <input type="radio" name="has_installment_radio" value="1" @click="hasInstallment = true" :checked="hasInstallment" class="text-indigo-600">
+                                    <span>มีผ่อนชำระ</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div x-show="hasInstallment" style="display: none;" class="mt-3">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">ระบุรายละเอียดผ่อนชำระ (เช่น ผ่อนเริ่มต้น ฿2,990 / เดือน นาน 10 เดือน)</label>
+                            <input type="text" name="installment_details" value="{{ old('installment_details') }}" class="block w-full rounded-xl border-gray-200 shadow-sm focus:border-blue-500 font-semibold text-sm" placeholder="เช่น ผ่อนชำระเริ่มต้น ฿2,990 / เดือน (สูงสุด 10 เดือน)">
+                            <p class="text-[11px] text-blue-600 font-semibold mt-1">* หากเลือก 'มีผ่อนชำระ' และระบุรายละเอียด รายละเอียดผ่อนชำระนี้จะไปแสดงผลในหน้าสินค้า</p>
+                        </div>
+                    </div>
+
                     <!-- Upload Input with AlpineJS Preview -->
                     <div class="mb-8" x-data="{ previewImages: [] }">
-                        <label class="block text-sm font-bold text-slate-700 mb-2">รูปภาพสินค้า (อัปโหลดหลายรูปภาพได้)</label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-200 border-dashed rounded-2xl bg-slate-50/50 hover:bg-slate-50 transition relative">
+                        <label class="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                            <span>รูปภาพสินค้า <span class="text-rose-500">* (จำเป็นต้องแนบอย่างน้อย 1 รูปภาพ)</span></span>
+                        </label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-2xl transition relative" :class="previewImages.length > 0 ? 'border-indigo-400 bg-indigo-50/20' : 'border-rose-300 bg-rose-50/20'">
                             <div class="space-y-1 text-center">
-                                <i class="fa-solid fa-images text-slate-400 text-3xl mb-2"></i>
-                                <div class="flex text-sm text-gray-600">
-                                    <label class="relative cursor-pointer bg-white rounded-md font-semibold text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                                        <span>คลิกเพื่ออัปโหลดไฟล์ภาพ</span>
-                                        <input type="file" name="images[]" accept="image/*" @change="previewImages = Array.from($event.target.files).map(file => URL.createObjectURL(file))" multiple class="sr-only">
+                                <i class="fa-solid fa-images text-3xl mb-2" :class="previewImages.length > 0 ? 'text-indigo-500' : 'text-rose-400'"></i>
+                                <div class="flex text-sm text-gray-600 justify-center">
+                                    <label class="relative cursor-pointer bg-white px-3 py-1.5 rounded-xl font-bold shadow-sm text-indigo-600 hover:text-indigo-500 focus-within:outline-none border border-indigo-200">
+                                        <span>คลิกเพื่อเลือกไฟล์รูปภาพสินค้า</span>
+                                        <input type="file" name="images[]" accept="image/*" required @change="previewImages = Array.from($event.target.files).map(file => URL.createObjectURL(file))" multiple class="sr-only">
                                     </label>
                                 </div>
-                                <p class="text-xs text-slate-400">PNG, JPG, JPEG, WEBP ขนาดไม่เกิน 2MB ต่อรูปภาพ</p>
+                                <p class="text-xs font-semibold text-slate-500">รองรับไฟล์ PNG, JPG, JPEG, WEBP ขนาดไม่เกิน 50MB ต่อรูปภาพ</p>
                             </div>
                         </div>
 
@@ -130,7 +156,7 @@
                         <a href="{{ route('central_admin.products.index') }}" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition shadow-sm">
                             ยกเลิก
                         </a>
-                        <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm">
+                        <button type="submit" onclick="if(this.form.checkValidity()) { this.disabled=true; this.innerText='⏳ กำลังบันทึกข้อมูลสินค้า...'; this.form.submit(); }" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm">
                             บันทึกข้อมูลสินค้า
                         </button>
                     </div>

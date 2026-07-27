@@ -130,32 +130,32 @@
         <!-- Cart Summary / Order Checkout Card -->
         <template x-if="Object.keys(cart).length > 0">
             <div style="flex: 1 1 350px;">
-                <div style="background: #070D1B; border: 2px solid #FFE600; border-radius: 22px; padding: 2rem; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: sticky; top: 100px;">
-                    <h3 style="font-size: 1.35rem; font-weight: 900; color: #FFE600; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,230,0,0.3); padding-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-receipt" style="color: #FF5722;"></i> สรุปคำสั่งซื้อ
+                <div style="background: white; border: 2px solid #BAE6FD; border-radius: 22px; padding: 2rem; color: #0F172A; box-shadow: 0 10px 30px rgba(8, 145, 178, 0.12); position: sticky; top: 100px;">
+                    <h3 style="font-size: 1.35rem; font-weight: 900; color: #0E7490; margin-bottom: 1.5rem; border-bottom: 2px solid #BAE6FD; padding-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-receipt" style="color: #0284C7;"></i> สรุปคำสั่งซื้อ
                     </h3>
                     
                     <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1rem;">
-                        <span style="color: #CBD5E1;">ยอดรวมสินค้า</span>
-                        <span style="font-weight: 700; color: white;">฿<span x-text="total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                        <span style="color: #64748B; font-weight: 600;">ยอดรวมสินค้า</span>
+                        <span style="font-weight: 800; color: #0F172A;">฿<span x-text="total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
                     </div>
 
                     <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; font-size: 1rem;">
-                        <span style="color: #CBD5E1;">ค่าจัดส่งด่วน</span>
-                        <span style="font-weight: 800; color: #FFE600;">จัดส่งฟรีทั่วไทย</span>
+                        <span style="color: #64748B; font-weight: 600;">ค่าจัดส่งด่วน</span>
+                        <span style="font-weight: 800; color: #166534; background: #DCFCE7; padding: 2px 10px; border-radius: 99px; font-size: 0.85rem;">จัดส่งฟรีทั่วไทย</span>
                     </div>
 
-                    <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem;">
+                    <hr style="border: 0; border-top: 1.5px dashed #BAE6FD; margin-bottom: 1.5rem;">
 
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 2rem; font-size: 1.3rem; font-weight: 900;">
-                        <span style="color: white;">ยอดชำระสุทธิ</span>
-                        <span style="color: #FFE600;">฿<span x-text="total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 2rem; font-size: 1.35rem; font-weight: 900;">
+                        <span style="color: #0F172A;">ยอดชำระสุทธิ</span>
+                        <span style="color: #EF4444;">฿<span x-text="total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
                     </div>
 
                     <a :href="selectedItems.length ? '{{ route('checkout.index') }}?items=' + selectedItems.join(',') : '#'"
                        @click="if(!selectedItems.length) { $event.preventDefault(); Swal.fire({icon: 'warning', title: 'กรุณาเลือกสินค้า', text: 'กรุณาเลือกสินค้าอย่างน้อย 1 ชิ้นเพื่อดำเนินชำระเงิน'}); }"
                        style="text-decoration: none; display: block;">
-                        <button class="btn-yellow-fun yellow-glow" style="width: 100%; justify-content: center; font-size: 1.05rem !important; padding: 14px !important;">
+                        <button style="width: 100%; justify-content: center; font-size: 1.05rem !important; padding: 14px !important; background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: white; border: none; border-radius: 99px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35); display: flex; align-items: center; gap: 8px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
                             <i class="fa-solid fa-credit-card"></i> ดำเนินการสั่งซื้อ / ชำระเงิน
                         </button>
                     </a>

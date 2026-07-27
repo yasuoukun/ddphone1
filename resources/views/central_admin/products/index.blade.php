@@ -1,11 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center justify-between">
-            <span class="flex items-center gap-2">
+            <span class="flex items-center gap-3">
+                <!-- Back Button (Section 8.4) -->
+                <a href="{{ route('central_admin.dashboard') }}" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm">
+                    <i class="fa-solid fa-arrow-left"></i> กลับแดชบอร์ด
+                </a>
                 <i class="fa-solid fa-mobile-retro text-indigo-600"></i>
                 จัดการสินค้าทั้งหมด
             </span>
-            @if(auth()->user()->role === 'super_admin')
+            @if(auth()->user()->role === 'super_admin' || auth()->user()->role === 'admin')
             <a href="{{ route('central_admin.products.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-sm transition text-sm">
                 <i class="fa-solid fa-plus"></i> เพิ่มสินค้าใหม่
             </a>
@@ -44,7 +48,7 @@
                 </select>
             </x-real-time-filter>
 
-            <!-- Products Table -->
+            <!-- Products Table (Section 8.3 & Section 8.4) -->
             <div class="bg-white overflow-hidden shadow-sm rounded-3xl border border-gray-100">
                 <div class="overflow-x-auto">
                     <table id="productsTable" class="w-full text-left border-collapse">
@@ -53,10 +57,9 @@
                                 <th class="py-4 px-4 text-center rounded-tl-xl">รูปภาพ</th>
                                 <th class="py-4 px-4">ชื่อสินค้า</th>
                                 <th class="py-4 px-4">หมวดหมู่</th>
-                                <th class="py-4 px-4">แบรนด์</th>
                                 <th class="py-4 px-4 text-right">ราคา</th>
-                                <th class="py-4 px-4 text-center">สต็อก</th>
-                                <th class="py-4 px-4 text-center rounded-tr-xl">จัดการ</th>
+                                <th class="py-4 px-4 text-center">เติมสต็อกสินค้า (Section 8.3)</th>
+                                <th class="py-4 px-4 text-center rounded-tr-xl">จัดการสินค้า (Section 8.4)</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
@@ -70,21 +73,23 @@
                                 data-filter-brand="{{ $product->brand->name ?? '' }}"
                                 data-filter-stock="{{ $stockStatus }}">
                                 <td class="py-4 px-4 flex justify-center">
-                                    @if($product->images->where('is_primary', true)->first())
-                                        @php $primaryImgPath = $product->images->where('is_primary', true)->first()->image_path; @endphp
-                                        @if(str_starts_with($primaryImgPath, 'http'))
-                                            <img src="{{ $primaryImgPath }}" class="w-14 h-14 object-contain rounded-xl border border-gray-100 shadow-sm bg-white">
-                                        @else
-                                            <img src="{{ Storage::url($primaryImgPath) }}" class="w-14 h-14 object-contain rounded-xl border border-gray-100 shadow-sm bg-white">
-                                        @endif
+                                    @if($product->primary_image_url)
+                                        <img src="{{ $product->primary_image_url }}" class="w-14 h-14 object-contain rounded-xl border border-gray-100 shadow-sm bg-white">
                                     @else
-                                        <div class="w-14 h-14 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center text-lg border border-gray-50">
+                                        <div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center text-lg border border-amber-200 shadow-sm" title="สินค้านี้ยังไม่มีรูปภาพ">
                                             <i class="fa-solid fa-image"></i>
                                         </div>
                                     @endif
                                 </td>
                                 <td class="py-4 px-4">
-                                    <div class="font-bold text-slate-800">{{ $product->name }}</div>
+                                    <div class="font-bold text-slate-800 text-base flex items-center gap-2">
+                                        <span>{{ $product->name }}</span>
+                                        @if($product->images->count() === 0)
+                                            <span class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full text-[10px] font-bold" title="สินค้านี้ยังไม่มีการอัปโหลดรูปภาพ">
+                                                <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> ยังไม่มีรูปภาพ
+                                            </span>
+                                        @endif
+                                    </div>
                                     <div class="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
                                         <span>ID: {{ $product->id }}</span>
                                         @if($product->sku)
@@ -93,43 +98,48 @@
                                     </div>
                                 </td>
                                 <td class="py-4 px-4">
-                                    <span class="px-3 py-1 text-xs font-semibold bg-blue-50 text-blue-700 rounded-full">
+                                    <span class="px-3 py-1 text-xs font-bold bg-blue-50 text-blue-700 rounded-full">
                                         {{ $product->category->name ?? 'ทั่วไป' }}
-                                    </span>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <span class="px-3 py-1 text-xs font-semibold bg-purple-50 text-purple-700 rounded-full">
-                                        {{ $product->brand->name ?? 'ทั่วไป' }}
                                     </span>
                                 </td>
                                 <td class="py-4 px-4 text-right">
                                     <div class="font-bold text-slate-800">
                                         @if($product->discount_price)
-                                            <span class="text-rose-600">฿{{ number_format($product->discount_price, 2) }}</span>
+                                            <span class="text-rose-600 text-base font-extrabold">฿{{ number_format($product->discount_price, 2) }}</span>
                                             <div class="text-xs text-slate-400 line-through font-normal">฿{{ number_format($product->price, 2) }}</div>
                                         @else
-                                            <span>฿{{ number_format($product->price, 2) }}</span>
+                                            <span class="text-base font-extrabold">฿{{ number_format($product->price, 2) }}</span>
                                         @endif
                                     </div>
                                 </td>
+
+                                <!-- Section 8.3: Restock Quick Form -->
                                 <td class="py-4 px-4 text-center">
-                                    @if($product->stock > 5)
-                                        <span class="px-2.5 py-1 text-xs font-bold bg-emerald-50 text-emerald-700 rounded-lg">{{ $product->stock }} ชิ้น</span>
-                                    @elseif($product->stock > 0)
-                                        <span class="px-2.5 py-1 text-xs font-bold bg-amber-50 text-amber-700 rounded-lg">ใกล้หมด ({{ $product->stock }})</span>
-                                    @else
-                                        <span class="px-2.5 py-1 text-xs font-bold bg-rose-50 text-rose-700 rounded-lg">หมดสต็อก</span>
-                                    @endif
+                                    <form action="{{ route('admin.stock.update') }}" method="POST" class="flex items-center justify-center gap-2">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                        <input type="number" name="stock" value="{{ $product->stock }}" min="0" 
+                                               class="w-20 px-2 py-1 border-2 {{ $product->stock <= 0 ? 'border-rose-400 bg-rose-50 text-rose-700' : 'border-gray-200' }} rounded-xl text-center font-bold text-sm focus:outline-none focus:border-indigo-500">
+                                        <button type="submit" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition" title="อัปเดตสต็อกสินค้า">
+                                            บันทึก
+                                        </button>
+                                    </form>
+                                    <div class="text-[11px] mt-1 font-bold {{ $product->stock <= 0 ? 'text-rose-600' : 'text-slate-400' }}">
+                                        {{ $product->stock <= 0 ? '❌ หมดสต็อก (กรอกเพื่อเติมสต็อก)' : 'คงเหลือ ' . $product->stock . ' ชิ้น' }}
+                                    </div>
                                 </td>
+
+                                <!-- Section 8.4: Action Buttons (Clear Edit & Delete) -->
                                 <td class="py-4 px-4 text-center">
                                     <div class="flex items-center justify-center gap-2">
-                                        <a href="{{ route('central_admin.products.edit', $product) }}" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="แก้ไข">
-                                            <i class="fa-solid fa-pen-to-square text-lg"></i>
+                                        <a href="{{ route('central_admin.products.edit', $product) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs shadow-sm transition" title="แก้ไขสินค้า">
+                                            <i class="fa-solid fa-pen-to-square"></i> แก้ไข
                                         </a>
-                                        <form action="{{ route('central_admin.products.destroy', $product) }}" method="POST" class="inline" onsubmit="return confirm('ยืนยันการลบสินค้าชิ้นนี้?')">
+                                        
+                                        <form action="{{ route('central_admin.products.destroy', $product) }}" method="POST" class="inline" onsubmit="return confirm('⚠️ ยืนยันการลบสินค้าชิ้นนี้ออกจากระบบ?')">
                                             @csrf @method("DELETE")
-                                            <button type="submit" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="ลบ">
-                                                <i class="fa-solid fa-trash-can text-lg"></i>
+                                            <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-sm transition" title="ลบสินค้า">
+                                                <i class="fa-solid fa-trash-can"></i> ลบสินค้า
                                             </button>
                                         </form>
                                     </div>
@@ -137,7 +147,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" class="py-16 text-center text-slate-400">
+                                <td colspan="6" class="py-16 text-center text-slate-400">
                                     <i class="fa-solid fa-box-open text-4xl mb-3 block"></i>
                                     ยังไม่มีข้อมูลสินค้าในระบบ
                                 </td>

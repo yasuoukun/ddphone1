@@ -56,6 +56,9 @@ class MessageController extends Controller
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
             $attachmentPath = $file->store('chat_attachments', 'public');
+            @mkdir(dirname(public_path('storage/' . $attachmentPath)), 0777, true);
+            @copy(storage_path('app/public/' . $attachmentPath), public_path('storage/' . $attachmentPath));
+            
             $mime = $file->getMimeType();
             if (str_starts_with($mime, 'image/')) {
                 $attachmentType = 'image';

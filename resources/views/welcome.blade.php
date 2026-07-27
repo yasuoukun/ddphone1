@@ -1,40 +1,41 @@
 @extends('layouts.store')
 
 @section('content')
-<div class="container fade-in" style="padding: 2.5rem 1rem;">
-    <!-- Hero/Promotion Banner Slider -->
+<!-- Section 3: Full-width Hero Banner (No Container Box) -->
+<div style="width: 100%; margin-bottom: 3.5rem; overflow: hidden; background: #0F172A; position: relative;">
     @if($banners->isEmpty())
-        <!-- Default Hero (No Banners) -->
-        <div class="hero-banner">
-            <div style="position: absolute; top: -50%; left: -20%; width: 60%; height: 200%; background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%); pointer-events: none;"></div>
-            <div style="position: absolute; bottom: -50%; right: -20%; width: 60%; height: 200%; background: radial-gradient(circle, rgba(49, 130, 206, 0.06) 0%, transparent 70%); pointer-events: none;"></div>
-            <div style="position: relative; z-index: 1;">
-                @if($settings['slogan_badge'])
-                <span style="display: inline-block; background: rgba(99, 102, 241, 0.2); color: #a5b4fc; padding: 6px 16px; border-radius: 99px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem; border: 1px solid rgba(99, 102, 241, 0.3);">
-                    {{ $settings['slogan_badge'] }}
-                </span>
-                @endif
-                <h1 class="hero-banner-title">
-                    {{ $settings['slogan_title'] }}
-                </h1>
-                <p class="hero-banner-desc">{!! e($settings['slogan_description']) !!}</p>
+        <!-- Full-width Default Hero Banner -->
+        <div style="width: 100%; min-height: 400px; padding: 4rem 2rem; background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%); display: flex; align-items: center; justify-content: center; position: relative; color: white;">
+            <div style="max-width: 1300px; width: 100%; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 40px; position: relative; z-index: 2;">
                 
-                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
-                    <a href="{{ route('products.index') }}" style="text-decoration: none;">
-                        <button class="pulse-glow" style="background: linear-gradient(135deg, #FF5722, #FF8A00); color: white; border: none; padding: 16px 36px; font-size: 1.05rem; font-weight: 700; border-radius: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 25px rgba(255, 87, 34, 0.4); display: flex; align-items: center; gap: 10px;">
-                            <i class="fa-solid fa-cart-shopping"></i> ซื้อสินค้าไอที
-                        </button>
-                    </a>
-                    <a href="{{ route('business') }}" style="text-decoration: none;">
-                        <button style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 16px 36px; font-size: 1.05rem; font-weight: 700; border-radius: 14px; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(8px); display: flex; align-items: center; gap: 10px;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
-                            <i class="fa-solid fa-building"></i> โซลูชันสำหรับองค์กร
-                        </button>
-                    </a>
+                <div style="flex: 1; min-width: 300px;">
+                    <span style="display: inline-block; background: #FFE600; color: #0F172A; padding: 6px 20px; border-radius: 99px; font-size: 0.88rem; font-weight: 900; margin-bottom: 1.5rem; letter-spacing: 0.5px; box-shadow: 0 0 15px rgba(255, 230, 0, 0.4);">
+                        🔥 DDPHONE PREVIEW & PROMOTION
+                    </span>
+                    <h1 style="font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 900; margin: 0 0 1.25rem; line-height: 1.25; color: #FFFFFF; text-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+                        {{ $settings['slogan_title'] ?? 'ศูนย์รวมสมาร์ทโฟนมือสองเกรด A+ คุณภาพระดับมืออาชีพ' }}
+                    </h1>
+                    <p style="font-size: 1.1rem; color: #E2E8F0; line-height: 1.65; margin: 0 0 2rem; font-weight: 500; max-width: 600px;">
+                        {!! e($settings['slogan_description'] ?? 'ตรวจเช็คเครื่องแท้ 100% พร้อมการรับประกันและบริการหลังการขายที่ดีที่สุด') !!}
+                    </p>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                        <a href="{{ route('products.index') }}" style="text-decoration: none;">
+                            <button style="background: #FFE600; color: #0F172A; border: none; padding: 16px 38px; font-size: 1.05rem; font-weight: 900; border-radius: 99px; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 25px rgba(255, 230, 0, 0.35); display: flex; align-items: center; gap: 10px;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                                <i class="fa-solid fa-mobile-screen-button"></i> เลือกชมสินค้าทั้งหมด
+                            </button>
+                        </a>
+                    </div>
                 </div>
+
+                <!-- 3D Mascot Floating Graphic Illustration -->
+                <div style="flex: 1; min-width: 280px; max-width: 440px; display: flex; justify-content: center; align-items: center; position: relative;">
+                    <img src="{{ asset('images/ddphone_3d_mascot.png') }}" alt="DDPHONE 3D Cute Robot Mascot" style="width: 100%; max-width: 360px; height: auto; object-fit: contain; filter: drop-shadow(0 20px 30px rgba(2, 132, 199, 0.3));">
+                </div>
+
             </div>
         </div>
     @else
-        <!-- Dynamic Slideshow Hero -->
+        <!-- Full-width Dynamic Slideshow Hero -->
         <div x-data="{ 
                 activeSlide: 0, 
                 slidesCount: {{ $banners->count() }},
@@ -42,138 +43,225 @@
                 prev() { this.activeSlide = (this.activeSlide - 1 + this.slidesCount) % this.slidesCount },
                 init() { setInterval(() => this.next(), 6000) }
              }"
-             style="position: relative; border-radius: 24px; overflow: hidden; margin-bottom: 4rem; box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15); aspect-ratio: 3/1; min-height: 280px; background: #0F172A;">
+             style="position: relative; width: 100%; aspect-ratio: 21/8; min-height: 320px; max-height: 520px; background: #0F172A;">
             
             <!-- Slides Container -->
             <div style="width: 100%; height: 100%; position: relative;">
                 @foreach($banners as $idx => $banner)
                 <div x-show="activeSlide === {{ $idx }}" 
-                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter="transition ease-out duration-700"
                      x-transition:enter-start="opacity-0 scale-95"
                      x-transition:enter-end="opacity-100 scale-100"
                      style="width: 100%; height: 100%; position: absolute; inset: 0; display: {{ $idx === 0 ? 'block' : 'none' }};">
                     @if($banner->link_url)
                     <a href="{{ $banner->link_url }}" style="display: block; width: 100%; height: 100%;">
-                    @endif
                         <img src="{{ str_starts_with($banner->image_path, 'http') ? $banner->image_path : Storage::url($banner->image_path) }}" alt="Promotion Banner" style="width: 100%; height: 100%; object-fit: cover;">
-                    @if($banner->link_url)
                     </a>
+                    @else
+                        <img src="{{ str_starts_with($banner->image_path, 'http') ? $banner->image_path : Storage::url($banner->image_path) }}" alt="Promotion Banner" style="width: 100%; height: 100%; object-fit: cover;">
                     @endif
                 </div>
                 @endforeach
             </div>
 
-            <!-- Overlay Slogans with Glassmorphism -->
-            <div class="slider-overlay">
-                <div style="text-align: left; max-width: 70%;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.25rem;">
-                        <h2 style="font-size: 1.4rem; font-weight: 800; margin: 0; background: linear-gradient(135deg, #fff 0%, #c7d2fe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                            {{ $settings['slogan_title'] }}
-                        </h2>
-                        @if($settings['slogan_badge'])
-                        <span style="background: rgba(99, 102, 241, 0.3); color: #c7d2fe; font-size: 0.75rem; padding: 2px 8px; border-radius: 8px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.2);">
-                            {{ $settings['slogan_badge'] }}
-                        </span>
-                        @endif
-                    </div>
-                    <p style="margin: 0; font-size: 0.85rem; color: rgba(203, 213, 225, 0.9); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">
-                        {{ str_replace("
-", ' ', $settings['slogan_description']) }}
+            <!-- Full-width Overlay Content -->
+            <div class="hero-slide-overlay" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(15, 23, 42, 0.95)); padding: 2.5rem 3rem; display: flex; justify-content: space-between; align-items: flex-end; z-index: 5;">
+                <div class="hero-slide-text" style="max-width: 65%;">
+                    <span style="background: #FFE600; color: #0F172A; font-size: 0.78rem; padding: 4px 12px; border-radius: 99px; font-weight: 900; margin-bottom: 0.5rem; display: inline-block;">
+                        DDPHONE PROMOTION
+                    </span>
+                    <h2 style="font-size: 1.6rem; font-weight: 900; color: white; margin: 4px 0 6px;">
+                        {{ $settings['slogan_title'] }}
+                    </h2>
+                    <p style="margin: 0; font-size: 0.9rem; color: #E2E8F0; font-weight: 500;">
+                        {{ str_replace("\n", ' ', $settings['slogan_description']) }}
                     </p>
                 </div>
-                
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <a href="{{ route('products.index') }}" style="text-decoration: none;">
-                        <button style="background: linear-gradient(135deg, #FF5722, #FF8A00); border: none; color: white; padding: 12px 20px; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);">
-                            <i class="fa-solid fa-cart-shopping"></i> เลือกซื้อสินค้า
-                        </button>
-                    </a>
-                    <a href="{{ route('business') }}" style="text-decoration: none;">
-                        <button style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 12px 20px; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(4px);">
-                            <i class="fa-solid fa-building"></i> ลูกค้าองค์กร
-                        </button>
-                    </a>
-                </div>
+                <a href="{{ route('products.index') }}" style="text-decoration: none;" class="hero-slide-btn-wrap">
+                    <button style="background: #FFE600; color: #0F172A; border: none; padding: 12px 24px; border-radius: 99px; font-size: 0.95rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255, 230, 0, 0.3);">
+                        <i class="fa-solid fa-cart-shopping"></i> ช้อปเลย ➔
+                    </button>
+                </a>
             </div>
 
-            <!-- Slider Controls -->
-            <button @click="prev()" style="position: absolute; top: 50%; left: 15px; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10;">&lsaquo;</button>
-            <button @click="next()" style="position: absolute; top: 50%; right: 15px; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10;">&rsaquo;</button>
+            <!-- Slider Navigation Arrows -->
+            <button @click="prev()" style="position: absolute; top: 50%; left: 20px; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(15, 23, 42, 0.7); border: 1.5px solid rgba(255,255,255,0.3); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 1.2rem;">&lsaquo;</button>
+            <button @click="next()" style="position: absolute; top: 50%; right: 20px; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(15, 23, 42, 0.7); border: 1.5px solid rgba(255,255,255,0.3); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 1.2rem;">&rsaquo;</button>
         </div>
     @endif
+</div>
 
-    <!-- Popular Products -->
-    <div style="text-align: left; margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 1rem;">
+<!-- Main Homepage Container -->
+<div class="container fade-in" style="max-width: 1440px; width: 96%; margin: 0 auto; padding: 0 0.5rem 3rem;">
+
+    <!-- Minimal Category Badges (Clean Responsive Flex Wrap) -->
+    <div style="text-align: center; margin-bottom: 2rem; padding-top: 1rem;">
+        <span style="display: inline-block; background: rgba(15, 23, 42, 0.06); color: #0F172A; padding: 4px 18px; border-radius: 99px; font-size: 0.8rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: 0.5px;">EXPLORE CATEGORIES</span>
+        <h2 style="font-size: 1.85rem; font-weight: 900; color: #0F172A; margin: 0;">
+            หมวดหมู่สินค้ามินิมอล
+        </h2>
+    </div>
+
+    @php 
+        $catFaIcons = [
+            'fa-mobile-screen-button',
+            'fa-tablet-screen-button',
+            'fa-laptop',
+            'fa-headphones',
+            'fa-watch-smart',
+            'fa-gamepad',
+            'fa-camera',
+            'fa-desktop'
+        ];
+    @endphp
+    <div class="category-badges-scroll-wrapper" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 14px; margin-bottom: 4rem; align-items: center; width: 100%; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: 0.5rem 0;">
+        @foreach($categories as $idx => $category)
+        <a href="{{ route('products.index', ['category' => $category->id]) }}" style="text-decoration: none; flex-shrink: 0;">
+            <div style="background: white; border: 1.5px solid #E2E8F0; border-radius: 99px; padding: 10px 24px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04); transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#0F172A'; this.style.background='#0F172A'; this.querySelector('.cat-txt').style.color='#FFE600'; this.querySelector('.cat-icon').style.color='#FFE600';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#E2E8F0'; this.style.background='white'; this.querySelector('.cat-txt').style.color='#0F172A'; this.querySelector('.cat-icon').style.color='#0F172A';">
+                <i class="cat-icon fa-solid {{ $catFaIcons[$idx % count($catFaIcons)] }}" style="font-size: 1.1rem; color: #0F172A; transition: color 0.2s;"></i>
+                <span class="cat-txt" style="font-size: 0.9rem; font-weight: 800; color: #0F172A; transition: color 0.2s; white-space: nowrap;">
+                    {{ $category->name }}
+                </span>
+            </div>
+        </a>
+        @endforeach
+    </div>
+</div>
+
+<!-- FULL-WIDTH BORDERLESS USER CUSTOM 3D DEVICES SHOWCASE SECTION (DYNAMIC BANNER 2 FROM CMS) -->
+<div class="borderless-showcase-section">
+    <!-- Soft Gradient Backdrop Circle -->
+    <div class="borderless-showcase-backdrop-circle"></div>
+
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 48px; position: relative; z-index: 2;">
+        
+        <!-- Left Text & Thai DDPHONE Branding Content -->
+        <div style="flex: 1.2; min-width: 340px; max-width: 620px;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(2, 132, 199, 0.1); color: #0284C7; padding: 6px 16px; border-radius: 99px; font-size: 0.85rem; font-weight: 900; margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                <i class="fa-solid fa-mobile-screen text-sky-600"></i> {{ $settings['showcase_badge'] ?? 'DDPHONE PREVIEW & PROMOTION' }}
+            </div>
+            
+            <h2 style="font-size: clamp(2rem, 3.6vw, 2.8rem); font-weight: 900; color: #0F172A; line-height: 1.35; margin: 0 0 1.25rem; letter-spacing: -0.5px;">
+                {!! nl2br(e($settings['showcase_title'] ?? "สมาร์ทโฟนมือสองเกรด A+\nสวยกริ๊บ ไร้รอย สภาพ 99%")) !!}
+            </h2>
+            
+            <p style="font-size: 1.05rem; color: #475569; line-height: 1.7; margin: 0 0 2.25rem; font-weight: 600;">
+                {!! nl2br(e($settings['showcase_description'] ?? 'คัดสรรไอโฟน ไอแพด แมคบุ๊ก และสมาร์ทโฟนแท้ 100% แบตอึด สแกนนิ้ว/กล้องเพอร์เฟกต์ การันตีประกันร้าน 30 วัน พร้อมจัดส่งฟรีทั่วประเทศ')) !!}
+            </p>
+
+            <!-- Action Button -->
+            <a href="{{ !empty($settings['showcase_button_url']) ? $settings['showcase_button_url'] : route('products.index') }}" style="text-decoration: none; display: inline-block;">
+                <div style="display: inline-flex; align-items: center; background: #0284C7; color: #FFFFFF; padding: 8px 10px 8px 30px; border-radius: 99px; font-weight: 900; font-size: 1rem; letter-spacing: 0.5px; box-shadow: 0 10px 30px rgba(2, 132, 199, 0.35); transition: transform 0.25s, box-shadow 0.25s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 15px 35px rgba(2, 132, 199, 0.5)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 10px 30px rgba(2, 132, 199, 0.35)'">
+                    <span>{{ !empty($settings['showcase_button_text']) ? $settings['showcase_button_text'] : 'ช้อปมือถือโปรเด็ด' }}</span>
+                    <div style="width: 42px; height: 42px; background: #FFE600; color: #0F172A; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 16px; font-size: 0.98rem; font-weight: 900;">
+                        ➔
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Right USER UPLOADED 3D DEVICES ECOSYSTEM SHOWCASE IMAGE (100% TRANSPARENT PNG - ZERO BOX) -->
+        <div style="flex: 1.2; min-width: 340px; max-width: 650px; display: flex; justify-content: center; align-items: center; position: relative;">
+            @if(!empty($settings['showcase_image']))
+                <img src="{{ str_starts_with($settings['showcase_image'], 'http') ? $settings['showcase_image'] : Storage::url($settings['showcase_image']) }}" alt="DDPHONE Showcase Banner" class="user-devices-showcase-img">
+            @else
+                <img src="{{ asset('images/user_devices_showcase.png') }}" alt="DDPHONE User Choice 3D Devices Ecosystem Showcase" class="user-devices-showcase-img">
+            @endif
+        </div>
+
+    </div>
+</div>
+
+<!-- Main Homepage Container Part 2 -->
+<div class="container fade-in" style="max-width: 1440px; width: 96%; margin: 0 auto; padding: 0 0.5rem 3rem;">
+
+    <!-- Popular Products (Enhanced with HOT Glow & Rating Stars) -->
+    <div style="text-align: left; margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
-            <span style="display: inline-block; background: rgba(239, 68, 68, 0.08); color: #ef4444; padding: 4px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">🔥 HOT</span>
-            <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--color-navy-dark); letter-spacing: -0.02em; margin: 0;">
-                สินค้ายอดนิยม
+            <span style="display: inline-block; background: #FFE600; color: #0F172A; padding: 4px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 900; margin-bottom: 0.4rem; box-shadow: 0 2px 8px rgba(255, 230, 0, 0.4);">🔥 HOT ITEMS</span>
+            <h2 style="font-size: 1.75rem; font-weight: 900; color: #0F172A; margin: 0;">
+                สินค้ายอดนิยมแนะนำ
             </h2>
         </div>
-        <a href="{{ route('products.index') }}" style="text-decoration: none; color: var(--color-accent); font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--color-navy)'" onmouseout="this.style.color='var(--color-accent)'">
+        <a href="{{ route('products.index') }}" style="text-decoration: none; color: #0F172A; font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;" onmouseover="this.style.color='#2563EB'" onmouseout="this.style.color='#0F172A'">
             ดูทั้งหมด <i class="fa-solid fa-arrow-right"></i>
         </a>
     </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; margin-bottom: 4rem;">
+
+    <div class="product-grid-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; margin-bottom: 4.5rem;">
         @forelse($popularProducts as $product)
-        <div class="hover-scale" style="background: white; border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 15px rgba(27, 42, 71, 0.03);">
-            <a href="{{ route('products.show', $product->id) }}" style="text-decoration: none; color: inherit; display: block; padding: 1.5rem; text-align: center; position: relative;">
-                <!-- Stock Status Pill -->
-                @if($product->stock <= 0)
-                    <span style="position: absolute; top: 12px; right: 12px; font-size: 10px; font-weight: bold; background: #ef4444; color: white; padding: 4px 8px; border-radius: 99px;">สินค้าหมด</span>
-                @elseif($product->stock <= 5)
-                    <span style="position: absolute; top: 12px; right: 12px; font-size: 10px; font-weight: bold; background: #f59e0b; color: white; padding: 4px 8px; border-radius: 99px;">ใกล้หมดเหลือ {{ $product->stock }} ชิ้น</span>
+        <div class="card-fun-hover shopee-card-style" style="background: white; border: 1px solid #E2E8F0; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04); position: relative; transition: all 0.2s ease;">
+            
+            <!-- Image Box (Shopee 1:1 Square Ratio with Overlay Badges) -->
+            <a href="{{ route('products.show', $product->id) }}" style="text-decoration: none; color: inherit; display: block; position: relative; width: 100%; aspect-ratio: 1/1; background: #F8FAFC; overflow: hidden;">
+                @if($product->discount_price)
+                    @php $percent = round((($product->price - $product->discount_price) / $product->price) * 100); @endphp
+                    <span style="position: absolute; top: 6px; left: 6px; z-index: 10; font-size: 10px; font-weight: 900; background: #FF5722; color: white; padding: 2px 7px; border-radius: 4px; box-shadow: 0 2px 6px rgba(255,87,34,0.3);">
+                        -{{ $percent }}%
+                    </span>
+                @else
+                    <span style="position: absolute; top: 6px; left: 6px; z-index: 10; font-size: 10px; font-weight: 900; background: #FF5722; color: white; padding: 2px 7px; border-radius: 4px;">
+                        HOT 🔥
+                    </span>
                 @endif
 
-                @if($product->images->where('is_primary', true)->first())
-                    @php
-                        $imgPath = $product->images->where('is_primary', true)->first()->image_path;
-                    @endphp
-                    @if(str_starts_with($imgPath, 'http'))
-                        <img src="{{ $imgPath }}" alt="{{ $product->name }}" style="max-width: 100%; height: 190px; object-fit: contain; border-radius: 12px;">
-                    @else
-                        <img src="{{ Storage::url($imgPath) }}" alt="{{ $product->name }}" style="max-width: 100%; height: 190px; object-fit: contain; border-radius: 12px;">
-                    @endif
+                @if($product->stock <= 0)
+                    <span style="position: absolute; top: 6px; right: 6px; z-index: 10; font-size: 9px; font-weight: 900; background: #EF4444; color: white; padding: 2px 6px; border-radius: 4px;">หมด</span>
                 @else
-                    <div style="width: 100%; height: 190px; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: #94a3b8; border-radius: 12px;">
-                        <i class="fa-solid fa-image text-3xl"></i>
+                    <span style="position: absolute; top: 6px; right: 6px; z-index: 10; font-size: 9px; font-weight: 900; background: #FFE600; color: #0F172A; padding: 2px 6px; border-radius: 4px; border: 1px solid #EAB308;">พร้อมส่ง</span>
+                @endif
+
+                @if($product->primary_image_url)
+                    <img src="{{ $product->primary_image_url }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: contain; padding: 0.6rem; transition: transform 0.3s ease;">
+                @else
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                        <i class="fa-solid fa-mobile-screen text-4xl"></i>
                     </div>
                 @endif
             </a>
             
-            <div style="padding: 1.5rem; border-top: 1px solid rgba(226, 232, 240, 0.6); background: #fafafb;">
+            <!-- Details & Pricing Box (Shopee Info Specs) -->
+            <div style="padding: 0.5rem 0.55rem 0.45rem; background: white; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; gap: 3px;">
                 <a href="{{ route('products.show', $product->id) }}" style="text-decoration: none; color: inherit;">
-                    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--color-navy-dark); min-height: 2.8rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; transition: color 0.2s;" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-navy-dark)'">
+                    <h3 style="font-size: 0.78rem; font-weight: 700; color: #0F172A; margin: 0; min-height: 2.1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;">
                         {{ $product->name }}
                     </h3>
                 </a>
                 
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; flex-direction: column;">
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <div style="display: flex; align-items: baseline; gap: 4px;">
                         @if($product->discount_price)
-                            <span style="font-size: 0.9rem; text-decoration: line-through; color: #94a3b8; margin-bottom: -0.25rem;">฿{{ number_format($product->price, 2) }}</span>
-                            <span style="font-size: 1.25rem; font-weight: 800; color: var(--color-accent);">฿{{ number_format($product->discount_price, 2) }}</span>
+                            <span style="font-size: 0.98rem; font-weight: 900; color: #FF5722; line-height: 1;">฿{{ number_format($product->discount_price) }}</span>
+                            <span style="font-size: 0.65rem; text-decoration: line-through; color: #94A3B8; line-height: 1;">฿{{ number_format($product->price) }}</span>
                         @else
-                            <span style="font-size: 1.25rem; font-weight: 800; color: var(--color-navy-light);">฿{{ number_format($product->price, 2) }}</span>
+                            <span style="font-size: 0.98rem; font-weight: 900; color: #FF5722; line-height: 1;">฿{{ number_format($product->price) }}</span>
                         @endif
                     </div>
-                    
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <!-- Wishlist Toggle (AJAX) -->
-                        @php 
-                            $isFavorite = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
-                        @endphp
-                        <button type="button" class="wishlist-toggle-btn" data-product-id="{{ $product->id }}" title="เพิ่มในสินค้าที่ชอบ" style="background: white; border: 1px solid rgba(226, 232, 240, 0.8); color: {{ $isFavorite ? '#ef4444' : '#94a3b8' }}; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.03);" onmouseover="this.style.transform='scale(1.1)'; this.style.borderColor='#ef4444';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(226, 232, 240, 0.8)';">
-                            <i class="fa-{{ $isFavorite ? 'solid' : 'regular' }} fa-heart"></i>
-                        </button>
 
-                        <!-- Add to Cart (Ajax-enabled) -->
-                        <form action="{{ route('cart.add', $product) }}" method="POST" class="ajax-add-to-cart-form" style="margin: 0;">
-                            @csrf
-                            <button type="submit" title="เพิ่มลงตะกร้า" style="background: var(--color-navy); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 10px rgba(27, 42, 71, 0.15);" onmouseover="this.style.transform='scale(1.1)'; this.style.background='var(--color-accent)';" onmouseout="this.style.transform='scale(1)'; this.style.background='var(--color-navy)';">
-                                <i class="fa-solid fa-basket-shopping"></i>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                        @php
+                            $avgRating = round($product->reviews()->avg('rating') ?? 5.0, 1);
+                            $reviewCount = $product->reviews()->count();
+                        @endphp
+                        <span style="font-size: 0.62rem; color: #64748B; font-weight: 600;">
+                            ⭐ {{ number_format($avgRating, 1) }} <span style="color: #CBD5E1;">|</span> {{ $reviewCount > 0 ? 'รีวิว ' . $reviewCount : 'สินค้าใหม่' }}
+                        </span>
+                        
+                        <div style="display: flex; gap: 4px; align-items: center;">
+                            @php 
+                                $isFavorite = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
+                            @endphp
+                            <button type="button" class="wishlist-toggle-btn" data-product-id="{{ $product->id }}" onclick="animateHeartBtn(this)" title="เพิ่มในสินค้าที่ชอบ" style="background: #F8FAFC; border: 1px solid #E2E8F0; color: {{ $isFavorite ? '#EF4444' : '#94A3B8' }}; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                                <i class="fa-{{ $isFavorite ? 'solid' : 'regular' }} fa-heart"></i>
                             </button>
-                        </form>
+
+                            <form action="{{ route('cart.add', $product) }}" method="POST" class="ajax-add-to-cart-form" style="margin: 0;">
+                                @csrf
+                                <button type="submit" onclick="animateBasketBtn(this)" title="เพิ่มลงตะกร้า" style="background: #FF5722; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; font-weight: 900; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 2px 6px rgba(255, 87, 34, 0.3);">
+                                    <i class="fa-solid fa-basket-shopping"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -181,285 +269,131 @@
         @empty
             <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #94a3b8;">
                 <i class="fa-solid fa-box-open text-5xl mb-3"></i>
-                <p>ยังไม่มีสินค้าในขณะนี้</p>
+                <p style="font-weight: 700;">ยังไม่มีสินค้าในขณะนี้</p>
             </div>
         @endforelse
     </div>
 
-          <!-- Categories Grid -->
-    <div style="text-align: center; margin-bottom: 1.75rem;">
-        <span style="display: inline-block; background: rgba(99, 102, 241, 0.08); color: #6366f1; padding: 4px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.75rem;">CATEGORIES</span>
-        <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--color-navy-dark); letter-spacing: -0.02em; margin: 0;">
-            หมวดหมู่สินค้ายอดนิยม
-        </h2>
-    </div>
-    @php 
-        $catFaIcons = [
-            'fa-mobile-screen-button',
-            'fa-laptop',
-            'fa-stopwatch',
-            'fa-headphones',
-            'fa-camera',
-            'fa-gamepad',
-            'fa-tablet-screen-button',
-            'fa-desktop'
-        ]; 
-        $catGradients = [
-            'linear-gradient(135deg, #FF5722, #FF8A00)',
-            'linear-gradient(135deg, #FF007F, #EC4899)',
-            'linear-gradient(135deg, #06B6D4, #3B82F6)',
-            'linear-gradient(135deg, #8B5CF6, #6366F1)',
-            'linear-gradient(135deg, #10B981, #059669)',
-            'linear-gradient(135deg, #F59E0B, #D97706)',
-            'linear-gradient(135deg, #EC4899, #8B5CF6)',
-            'linear-gradient(135deg, #3B82F6, #1D4ED8)'
-        ];
-        $catShadows = [
-            'rgba(255, 87, 34, 0.25)',
-            'rgba(255, 0, 127, 0.25)',
-            'rgba(6, 182, 212, 0.25)',
-            'rgba(139, 92, 246, 0.25)',
-            'rgba(16, 185, 129, 0.25)',
-            'rgba(245, 158, 11, 0.25)',
-            'rgba(236, 72, 153, 0.25)',
-            'rgba(59, 130, 246, 0.25)'
-        ];
-    @endphp
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 3.5rem;">
-        @foreach($categories as $idx => $category)
-        <a href="{{ route('products.index', ['category' => $category->id]) }}" style="text-decoration: none;">
-            <div class="hover-scale" style="background: white; border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 18px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; box-shadow: 0 4px 12px rgba(27, 42, 71, 0.03); height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <div style="width: 50px; height: 50px; background: {{ $catGradients[$idx % count($catGradients)] }}; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.85rem; color: white; font-size: 1.35rem; box-shadow: 0 6px 16px {{ $catShadows[$idx % count($catShadows)] }};">
-                    <i class="fa-solid {{ $catFaIcons[$idx % count($catFaIcons)] }}"></i>
-                </div>
-                <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--color-navy); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">{{ $category->name }}</h3>
+    <!-- 4-Core Guarantees Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 4.5rem; margin-top: 1rem;">
+        <div style="background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%); border: 1.5px solid #E2E8F0; border-radius: 24px; padding: 1.75rem 1.5rem; display: flex; align-items: flex-start; gap: 16px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.04);">
+            <div style="width: 52px; height: 52px; background: rgba(2, 132, 199, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #0284C7; flex-shrink: 0;">
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
-        </a>
-        @endforeach
-    </div>
-
-    
-
-
-
-
-
-
-    <!-- Service Center CTA -->
-    <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); border-radius: 24px; padding: 3rem 2.5rem; margin-top: 2rem; margin-bottom: 5rem; color: white; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 30px; box-shadow: 0 15px 35px rgba(16, 185, 129, 0.25); position: relative; overflow: hidden;">
-        <div style="position: absolute; right: -10%; top: -50%; font-size: 20rem; opacity: 0.05; pointer-events: none;">
-            <i class="fa-solid fa-screwdriver-wrench"></i>
+            <div>
+                <h4 style="font-size: 1.05rem; font-weight: 900; color: #0F172A; margin: 0 0 4px;">ประกันร้าน 30 วันเต็ม</h4>
+                <p style="font-size: 0.85rem; color: #64748B; margin: 0; line-height: 1.5; font-weight: 600;">เปลี่ยนเครื่องใหม่ฟรี ดูแลดั่งครอบครัว พร้อมตรวจเช็กตลอดชีพ</p>
+            </div>
         </div>
-        <div style="flex: 1; min-width: 300px; position: relative; z-index: 1;">
-            <span style="display: inline-block; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: 0.5px;">AFTER-SALES CARE</span>
-            <h2 style="font-size: 2rem; font-weight: 800; margin: 0 0 1rem; line-height: 1.3;">
-                อุ่นใจทุกการใช้งาน<br>ด้วยศูนย์บริการมาตรฐาน
-            </h2>
-            <p style="font-size: 1.05rem; opacity: 0.9; margin: 0 0 1.5rem; line-height: 1.6; max-width: 500px;">
-                เพราะเราไม่ได้แค่ขาย แต่เราดูแลคุณตลอดอายุการใช้งาน ให้บริการซ่อม เคลม และแก้ไขปัญหาไอทีโดยทีมช่างผู้เชี่ยวชาญ พร้อมระบบติดตามงานซ่อมออนไลน์
-            </p>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <a href="{{ route('service_center') }}" style="text-decoration: none;">
-                    <button style="background: white; color: #059669; border: none; padding: 12px 24px; font-size: 1rem; font-weight: 700; border-radius: 12px; cursor: pointer; transition: transform 0.2s; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        <i class="fa-solid fa-wrench"></i> แจ้งซ่อม/เคลมสินค้า
-                    </button>
-                </a>
-                <a href="{{ route('tracking') }}" style="text-decoration: none;">
-                    <button style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 12px 24px; font-size: 1rem; font-weight: 700; border-radius: 12px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
-                        <i class="fa-solid fa-magnifying-glass"></i> ติดตามสถานะ
-                    </button>
-                </a>
+
+        <div style="background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%); border: 1.5px solid #E2E8F0; border-radius: 24px; padding: 1.75rem 1.5rem; display: flex; align-items: flex-start; gap: 16px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.04);">
+            <div style="width: 52px; height: 52px; background: rgba(16, 185, 129, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #10B981; flex-shrink: 0;">
+                <i class="fa-solid fa-truck-fast"></i>
+            </div>
+            <div>
+                <h4 style="font-size: 1.05rem; font-weight: 900; color: #0F172A; margin: 0 0 4px;">จัดส่งด่วนฟรีทั่วไทย</h4>
+                <p style="font-size: 0.85rem; color: #64748B; margin: 0; line-height: 1.5; font-weight: 600;">ส่งพัสดุห่อกันกระแทกอย่างดี ได้รับใน 1-2 วัน มีเลขติดตาม 24 ชม.</p>
+            </div>
+        </div>
+
+        <div style="background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%); border: 1.5px solid #E2E8F0; border-radius: 24px; padding: 1.75rem 1.5rem; display: flex; align-items: flex-start; gap: 16px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.04);">
+            <div style="width: 52px; height: 52px; background: rgba(245, 158, 11, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #F59E0B; flex-shrink: 0;">
+                <i class="fa-solid fa-magnifying-glass-location"></i>
+            </div>
+            <div>
+                <h4 style="font-size: 1.05rem; font-weight: 900; color: #0F172A; margin: 0 0 4px;">คัดสรรแท้ 100% 30 รายการ</h4>
+                <p style="font-size: 0.85rem; color: #64748B; margin: 0; line-height: 1.5; font-weight: 600;">ผ่าน QC เข้มงวด ตรวจเช็กสุขภาพแบต กล้อง สแกนนิ้ว จอเดิมแท้</p>
+            </div>
+        </div>
+
+        <div style="background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%); border: 1.5px solid #E2E8F0; border-radius: 24px; padding: 1.75rem 1.5rem; display: flex; align-items: flex-start; gap: 16px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.04);">
+            <div style="width: 52px; height: 52px; background: rgba(139, 92, 246, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #8B5CF6; flex-shrink: 0;">
+                <i class="fa-solid fa-credit-card"></i>
+            </div>
+            <div>
+                <h4 style="font-size: 1.05rem; font-weight: 900; color: #0F172A; margin: 0 0 4px;">ผ่อนสบาย / นำเครื่องมาเทรด</h4>
+                <p style="font-size: 0.85rem; color: #64748B; margin: 0; line-height: 1.5; font-weight: 600;">รองรับการผ่อนชำระง่ายๆ หรือนำเครื่องเก่ามาแลกซื้อให้ราคาสูงสุด</p>
             </div>
         </div>
     </div>
 
-
-
-
-    <!-- Services Section -->
-    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: white; border-radius: 24px; padding: 3.5rem 2rem; margin-top: 2rem; margin-bottom: 3rem; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+    <!-- Centered Activities and News Section -->
+    <div style="margin-top: 2rem; margin-bottom: 3.5rem;">
         <div style="text-align: center; margin-bottom: 2.5rem;">
-            <span style="display: inline-block; background: rgba(99, 102, 241, 0.08); color: #6366f1; padding: 4px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.75rem;">OUR SERVICES</span>
-            <h2 style="font-size: 1.75rem; font-weight: 800; color: white; letter-spacing: -0.02em; margin: 0;">
-                บริการครบวงจรจาก ดีดี.ไอที.คอม
-            </h2>
-            <p style="color: #cbd5e1; font-size: 0.95rem; margin-top: 0.5rem;">ดูแลช่วยเหลือลูกค้าและองค์กรทุกท่านด้วยโซลูชันระดับมืออาชีพ</p>
-        </div>
-
-        <div class="shopee-mobile-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
-            <!-- Service 1 -->
-            <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 2rem; border-radius: 16px; border: 1px solid rgba(226, 232, 240, 0.6); box-shadow: 0 4px 15px rgba(0,0,0,0.01); display: flex; flex-direction: column; align-items: center; text-align: center;">
-                <div style="width: 60px; height: 60px; background: rgba(99, 102, 241, 0.08); color: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1.25rem;">
-                    🖥️
-                </div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: white; margin: 0 0 0.5rem;">ระบบ Apple (ABM) & MDM</h3>
-                <p style="color: #cbd5e1; font-size: 0.82rem; line-height: 1.6; margin: 0;">บริการจัดการอุปกรณ์ Apple แบบรวมศูนย์ ตั้งค่าเครื่องอัตโนมัติ (Zero-Touch) และควบคุมความปลอดภัยขององค์กรอย่างปลอดภัย</p>
-            </div>
-
-            <!-- Service 2 -->
-            <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 2rem; border-radius: 16px; border: 1px solid rgba(226, 232, 240, 0.6); box-shadow: 0 4px 15px rgba(0,0,0,0.01); display: flex; flex-direction: column; align-items: center; text-align: center;">
-                <div style="width: 60px; height: 60px; background: rgba(59, 130, 246, 0.08); color: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1.25rem;">
-                    🛠️
-                </div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: white; margin: 0 0 0.5rem;">Enterprise IT Support</h3>
-                <p style="color: #cbd5e1; font-size: 0.82rem; line-height: 1.6; margin: 0;">ให้คำปรึกษาและดูแลรักษาระบบ IT ครบวงจรโดยผู้เชี่ยวชาญ ทั้งเครื่องคอมพิวเตอร์ เครือข่าย และเซิร์ฟเวอร์แบบไม่มีสะดุด</p>
-            </div>
-
-            <!-- Service 3 -->
-            <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 2rem; border-radius: 16px; border: 1px solid rgba(226, 232, 240, 0.6); box-shadow: 0 4px 15px rgba(0,0,0,0.01); display: flex; flex-direction: column; align-items: center; text-align: center;">
-                <div style="width: 60px; height: 60px; background: rgba(16, 185, 129, 0.08); color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1.25rem;">
-                    🔄
-                </div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: white; margin: 0 0 0.5rem;">บริการรับ Trade-In สินค้าเก่า</h3>
-                <p style="color: #cbd5e1; font-size: 0.82rem; line-height: 1.6; margin: 0;">ประเมินราคาและรับเทิร์นอุปกรณ์ไอที โทรศัพท์มือถือเก่าอย่างคุ้มค่า เพื่อรับส่วนลดการซื้อเครื่องใหม่ทันที</p>
-            </div>
-
-            <!-- Service 4 -->
-            <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 2rem; border-radius: 16px; border: 1px solid rgba(226, 232, 240, 0.6); box-shadow: 0 4px 15px rgba(0,0,0,0.01); display: flex; flex-direction: column; align-items: center; text-align: center;">
-                <div style="width: 60px; height: 60px; background: rgba(139, 92, 246, 0.08); color: #8b5cf6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1.25rem;">
-                    💼
-                </div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: white; margin: 0 0 0.5rem;">เช่าอุปกรณ์ไอที (DaaS)</h3>
-                <p style="color: #cbd5e1; font-size: 0.82rem; line-height: 1.6; margin: 0;">บริการเช่าใช้อุปกรณ์ IT รายเดือน เปลี่ยนเงินลงทุนก้อนใหญ่เป็นค่าใช้จ่ายรายเดือนพร้อมการดูแลตลอดสัญญา</p>
-            </div>
-        </div>
-    </div>
-        <div style="text-align: center; margin-top: 3.5rem;">
-            <a href="{{ route('quotation.generate') }}" style="text-decoration: none;">
-                <button style="background: white; color: var(--color-navy-dark); border: none; padding: 16px 40px; font-size: 1.1rem; font-weight: 700; border-radius: 99px; cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 25px rgba(255,255,255,0.2); display: inline-flex; align-items: center; gap: 10px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 35px rgba(255,255,255,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(255,255,255,0.2)';">
-                    <i class="fa-solid fa-file-invoice"></i> ขอใบเสนอราคาสำหรับโครงการ
-                </button>
-            </a>
-            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 1rem;">สำหรับหน่วยงานราชการ สถานศึกษา และบริษัทเอกชน</p>
-        </div>
-
-    </div>
-
-
-
-
-    <!-- What Makes Us Different -->
-    <div style="margin-top: 5rem; margin-bottom: 5rem;">
-        <div style="text-align: center; margin-bottom: 3rem;">
-            <span style="display: inline-block; background: rgba(49, 130, 206, 0.08); color: #3182ce; padding: 4px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.75rem; text-transform: uppercase;">Why Us</span>
-            <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--color-navy-dark); letter-spacing: -0.02em; margin: 0;">
-                สิ่งที่ทำให้เราแตกต่าง
-            </h2>
-            <p style="color: #64748b; font-size: 0.95rem; margin-top: 0.5rem;">ยกระดับคุณภาพและมาตรฐานงานบริการเพื่อตอบสนองต่อธุรกิจคุณสูงสุด</p>
-        </div>
-
-        <div class="shopee-mobile-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px;">
-            <!-- Difference Card 1 -->
-            <div class="hover-scale" style="background: white; padding: 2rem; border-radius: 20px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 20px rgba(27, 42, 71, 0.02); display: flex; flex-direction: column; gap: 15px;">
-                <div style="width: 50px; height: 50px; background: rgba(99, 102, 241, 0.1); color: #6366f1; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                    🛡️
-                </div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--color-navy-dark); margin: 0;">มาตรฐานสากลและความปลอดภัยสูงสุด</h3>
-                <p style="color: #64748b; font-size: 0.85rem; line-height: 1.6; margin: 0;">ส่งมอบและออกแบบโซลูชัน IT ที่ได้มาตรฐานสากล มุ่งเน้นการปกป้องข้อมูลสำคัญของธุรกิจคุณให้ปลอดภัยสูงสุดในทุกระดับการทำงาน</p>
-            </div>
-
-            <!-- Difference Card 2 -->
-            <div class="hover-scale" style="background: white; padding: 2rem; border-radius: 20px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 20px rgba(27, 42, 71, 0.02); display: flex; flex-direction: column; gap: 15px;">
-                <div style="width: 50px; height: 50px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                    🚀
-                </div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--color-navy-dark); margin: 0;">การจัดการอุปกรณ์แบบรวมศูนย์</h3>
-                <p style="color: #64748b; font-size: 0.85rem; line-height: 1.6; margin: 0;">บริการตั้งค่าและจัดการอุปกรณ์องค์กรแบบรวมศูนย์ (Zero-Touch Deployment) อุปกรณ์พร้อมใช้งานทันที ลดภาระงานและเพิ่มประสิทธิภาพให้ทีม IT ของคุณ</p>
-            </div>
-
-            <!-- Difference Card 3 -->
-            <div class="hover-scale" style="background: white; padding: 2rem; border-radius: 20px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 20px rgba(27, 42, 71, 0.02); display: flex; flex-direction: column; gap: 15px;">
-                <div style="width: 50px; height: 50px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                    📈
-                </div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--color-navy-dark); margin: 0;">ความคุ้มค่าของการลงทุน (ROI)</h3>
-                <p style="color: #64748b; font-size: 0.85rem; line-height: 1.6; margin: 0;">นำเสนออุปกรณ์และโซลูชันที่ตอบโจทย์การลงทุนของธุรกิจ (ROI) พร้อมบริการดูแลหลังการขายระดับองค์กร (Enterprise Support) ที่รวดเร็วและไว้ใจได้</p>
-            </div>
-
-            <!-- Difference Card 4 -->
-            <div class="hover-scale" style="background: white; padding: 2rem; border-radius: 20px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 20px rgba(27, 42, 71, 0.02); display: flex; flex-direction: column; gap: 15px;">
-                <div style="width: 50px; height: 50px; background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                    🤝
-                </div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--color-navy-dark); margin: 0;">ความน่าเชื่อถือและการบำรุงรักษา</h3>
-                <p style="color: #64748b; font-size: 0.85rem; line-height: 1.6; margin: 0;">ดูแลบำรุงรักษาระบบและอุปกรณ์อย่างมืออาชีพ (Maintenance Service) เป็นพาร์ทเนอร์ด้านเทคโนโลยีที่หน่วยงานและองค์กรชั้นนำให้ความไว้วางใจ</p>
-            </div>
-        </div>
-    </div>
-
-    
-
-
-
-    <!-- Activities and News Section (Synced with Articles) -->
-    <div style="margin-top: 5rem; margin-bottom: 5rem;">
-        <div style="text-align: center; margin-bottom: 3rem;">
-            <span style="display: inline-block; background: #FFE600; color: #0F172A; padding: 4px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 900; margin-bottom: 0.75rem; letter-spacing: 0.5px;">ACTIVITIES & NEWS</span>
-            <h2 style="font-size: 1.75rem; font-weight: 900; color: #0F172A; letter-spacing: -0.02em; margin: 0;">
+            <span style="display: inline-block; background: #FFE600; color: #0F172A; padding: 4px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 900; margin-bottom: 0.6rem; letter-spacing: 0.5px;">ACTIVITIES & NEWS</span>
+            <h2 style="font-size: 1.75rem; font-weight: 900; color: #0F172A; margin: 0;">
                 กิจกรรมและข่าวสาร DDPHONE
             </h2>
-            <p style="color: #64748b; font-size: 0.95rem; margin-top: 0.5rem;">ติดตามข่าวอัปเดต รีวิวสมาร์ทโฟน และกิจกรรมของร้านดีดีโฟน</p>
+            <p style="color: #64748b; font-size: 0.92rem; margin-top: 0.4rem; font-weight: 600;">ติดตามข่าวอัปเดต รีวิวสมาร์ทโฟน และกิจกรรมของร้านดีดีโฟน</p>
         </div>
 
-        <div class="shopee-mobile-row" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+        <!-- Centered Layout for News Cards if Items are Few -->
+        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 24px; max-width: 1200px; margin: 0 auto;">
             @if(isset($articles) && $articles->count() > 0)
                 @foreach($articles->take(4) as $article)
-                <div class="hover-scale" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04); display: flex; flex-direction: column;">
-                    <img src="{{ $article->cover_image ? (str_starts_with($article->cover_image, 'http') ? $article->cover_image : Storage::url($article->cover_image)) : 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80' }}" alt="{{ $article->title }}" style="width: 100%; height: 180px; object-fit: cover;">
+                @php
+                    $articleImgs = $article->images ?? [];
+                    $articleCover = collect($articleImgs)->map(function($i) {
+                        return str_starts_with($i, 'http') ? $i : Storage::url($i);
+                    })->first() ?? 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80';
+                @endphp
+                <div class="card-fun-hover" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04); display: flex; flex-direction: column; width: 270px; flex-shrink: 0;">
+                    <img src="{{ $articleCover }}" alt="{{ $article->title }}" style="width: 100%; height: 170px; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80'">
                     <div style="padding: 1.25rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
-                            <span style="font-size: 0.75rem; color: #3B82F6; font-weight: 800; text-transform: uppercase;">{{ $article->category ?? 'ข่าวสาร' }}</span>
+                            <span style="font-size: 0.75rem; color: #2563EB; font-weight: 900; text-transform: uppercase;">ข่าวสาร</span>
                             <h4 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 6px 0 10px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $article->title }}</h4>
-                            <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ Str::limit(strip_tags($article->content), 100) }}</p>
+                            <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ Str::limit(strip_tags($article->content), 90) }}</p>
                         </div>
-                        <a href="{{ route('blog.show', $article->id ?? 1) }}" style="display: inline-flex; align-items: center; gap: 6px; color: #0F172A; font-weight: 800; font-size: 0.82rem; margin-top: 1rem; text-decoration: none;" onmouseover="this.style.color='#FF5722'" onmouseout="this.style.color='#0F172A'">
+                        <a href="{{ route('blog.show', $article->id) }}" style="display: inline-flex; align-items: center; gap: 6px; color: #0F172A; font-weight: 900; font-size: 0.82rem; margin-top: 1rem; text-decoration: none;" onmouseover="this.style.color='#2563EB'" onmouseout="this.style.color='#0F172A'">
                             อ่านรายละเอียด ➔
                         </a>
                     </div>
                 </div>
                 @endforeach
             @else
-                <!-- Activity 1 -->
-                <div class="hover-scale" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);">
-                    <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80" alt="บริการสมาร์ทโฟนเพื่อการศึกษา" style="width: 100%; height: 180px; object-fit: cover;">
+                <!-- Fallback Activity Cards Centered -->
+                <div class="card-fun-hover" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04); width: 270px; flex-shrink: 0;">
+                    <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80" alt="บริการสมาร์ทโฟนเพื่อการศึกษา" style="width: 100%; height: 170px; object-fit: cover;">
                     <div style="padding: 1.25rem;">
-                        <span style="font-size: 0.75rem; color: #3B82F6; font-weight: 800; text-transform: uppercase;">สถาบันการศึกษา</span>
+                        <span style="font-size: 0.75rem; color: #2563EB; font-weight: 900; text-transform: uppercase;">สถาบันการศึกษา</span>
                         <h4 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 6px 0 10px; line-height: 1.4;">โครงการไอทีและแท็บเล็ตเพื่อการศึกษา DDPHONE</h4>
                         <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">ส่งมอบ iPad และสมาร์ทโฟนเพื่อการศึกษา พร้อมประกันและบริการหลังการขาย</p>
                     </div>
                 </div>
 
-                <!-- Activity 2 -->
-                <div class="hover-scale" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);">
-                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80" alt="นำเสนอ Apple Products" style="width: 100%; height: 180px; object-fit: cover;">
+                <div class="card-fun-hover" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04); width: 270px; flex-shrink: 0;">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80" alt="นำเสนอ Apple Products" style="width: 100%; height: 170px; object-fit: cover;">
                     <div style="padding: 1.25rem;">
-                        <span style="font-size: 0.75rem; color: #3B82F6; font-weight: 800; text-transform: uppercase;">แอปเปิ้ลมือสองคัดเกรด</span>
+                        <span style="font-size: 0.75rem; color: #2563EB; font-weight: 900; text-transform: uppercase;">แอปเปิ้ลมือสองคัดเกรด</span>
                         <h4 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 6px 0 10px; line-height: 1.4;">สาธิตการใช้งาน iPhone & iPad มือสองแท้เกรด A+</h4>
                         <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">แนะนำการเช็คสุขภาพแบตเตอรี่และตรวจเช็คเครื่องแท้ก่อนส่งถึงมือลูกค้า</p>
                     </div>
                 </div>
 
-                <!-- Activity 3 -->
-                <div class="hover-scale" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);">
-                    <img src="https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=600&q=80" alt="กิจกรรม CSR" style="width: 100%; height: 180px; object-fit: cover;">
+                <div class="card-fun-hover" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04); width: 270px; flex-shrink: 0;">
+                    <img src="https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=600&q=80" alt="กิจกรรม CSR" style="width: 100%; height: 170px; object-fit: cover;">
                     <div style="padding: 1.25rem;">
-                        <span style="font-size: 0.75rem; color: #10B981; font-weight: 800; text-transform: uppercase;">กิจกรรมเพื่อสังคม</span>
+                        <span style="font-size: 0.75rem; color: #10B981; font-weight: 900; text-transform: uppercase;">กิจกรรมเพื่อสังคม</span>
                         <h4 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 6px 0 10px; line-height: 1.4;">กิจกรรมตอบแทนสังคมและสิ่งแวดล้อม DDPHONE</h4>
                         <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">ร่วมมือสร้างสิ่งแวดล้อมยั่งยืนและสนับสนุนการรีไซเคิลขยะอิเล็กทรอนิกส์</p>
                     </div>
                 </div>
-
-                <!-- Activity 4 -->
-                <div class="hover-scale" style="background: white; border-radius: 20px; overflow: hidden; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);">
-                    <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80" alt="รางวัลคุณภาพ" style="width: 100%; height: 180px; object-fit: cover;">
-                    <div style="padding: 1.25rem;">
-                        <span style="font-size: 0.75rem; color: #F59E0B; font-weight: 800; text-transform: uppercase;">รางวัลการันตี</span>
-                        <h4 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 6px 0 10px; line-height: 1.4;">รางวัลร้านค้ารับประกันคุณภาพยอดเยี่ยม</h4>
-                        <p style="color: #64748b; font-size: 0.8rem; line-height: 1.5; margin: 0;">การันตีความไว้วางใจด้วยบริการหลังการขายและการดูแลลูกค้าตลอด 30 วัน</p>
-                    </div>
             @endif
         </div>
     </div>
 
 </div>
+
+<script>
+    function animateHeartBtn(btn) {
+        btn.classList.add('heart-pop-anim');
+        setTimeout(() => btn.classList.remove('heart-pop-anim'), 450);
+    }
+
+    function animateBasketBtn(btn) {
+        btn.classList.add('basket-bounce-anim');
+        setTimeout(() => btn.classList.remove('basket-bounce-anim'), 450);
+    }
+</script>
 @endsection

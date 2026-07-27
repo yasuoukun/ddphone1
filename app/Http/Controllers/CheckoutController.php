@@ -99,6 +99,12 @@ class CheckoutController extends Controller
         return redirect()->back()->with('sweet_success', 'ใช้คูปองส่วนลด ฿' . number_format($coupon->discount_amount, 0) . ' สำเร็จ!');
     }
 
+    public function removeCoupon()
+    {
+        session()->forget('coupon');
+        return redirect()->back()->with('sweet_success', 'ยกเลิกการใช้คูปองส่วนลดเรียบร้อยแล้ว');
+    }
+
     public function process(Request $request)
     {
         $cart = session()->get('cart', []);
@@ -151,10 +157,7 @@ class CheckoutController extends Controller
                 $discountAmount = $coupon->discount_amount;
                 $total = max(0, $total - $discountAmount);
 
-                // Mark coupon as used
-                \App\Models\CollectedCoupon::where('user_id', auth()->id())
-                    ->where('coupon_id', $coupon->id)
-                    ->update(['is_used' => true]);
+                // Note: Coupon will be marked as used (is_used = true) ONLY when payment is completed/confirmed.
             }
 
             // Create Address record if they don't have one and input shipping info
@@ -212,7 +215,7 @@ class CheckoutController extends Controller
             session()->put('cart', $fullCart);
             session()->forget('coupon');
             session()->forget('checkout_items');
-            
+
             return redirect()->route('checkout.pay', $order->id);
             
         } catch (\Exception $e) {
@@ -246,22 +249,39 @@ class CheckoutController extends Controller
 
         if ($request->hasFile('slip_image')) {
             $path = $request->file('slip_image')->store('payment_slips', 'public');
+            $sourcePath = storage_path('app/public/' . $path);
+            $targetPath = public_path('storage/' . $path);
+            @mkdir(dirname($targetPath), 0777, true);
+            if (file_exists($sourcePath)) {
+                @copy($sourcePath, $targetPath);
+            }
             
-            // Update order status
+            // Update order status & mark payment as submitted for verification
             $order->update(['status' => 'pending_verification']);
             
-            // Update payment record
-            $payment = Payment::where('order_id', $order->id)->first();
-            if ($payment) {
-                $payment->update([
-                    'slip_image' => $path,
-                    'status' => 'pending' // pending verification
-                ]);
+            // Update or create payment record with slip image
+            Payment::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'payment_method' => 'promptpay',
+                    'amount'         => $order->total_amount,
+                    'slip_image'     => $path,
+                    'status'         => 'pending'
+                ]
+            );
+
+            // Deduct stock immediately when customer uploads slip (prevents overselling)
+            $order->load('items.product');
+            $order->deductStock();
+
+            // Fire real-time notification event ONLY after customer uploads slip/pays
+            try {
+                event(new \App\Events\NewOrderCreated($order));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Order broadcast failed: ' . $e->getMessage());
             }
 
-            event(new \App\Events\NewOrderCreated($order));
-
-            return redirect()->route('dashboard', ['tab' => 'orders'])->with('sweet_success', 'อัปโหลดสลิปชำระเงินสำเร็จ! กรุณารอระบบทำการตรวจสอบความถูกต้อง');
+            return redirect()->route('dashboard', ['tab' => 'orders'])->with('sweet_success', 'อัปโหลดสลิปชำระเงินสำเร็จ! คำสั่งซื้อของคุณเข้าสู่ระบบเรียบร้อยแล้ว กรุณารอระบบทำการตรวจสอบความถูกต้อง');
         }
 
         return redirect()->back()->with('error', 'กรุณาอัปโหลดรูปภาพสลิปชำระเงิน');
@@ -299,7 +319,11 @@ class CheckoutController extends Controller
             }
             $order->confirm();
             
-            event(new \App\Events\NewOrderCreated($order));
+            try {
+                event(new \App\Events\NewOrderCreated($order));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Order broadcast failed: ' . $e->getMessage());
+            }
 
             DB::commit();
             return redirect()->route('checkout.success', $order->id)->with('sweet_success', "หักบัญชีอัตโนมัติสำเร็จ! ธนาคาร {$paymentMethod->provider} บัญชีเลขท้าย **" . substr($paymentMethod->account_number, -4) . " ชำระแล้ว");
@@ -337,7 +361,11 @@ class CheckoutController extends Controller
             }
             $order->confirm();
             
-            event(new \App\Events\NewOrderCreated($order));
+            try {
+                event(new \App\Events\NewOrderCreated($order));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Order broadcast failed: ' . $e->getMessage());
+            }
 
             DB::commit();
             return redirect()->route('checkout.success', $order->id)->with('sweet_success', "ชำระเงินผ่าน Omise Payment Gateway สำเร็จ! หมายเลขรายการอ้างอิง: " . ($payment ? $payment->transaction_id : 'N/A'));
@@ -349,14 +377,16 @@ class CheckoutController extends Controller
     }
     public function cancel($id)
     {
-        $order = Order::where('user_id', auth()->id())->findOrFail($id);
-        
-        if ($order->status !== 'pending') {
-            return redirect()->back()->with('error', 'คำสั่งซื้อนี้ไม่สามารถยกเลิกได้ เนื่องจากไม่ได้อยู่ในสถานะรอชำระเงิน');
+        $order = Order::with('items.product')->where('user_id', auth()->id())->findOrFail($id);
+
+        // Allow cancel only if order is still pending (not paid) or pending_verification (paid but not confirmed)
+        if (!in_array($order->status, ['pending', 'pending_verification'])) {
+            return redirect()->back()->with('error', 'คำสั่งซื้อนี้ไม่สามารถยกเลิกได้ เนื่องจากแอดมินได้ยืนยันและดำเนินการแล้ว');
         }
 
-        $order->update(['status' => 'cancelled']);
+        // Cancel and restore stock (if slip was already uploaded, stock was deducted — restore it)
+        $order->cancelAndRestoreStock();
 
-        return redirect()->route('dashboard', ['tab' => 'orders'])->with('sweet_success', 'ยกเลิกคำสั่งซื้อเรียบร้อยแล้ว');
+        return redirect()->route('dashboard', ['tab' => 'orders'])->with('sweet_success', 'ยกเลิกคำสั่งซื้อเรียบร้อยแล้ว สต๊อกสินค้าได้รับการอัปเดตแล้ว');
     }
 }
