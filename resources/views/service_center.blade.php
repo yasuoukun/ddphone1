@@ -93,13 +93,42 @@
                     </div>
                 </div>
 
+                <!-- User Purchased Device Selection Widget -->
+                @if(isset($orders) && $orders->count() > 0)
+                <div style="background: #F0F9FF; border: 1.5px solid #BAE6FD; border-radius: 16px; padding: 14px 16px; margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 800; margin-bottom: 6px; color: #0369A1; font-size: 0.88rem;">
+                        🛒 เลือกเครื่องที่คุณซื้อจาก DDPHONE เพื่อเช็คประกันร้าน 30 วัน:
+                    </label>
+                    <select id="user-order-picker" onchange="autoFillOrderDetails(this)" style="width: 100%; padding: 10px 14px; border: 1.5px solid #7DD3FC; border-radius: 12px; font-weight: 700; color: #0F172A; font-size: 0.88rem; background: white; cursor: pointer;">
+                        <option value="">-- หรือพิมพ์กรอกข้อมูลด้วยตนเอง --</option>
+                        @foreach($orders as $ord)
+                            @php
+                                $firstItemName = $ord->items->first()?->product?->name ?? 'สินค้าไอที';
+                                $deliveryDate = $ord->updated_at;
+                                $warrantyExpiresAt = $deliveryDate->copy()->addDays(30);
+                                $isInWarranty = now()->lte($warrantyExpiresAt);
+                                $daysLeft = max(0, (int) now()->diffInDays($warrantyExpiresAt, false));
+                            @endphp
+                            <option value="{{ $ord->id }}" 
+                                    data-device="{{ $firstItemName }}" 
+                                    data-warranty="{{ $isInWarranty ? 'true' : 'false' }}"
+                                    data-days="{{ $daysLeft }}"
+                                    data-delivered="{{ $deliveryDate->format('d/m/Y') }}">
+                                ออเดอร์ {{ $ord->id }} - {{ Str::limit($firstItemName, 35) }} ({{ $isInWarranty ? "อยู่ในประกัน เหลือ {$daysLeft} วัน" : "หมดประกันร้านแล้ว" }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <div id="warranty-preview-badge" style="display: none; margin-top: 10px; padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 800;"></div>
+                </div>
+                @endif
+
                 <!-- Input Grid Row 3 -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 1.25rem;">
                     <div>
                         <label style="display: block; font-weight: 800; margin-bottom: 6px; color: #1E293B; font-size: 0.88rem;">
                             🛠️ ประเภทบริการที่ต้องการ <span style="color: #EF4444;">*</span>
                         </label>
-                        <select name="claim_type" required 
+                        <select name="claim_type" id="claim_type_select" required 
                                 style="width: 100%; padding: 12px 14px; border: 1.5px solid #CBD5E1; border-radius: 14px; outline: none; font-family: 'Prompt', sans-serif; font-size: 0.9rem; font-weight: 700; color: #0F172A; background: #F8FAFC; cursor: pointer;">
                             <option value="warranty">🛡️ ส่งเคลมประกันร้าน 30 วัน</option>
                             <option value="repair">🔧 ส่งซ่อมเปลี่ยนแบต/จอ (เครื่องหมดประกัน)</option>
@@ -110,7 +139,7 @@
                         <label style="display: block; font-weight: 800; margin-bottom: 6px; color: #1E293B; font-size: 0.88rem;">
                             🧾 เลขออเดอร์อ้างอิง (ถ้ามี)
                         </label>
-                        <input type="text" name="order_id_raw" placeholder="เช่น ORD-20260727-XXXX" 
+                        <input type="text" name="order_id_raw" id="order_id_raw_input" placeholder="เช่น ORD-20260727-XXXX" 
                                style="width: 100%; padding: 12px 14px; border: 1.5px solid #CBD5E1; border-radius: 14px; outline: none; font-family: 'Prompt', sans-serif; font-size: 0.9rem; font-weight: 600; color: #0F172A; background: #F8FAFC;">
                     </div>
                 </div>
@@ -186,4 +215,44 @@
         </div>
     </div>
 </div>
+
+<script>
+    function autoFillOrderDetails(selectEl) {
+        const selectedOpt = selectEl.options[selectEl.selectedIndex];
+        const orderId = selectedOpt.value;
+        const deviceName = selectedOpt.dataset.device || '';
+        const isWarranty = selectedOpt.dataset.warranty === 'true';
+        const daysLeft = selectedOpt.dataset.days || '0';
+        const deliveredDate = selectedOpt.dataset.delivered || '';
+
+        const deviceInput = document.querySelector('input[name="device_name"]');
+        const orderInput = document.getElementById('order_id_raw_input');
+        const claimTypeSelect = id = document.getElementById('claim_type_select');
+        const badge = document.getElementById('warranty-preview-badge');
+
+        if (orderId) {
+            if (deviceInput && deviceName) deviceInput.value = deviceName;
+            if (orderInput) orderInput.value = orderId;
+
+            if (badge) {
+                badge.style.display = 'block';
+                if (isWarranty) {
+                    badge.style.background = '#ECFDF5';
+                    badge.style.border = '1px solid #6EE7B7';
+                    badge.style.color = '#065F46';
+                    badge.innerHTML = `🛡️ <strong>อยู่ในประกันร้าน 30 วัน</strong> (ได้รับสินค้าเมื่อ ${deliveredDate} - คงเหลือประกัน ${daysLeft} วัน)`;
+                    if (claimTypeSelect) claimTypeSelect.value = 'warranty';
+                } else {
+                    badge.style.background = '#FEF2F2';
+                    badge.style.border = '1px solid #FCA5A5';
+                    badge.style.color = '#991B1B';
+                    badge.innerHTML = `⚠️ <strong>หมดระยะประกันร้าน 30 วันแล้ว</strong> (ได้รับสินค้าเมื่อ ${deliveredDate}) - ระบบจะปรับเป็นรายการส่งซ่อมทั่วไปครับ`;
+                    if (claimTypeSelect) claimTypeSelect.value = 'repair';
+                }
+            }
+        } else {
+            if (badge) badge.style.display = 'none';
+        }
+    }
+</script>
 @endsection

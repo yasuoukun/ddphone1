@@ -46,7 +46,6 @@
 
 html, body {
     font-family: 'Inter', 'Prompt', sans-serif;
-    background-color: transparent !important;
     color: var(--color-grey);
     margin: 0;
     padding: 0;
@@ -54,6 +53,10 @@ html, body {
     max-width: 100% !important;
     overflow-x: hidden !important;
     width: 100% !important;
+}
+
+body:not(.has-admin-bottom-nav) {
+    background-color: transparent !important;
 }
 
 *, *::before, *::after {
@@ -371,146 +374,171 @@ a.active-nav-tab:hover,
 }
 
 /* ==========================================================================
-   Mobile Drawer Navigation & Backdrop Overlay Fix
+   Mobile Drawer Navigation & Backdrop Overlay (Mobile Only - max-width: 1023px)
    ========================================================================== */
-.mobile-drawer-overlay {
-    position: fixed !important;
-    inset: 0 !important;
-    background: transparent !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    z-index: 999990 !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transition: all 0.2s ease !important;
-}
-
-.mobile-drawer-overlay.open {
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-/* Full-Width Mobile Popup Modal — Anchored neatly above bottom nav */
-.mobile-drawer {
-    position: fixed !important;
-    top: auto !important;
-    bottom: 64px !important;
-    left: 12px !important;
-    right: 12px !important;
-    width: auto !important;
-    height: auto !important;
-    max-height: calc(100vh - 120px) !important;
-    background: white !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border: 1.5px solid #E2E8F0 !important;
-    border-radius: 20px !important;
-    z-index: 99999999 !important;
-    transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s !important;
-    overflow-y: auto !important;
-    padding: 0.85rem 1rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.5rem !important;
-    box-shadow: 0 16px 45px rgba(15, 23, 42, 0.22), 0 4px 15px rgba(15, 23, 42, 0.1) !important;
-
-    /* Hidden state */
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: translateY(20px) scale(0.96) !important;
-    pointer-events: none !important;
-}
-
-.mobile-drawer.open {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) scale(1) !important;
-    pointer-events: auto !important;
-}
-
-/* Mobile drawer interior — restyle for white card & smooth click effects */
-.mobile-drawer a,
-.mobile-drawer button {
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    position: relative !important;
-    overflow: hidden !important;
-}
-
-.mobile-drawer a:active,
-.mobile-drawer button:active {
-    transform: scale(0.96) !important;
-    background: #F1F5F9 !important;
-    opacity: 0.9 !important;
-}
-
-.mobile-drawer a[style*="color: white"] {
-    color: #0F172A !important;
-    background: #F8FAFC !important;
-}
-
-.mobile-drawer a[style*="background: #0284C7"] {
-    background: #0284C7 !important;
-    color: white !important;
-}
-
-.mobile-drawer a[style*="background: #0284C7"]:active {
-    background: #0369A1 !important;
-    transform: scale(0.96) !important;
-}
-
-.mobile-drawer button[style*="background: #ef4444"],
-.mobile-drawer button[style*="background: #FEF2F2"] {
-    background: #FEF2F2 !important;
-    color: #EF4444 !important;
-    border: 1px solid #FECACA !important;
-}
-
-/* Mobile Popup Menu Item Animations */
-.menu-popup-item {
-    position: relative !important;
-    overflow: hidden !important;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.menu-popup-item:hover {
-    background: #F8FAFC !important;
-}
-
-.menu-popup-item:active {
-    transform: scale(0.95) !important;
-    background: #F1F5F9 !important;
-}
-
-.menu-popup-item:active .menu-icon-box {
-    transform: scale(1.18) rotate(-6deg) !important;
-}
-
-.menu-popup-item:active i.fa-chevron-right {
-    transform: translateX(4px) !important;
-    color: #0284C7 !important;
-}
-
-.shopee-mobile-bottom-nav {
-    display: none !important;
-}
-
-.shopee-mobile-bottom-nav .nav-item:active {
-    transform: scale(0.88) !important;
-    transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-}
-
-/* Mobile Actions Visibility */
-@media (min-width: 1024px) {
-    .mobile-actions {
-        display: none !important;
-    }
-    .mobile-drawer, .mobile-drawer-overlay {
-        display: none !important;
-    }
-}
 @media (max-width: 1023px) {
+    .mobile-drawer-overlay {
+        position: fixed !important;
+        inset: 0 !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        z-index: 999990 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transition: opacity 0.2s ease, visibility 0.2s ease !important;
+    }
+
+    .mobile-drawer-overlay.open {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    /* Mobile Popup Modal Card — Centered Horizontally at Bottom */
+    .mobile-drawer {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 64px !important;
+        left: 0 !important;
+        right: 0 !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        width: calc(100% - 24px) !important;
+        max-width: 440px !important;
+        height: auto !important;
+        max-height: calc(100vh - 130px) !important;
+        background: #FFFFFF !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border: 1.5px solid #E2E8F0 !important;
+        border-radius: 20px !important;
+        z-index: 99999999 !important;
+        transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s !important;
+        overflow-y: auto !important;
+        padding: 0.85rem 1rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        box-shadow: 0 16px 45px rgba(15, 23, 42, 0.22), 0 4px 15px rgba(15, 23, 42, 0.1) !important;
+
+        /* Hidden state */
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: translateY(15px) scale(0.96) !important;
+        pointer-events: none !important;
+    }
+
+    .mobile-drawer.open {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) scale(1) !important;
+        pointer-events: auto !important;
+    }
+
+    /* Mobile drawer interior — restyle for white card & smooth click effects */
+    .mobile-drawer a,
+    .mobile-drawer button {
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+    .mobile-drawer a:active,
+    .mobile-drawer button:active {
+        transform: scale(0.96) !important;
+        background: #F1F5F9 !important;
+        opacity: 0.9 !important;
+    }
+
+    .mobile-drawer a[style*="color: white"] {
+        color: #0F172A !important;
+        background: #F8FAFC !important;
+    }
+
+    .mobile-drawer a[style*="background: #0284C7"] {
+        background: #0284C7 !important;
+        color: white !important;
+    }
+
+    .mobile-drawer a[style*="background: #0284C7"]:active {
+        background: #0369A1 !important;
+        transform: scale(0.96) !important;
+    }
+
+    .mobile-drawer button[style*="background: #ef4444"],
+    .mobile-drawer button[style*="background: #FEF2F2"] {
+        background: #FEF2F2 !important;
+        color: #EF4444 !important;
+        border: 1px solid #FECACA !important;
+    }
+
+    /* Mobile Popup Menu Item Animations */
+    .menu-popup-item {
+        position: relative !important;
+        overflow: hidden !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .menu-popup-item:hover {
+        background: #F8FAFC !important;
+    }
+
+    .menu-popup-item:active {
+        transform: scale(0.95) !important;
+        background: #F1F5F9 !important;
+    }
+
+    .menu-popup-item:active .menu-icon-box {
+        transform: scale(1.18) rotate(-6deg) !important;
+    }
+
+    .menu-popup-item:active i.fa-chevron-right {
+        transform: translateX(4px) !important;
+        color: #0284C7 !important;
+    }
+
+    .shopee-mobile-bottom-nav .nav-item:active {
+        transform: scale(0.88) !important;
+        transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+
     .navbar-links {
         display: none !important;
+    }
+
+    /* Notification Bell Dropdown Mobile Positioning Fix (Always visible & centered) */
+    .notif-dropdown-box {
+        position: fixed !important;
+        top: 42px !important;
+        left: 12px !important;
+        right: 12px !important;
+        margin: 0 auto !important;
+        width: auto !important;
+        max-width: 360px !important;
+        z-index: 99999999 !important;
+    }
+}
+
+/* PC Version (min-width: 1024px) - Keep PC Layout 100% Original & Hide All Mobile Elements */
+@media (min-width: 1024px) {
+    .mobile-actions,
+    .mobile-drawer,
+    .mobile-drawer-overlay,
+    .shopee-mobile-bottom-nav {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    .notif-dropdown-box {
+        position: absolute !important;
+        top: 38px !important;
+        right: -10px !important;
+        left: auto !important;
+        width: 310px !important;
+        max-width: calc(100vw - 24px) !important;
+        z-index: 9999999 !important;
     }
 }
 
@@ -904,7 +932,7 @@ a.active-nav-tab:hover,
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
-        overflow: hidden !important;
+        overflow: visible !important;
         background: linear-gradient(135deg, rgba(224, 242, 254, 0.85) 0%, rgba(186, 230, 253, 0.8) 100%) !important;
         backdrop-filter: blur(16px) !important;
     }
@@ -1046,15 +1074,8 @@ a.active-nav-tab:hover,
         gap: 3px !important;
     }
 
-    .wishlist-toggle-btn,
-    .ajax-add-to-cart-form button {
-        width: 26px !important;
-        height: 26px !important;
-        font-size: 0.7rem !important;
-    }
-
-    .wishlist-toggle-btn,
-    .ajax-add-to-cart-form button {
+    .shopee-card-style .wishlist-toggle-btn,
+    .shopee-card-style .ajax-add-to-cart-form button {
         width: 32px !important;
         height: 32px !important;
         font-size: 0.85rem !important;
@@ -1900,3 +1921,328 @@ button:active,
     transform: scale(0.92) !important;
     transition: transform 0.1s ease !important;
 }
+
+/* ==========================================================================
+   Admin Mobile Shopee-Style Bottom Floating Navigation Bar
+   ========================================================================== */
+.admin-mobile-bottom-nav {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .admin-mobile-bottom-nav {
+        display: flex !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 60px !important;
+        background: #FFFFFF !important;
+        border-top: 1px solid #E2E8F0 !important;
+        box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08) !important;
+        z-index: 999999 !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+        padding: 0 4px !important;
+    }
+
+    .admin-mobile-bottom-nav .admin-nav-item {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-decoration: none !important;
+        color: #64748B !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        padding: 4px 0 !important;
+        position: relative !important;
+        transition: all 0.15s ease !important;
+    }
+
+    .admin-mobile-bottom-nav .admin-nav-item i {
+        font-size: 1.22rem !important;
+        margin-bottom: 2px !important;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+
+    .admin-mobile-bottom-nav .admin-nav-item.active {
+        color: #EE4D2D !important;
+    }
+
+    .admin-mobile-bottom-nav .admin-nav-item.active i {
+        color: #EE4D2D !important;
+        transform: scale(1.18) !important;
+    }
+
+    .admin-mobile-bottom-nav .admin-nav-item:active {
+        transform: scale(0.9) !important;
+    }
+
+    /* Padding bottom for body on mobile so bottom bar does not cover content */
+    body.has-admin-bottom-nav {
+        padding-bottom: 65px !important;
+    }
+}
+
+/* ==========================================================================
+   Admin Dashboard & Management Mobile Responsiveness (Compact & Clean UI)
+   ========================================================================== */
+@media (max-width: 640px) {
+    /* Compact Admin Page Header Padding */
+    .py-8, .py-12 {
+        padding-top: 1rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+
+    /* Container Spacing */
+    .max-w-7xl {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    /* Compact Cards Padding */
+    .bg-white.rounded-3xl, 
+    .bg-white.rounded-2xl, 
+    .bg-white.shadow-sm, 
+    .bg-slate-900.rounded-3xl {
+        padding: 1rem !important;
+        border-radius: 1rem !important;
+    }
+
+    /* Admin Navigation Responsive Menu Items */
+    .sm\:hidden.bg-\[\#121C30\]\/95 {
+        max-height: 80vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0.5rem !important;
+    }
+    
+    .sm\:hidden.bg-\[\#121C30\]\/95 a {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.82rem !important;
+    }
+
+    /* Grid & Form Compact spacing */
+    .grid {
+        gap: 0.75rem !important;
+    }
+
+    /* Admin Tables Responsive Scroll & Compact Text */
+    table {
+        font-size: 0.75rem !important;
+    }
+    
+    table th, table td {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+
+    /* Admin Action Buttons & Form Controls */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"],
+    select,
+    textarea {
+        font-size: 0.82rem !important;
+        padding: 0.5rem 0.75rem !important;
+        border-radius: 0.75rem !important;
+    }
+
+    /* Headings & Text Adjustments */
+    h2.font-black, h2.font-bold, h2.font-semibold {
+        font-size: 1.25rem !important;
+    }
+
+    h3.font-black, h3.font-bold {
+        font-size: 1rem !important;
+    }
+}
+
+/* ==========================================================================
+   iPad / Tablet Responsive Optimization (769px - 1024px)
+   ONLY affects iPad & Tablet screens. Does NOT affect Mobile (≤768px) or PC (≥1025px).
+   ========================================================================== */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+
+    /* --- Topbar & Navbar Scaling --- */
+    .topbar {
+        padding: 0 0.85rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    .topbar-left { gap: 10px !important; }
+    .topbar-left a { font-size: 0.75rem !important; }
+
+    .navbar {
+        padding: 0.28rem 0.75rem !important;
+        flex-wrap: nowrap !important;
+        overflow: hidden !important;
+    }
+
+    /* Shrink brand text on tablet */
+    .navbar-brand span {
+        font-size: 0.82rem !important;
+        white-space: nowrap !important;
+    }
+
+    .navbar-brand img {
+        height: 28px !important;
+    }
+
+    /* Reduce search bar width significantly so nav links have room */
+    .navbar form {
+        width: 130px !important;
+        flex-shrink: 1 !important;
+        min-width: 80px !important;
+    }
+
+    /* Nav links: smaller, no wrap, tighter padding */
+    .nav-clean-link {
+        font-size: 0.7rem !important;
+        padding: 4px 7px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .navbar-links {
+        gap: 0.15rem !important;
+        flex-wrap: nowrap !important;
+        overflow: hidden !important;
+    }
+
+    /* Dropdown trigger also nowrap */
+    .navbar-dropdown-trigger {
+        white-space: nowrap !important;
+        font-size: 0.7rem !important;
+    }
+
+    /* --- Product Grid: 3 Columns on Tablet (was auto-fill ~4-5) --- */
+    .product-grid-container,
+    div[style*="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))"],
+    div[style*="grid-template-columns: repeat(auto-fill, minmax(230px, 1fr))"],
+    div[style*="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr))"] {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    /* --- 4-Core Guarantees: 2 columns on tablet --- */
+    div[style*="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))"],
+    div[style*="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+    }
+
+    /* --- Showcase Section: Stack vertically on tablet portrait --- */
+    .borderless-showcase-section div[style*="max-width: 1400px"] {
+        flex-direction: column !important;
+        gap: 20px !important;
+        text-align: center !important;
+        align-items: center !important;
+    }
+
+    .borderless-showcase-section h1,
+    .borderless-showcase-section h2 {
+        font-size: 1.5rem !important;
+    }
+
+    .user-devices-showcase-img {
+        max-width: 260px !important;
+    }
+
+    /* --- Admin Dashboard Tables: Reduce padding and font size --- */
+    .max-w-7xl.mx-auto,
+    .py-8.bg-gray-50\/50 .max-w-7xl {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    /* Admin/Central Admin page heading compact spacing */
+    header.bg-white .max-w-7xl {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+
+    header.bg-white h2 {
+        font-size: 1rem !important;
+    }
+
+    /* Reduce card padding in admin area on tablet */
+    .bg-white.rounded-3xl.p-6 {
+        padding: 1rem !important;
+    }
+
+    .bg-white.rounded-3xl.p-6 h3 {
+        font-size: 0.95rem !important;
+    }
+
+    /* Products table: shrink column paddings & fonts */
+    #productsTable th,
+    #productsTable td {
+        padding-top: 0.6rem !important;
+        padding-bottom: 0.6rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Admin Quick Shortcut Banner (top of dashboard) */
+    .mb-8.p-6.rounded-3xl {
+        padding: 0.85rem 1rem !important;
+        flex-direction: row !important;
+        gap: 0.75rem !important;
+    }
+
+    .mb-8.p-6.rounded-3xl h3 {
+        font-size: 0.95rem !important;
+    }
+
+    .mb-8.p-6.rounded-3xl p {
+        font-size: 0.75rem !important;
+    }
+
+    .mb-8.p-6.rounded-3xl a,
+    .mb-8.p-6.rounded-3xl button {
+        font-size: 0.75rem !important;
+        padding: 0.4rem 0.85rem !important;
+    }
+
+    /* Notification Dropdown: stays within viewport on tablet */
+    .notif-dropdown-box {
+        right: 0 !important;
+        left: auto !important;
+        min-width: 290px !important;
+        max-width: 320px !important;
+    }
+
+    /* Cart/Checkout Page layout: single column on tablet portrait */
+    .checkout-grid,
+    div[style*="display: grid"][style*="grid-template-columns: 1fr 380px"],
+    div[style*="display: grid"][style*="grid-template-columns: 1fr 400px"],
+    div[style*="display: grid"][style*="grid-template-columns: 2fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Admin period-filter tabs: smaller text */
+    #sales-period-wrapper button {
+        font-size: 0.72rem !important;
+        padding: 0.3rem 0.6rem !important;
+    }
+
+    /* Header spacer for tablet (same height as PC, just slightly tighter) */
+    .header-spacer {
+        height: 72px !important;
+    }
+
+    /* Promotions page: 2-col product grid */
+    .promotions-grid,
+    .promo-product-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+

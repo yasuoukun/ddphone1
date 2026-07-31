@@ -9,7 +9,7 @@ class Product extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ["name", "sku", "description", "specifications", "freebie", "price", "discount_price", "stock", "category_id", "brand_id", "is_promotion", "is_popular", "installment_details"];
+    protected $fillable = ["name", "sku", "serial_number", "description", "specifications", "freebie", "price", "discount_price", "stock", "category_id", "brand_id", "is_promotion", "is_popular", "installment_details", "seo_title", "seo_description", "seo_keywords"];
 
     protected static function boot()
     {
@@ -90,5 +90,6 @@ class Product extends Model
     public function brand() { return $this->belongsTo(Brand::class); }
     public function images() { return $this->hasMany(ProductImage::class); }
     public function reviews() { return $this->hasMany(Review::class); }
+    public function orderItems() { return $this->hasMany(OrderItem::class); }
 
 }

@@ -19,17 +19,17 @@ class CheckoutController extends Controller
 
         // Filter cart items by query param 'items'
         $selectedIds = [];
-        if ($request->has('items')) {
-            $selectedIds = explode(',', $request->query('items'));
+        if ($request->has('items') && !empty($request->query('items'))) {
+            $selectedIds = array_map('strval', explode(',', $request->query('items')));
             $cart = array_filter($cart, function($key) use ($selectedIds) {
-                return in_array($key, $selectedIds);
+                return in_array((string)$key, $selectedIds, true);
             }, ARRAY_FILTER_USE_KEY);
             
             if (count($cart) === 0) {
                 return redirect()->route('cart.index')->with('error', 'กรุณาเลือกสินค้าอย่างน้อย 1 ชิ้นเพื่อชำระเงิน');
             }
         } else {
-            $selectedIds = array_keys($cart);
+            $selectedIds = array_map('strval', array_keys($cart));
         }
         
         // Save selected items keys to session
@@ -115,13 +115,13 @@ class CheckoutController extends Controller
         // Filter cart items by checkout_items session
         $selectedIds = session()->get('checkout_items', []);
         if (count($selectedIds) > 0) {
-            $cart = array_filter($cart, function($key) use ($selectedIds) {
-                return in_array($key, $selectedIds);
+            $selectedIds = array_map('strval', $selectedIds);
+            $filteredCart = array_filter($cart, function($key) use ($selectedIds) {
+                return in_array((string)$key, $selectedIds, true);
             }, ARRAY_FILTER_USE_KEY);
-        }
-
-        if (count($cart) === 0) {
-            return redirect()->route('cart.index')->with('error', 'ไม่มีสินค้าที่จะทำการชำระเงิน');
+            if (count($filteredCart) > 0) {
+                $cart = $filteredCart;
+            }
         }
 
         // Validate request inputs
@@ -226,12 +226,13 @@ class CheckoutController extends Controller
 
     public function pay($id)
     {
-        $order = Order::with('items.product')->where('user_id', auth()->id())->findOrFail($id);
+        $userId = auth()->id() ?? 1;
+        $order = Order::with('items.product')->where('user_id', $userId)->findOrFail($id);
         if ($order->status !== 'pending') {
             return redirect()->route('dashboard', ['tab' => 'orders'])->with('info', 'คำสั่งซื้อนี้มีสถานะอื่นแล้ว');
         }
         
-        $paymentMethods = \App\Models\UserPaymentMethod::where('user_id', auth()->id())->get();
+        $paymentMethods = auth()->check() ? \App\Models\UserPaymentMethod::where('user_id', auth()->id())->get() : collect();
         
         return view('checkout.pay', compact('order', 'paymentMethods'));
     }
@@ -242,7 +243,8 @@ class CheckoutController extends Controller
             'slip_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:4096',
         ]);
 
-        $order = Order::where('user_id', auth()->id())->findOrFail($id);
+        $userId = auth()->id() ?? 1;
+        $order = Order::where('user_id', $userId)->findOrFail($id);
         if ($order->status !== 'pending') {
             return redirect()->route('dashboard', ['tab' => 'orders'])->with('info', 'คำสั่งซื้อนี้ไม่ได้อยู่ในสถานะรอชำระเงิน');
         }

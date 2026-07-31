@@ -139,8 +139,8 @@
                     <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" style="width: 75px; height: 75px; border-radius: 50%; object-fit: cover; border: 3px solid #0891B2; box-shadow: 0 6px 16px rgba(8, 145, 178, 0.3);">
                 </div>
                 <div>
-                    <h3 class="dashboard-user-name" style="font-size: 1.15rem; font-weight: 900; color: #0E7490; margin-bottom: 0.2rem;">{{ auth()->user()->name }}</h3>
-                    <p class="dashboard-user-email" style="font-size: 0.8rem; color: #64748B; margin: 0; font-weight: 700;">{{ auth()->user()->email }}</p>
+                    <h3 class="dashboard-user-name" style="font-size: 1.15rem; font-weight: 900; color: #0E7490; margin-bottom: 0.2rem; word-break: break-word;">{{ auth()->user()->name }}</h3>
+                    <p class="dashboard-user-email" style="font-size: 0.78rem; color: #64748B; margin: 0; font-weight: 700; word-break: break-all; overflow-wrap: anywhere; line-height: 1.2;">{{ auth()->user()->email }}</p>
                 </div>
             </div>
 
@@ -228,6 +228,75 @@
                     บันทึกการเปลี่ยนแปลง
                 </button>
             </form>
+
+            <!-- Security Audit Log Section -->
+            <div style="margin-top: 2.5rem; border-top: 2px solid #BAE6FD; padding-top: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;">
+                    <h3 style="font-size: 1.15rem; color: #0E7490; font-weight: 900; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        🛡️ ประวัติการเข้าสู่ระบบล่าสุด (Security Audit Log)
+                    </h3>
+                    <span style="font-size: 0.75rem; color: #64748B; font-weight: 700;">(แสดงสูงสุด 10 รายการล่าสุด)</span>
+                </div>
+
+                <div style="overflow-x: auto; border: 1.5px solid #BAE6FD; border-radius: 16px; background: #F8FAFC;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                        <thead>
+                            <tr style="background: #F0F9FF; border-bottom: 1.5px solid #BAE6FD; color: #0E7490; font-weight: 800;">
+                                <th style="padding: 10px 14px;">วัน/เวลา</th>
+                                <th style="padding: 10px 14px;">ช่องทาง</th>
+                                <th style="padding: 10px 14px;">อุปกรณ์ & เบราว์เซอร์</th>
+                                <th style="padding: 10px 14px;">IP Address</th>
+                                <th style="padding: 10px 14px; text-align: right;">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody style="divide-y divide-gray-100;">
+                            @forelse($loginLogs ?? [] as $log)
+                            <tr style="border-bottom: 1px solid #E2E8F0; background: white;">
+                                <td style="padding: 10px 14px; font-weight: 700; color: #0F172A; white-space: nowrap;">
+                                    {{ $log->created_at ? $log->created_at->format('d/m/Y H:i:s') : '-' }}
+                                </td>
+                                <td style="padding: 10px 14px; white-space: nowrap;">
+                                    @if($log->login_method === 'google')
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; font-weight: 800; color: #1E293B;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg> Google
+                                        </span>
+                                    @elseif($log->login_method === 'facebook')
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; font-weight: 800; color: #1877F2;">
+                                            <i class="fa-brands fa-facebook-f"></i> Facebook
+                                        </span>
+                                    @else
+                                        <span style="font-weight: 800; color: #475569;">
+                                            ✉️ Email / Pass
+                                        </span>
+                                    @endif
+                                </td>
+                                <td style="padding: 10px 14px; font-weight: 700; color: #334155;">
+                                    {{ $log->formatted_device }}
+                                </td>
+                                <td style="padding: 10px 14px; font-family: monospace; font-weight: 700; color: #64748B;">
+                                    {{ $log->ip_address ?? '-' }}
+                                </td>
+                                <td style="padding: 10px 14px; text-align: right; white-space: nowrap;">
+                                    @if($log->status === 'successful')
+                                        <span style="background: #DCFCE7; color: #15803D; padding: 2px 9px; border-radius: 99px; font-size: 0.74rem; font-weight: 900;">✅ สำเร็จ</span>
+                                    @elseif($log->status === 'lockout')
+                                        <span style="background: #FEE2E2; color: #991B1B; padding: 2px 9px; border-radius: 99px; font-size: 0.74rem; font-weight: 900;">🛑 โดนล็อก</span>
+                                    @else
+                                        <span style="background: #FEF3C7; color: #92400E; padding: 2px 9px; border-radius: 99px; font-size: 0.74rem; font-weight: 900;">❌ รหัสผิด</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" style="padding: 24px; text-align: center; color: #94A3B8; font-weight: 700;">
+                                    ยังไม่มีประวัติการเข้าสู่ระบบ
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- TAB 2: Shipping Addresses (Fix Blank Page Bug) -->
@@ -422,30 +491,86 @@
         <!-- TAB 4: Wishlist (Fix Blank Page Bug) -->
         <div x-show="tab === 'wishlist'" style="display: none;">
             <h2 style="font-size: 1.6rem; color: #0F172A; margin-bottom: 1.5rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 0.75rem; font-weight: 900;">สินค้าที่ชอบ (Wishlist)</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+            <div class="product-grid-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;">
                 @forelse($wishlists as $wish)
                     @if($wish->product)
-                    <div style="border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 1rem; background: white; text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
-                        <a href="{{ route('products.show', $wish->product->id) }}" style="text-decoration: none; color: inherit;">
-                            <img src="{{ $wish->product->primary_image_url }}" alt="{{ $wish->product->name }}" style="width: 100%; height: 150px; object-fit: contain; margin-bottom: 0.75rem;">
-                            <h4 style="font-size: 0.95rem; font-weight: 800; color: #0F172A; margin: 0 0 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $wish->product->name }}</h4>
-                            <p style="font-size: 1.1rem; font-weight: 900; color: #EF4444; margin: 0 0 0.75rem;">฿{{ number_format($wish->product->price, 0) }}</p>
+                    @php $product = $wish->product; @endphp
+                    <div class="card-fun-hover shopee-card-style" style="background: white; border: 1px solid #E2E8F0; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04); position: relative; transition: all 0.2s ease;">
+                        
+                        <!-- Image Box (Shopee 1:1 Square Ratio with Overlay Badges) -->
+                        <a href="{{ route('products.show', $product->id) }}" style="text-decoration: none; color: inherit; display: block; position: relative; width: 100%; aspect-ratio: 1/1; background: #F8FAFC; overflow: hidden;">
+                            @if($product->discount_price)
+                                @php $percent = round((($product->price - $product->discount_price) / $product->price) * 100); @endphp
+                                <span style="position: absolute; top: 6px; left: 6px; z-index: 10; font-size: 10px; font-weight: 900; background: #FF5722; color: white; padding: 2px 7px; border-radius: 4px; box-shadow: 0 2px 6px rgba(255,87,34,0.3);">
+                                    -{{ $percent }}%
+                                </span>
+                            @else
+                                <span style="position: absolute; top: 6px; left: 6px; z-index: 10; font-size: 10px; font-weight: 900; background: #EF4444; color: white; padding: 2px 7px; border-radius: 4px;">
+                                    ❤️ ชอบ
+                                </span>
+                            @endif
+
+                            @if($product->stock <= 0)
+                                <span style="position: absolute; top: 6px; right: 6px; z-index: 10; font-size: 9px; font-weight: 900; background: #EF4444; color: white; padding: 2px 6px; border-radius: 4px;">หมด</span>
+                            @else
+                                <span style="position: absolute; top: 6px; right: 6px; z-index: 10; font-size: 9px; font-weight: 900; background: #FFE600; color: #0F172A; padding: 2px 6px; border-radius: 4px; border: 1px solid #EAB308;">พร้อมส่ง</span>
+                            @endif
+
+                            @if($product->primary_image_url)
+                                <img src="{{ $product->primary_image_url }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: contain; padding: 0.6rem; transition: transform 0.3s ease;">
+                            @else
+                                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                                    <i class="fa-solid fa-mobile-screen text-4xl"></i>
+                                </div>
+                            @endif
                         </a>
-                        <div style="display: flex; gap: 8px;">
-                            <form action="{{ route('cart.add', $wish->product->id) }}" method="POST" class="ajax-add-to-cart-form" style="flex: 1; margin: 0;">
-                                @csrf
-                                <button type="submit" style="width: 100%; background: #0F172A; color: #FFE600; border: none; padding: 8px; border-radius: 99px; font-weight: 800; font-size: 0.78rem; cursor: pointer;">
-                                    🛒 ใส่ตะกร้า
-                                </button>
-                            </form>
-                            <button class="wishlist-toggle-btn" data-product-id="{{ $wish->product->id }}" style="background: #FEF2F2; color: #EF4444; border: 1px solid #FCA5A5; padding: 8px 12px; border-radius: 99px; cursor: pointer; font-size: 0.85rem;">
-                                <i class="fa-solid fa-heart"></i>
-                            </button>
+                        
+                        <!-- Details & Pricing Box -->
+                        <div style="padding: 0.5rem 0.55rem 0.45rem; background: white; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; gap: 3px;">
+                            <a href="{{ route('products.show', $product->id) }}" style="text-decoration: none; color: inherit;">
+                                <h3 style="font-size: 0.78rem; font-weight: 700; color: #0F172A; margin: 0; min-height: 2.1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;">
+                                    {{ $product->name }}
+                                </h3>
+                            </a>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <div style="display: flex; align-items: baseline; gap: 4px;">
+                                    @if($product->discount_price)
+                                        <span style="font-size: 0.98rem; font-weight: 900; color: #FF5722; line-height: 1;">฿{{ number_format($product->discount_price) }}</span>
+                                        <span style="font-size: 0.65rem; text-decoration: line-through; color: #94A3B8; line-height: 1;">฿{{ number_format($product->price) }}</span>
+                                    @else
+                                        <span style="font-size: 0.98rem; font-weight: 900; color: #FF5722; line-height: 1;">฿{{ number_format($product->price) }}</span>
+                                    @endif
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                                    @php
+                                        $avgRating = round($product->reviews()->avg('rating') ?? 5.0, 1);
+                                        $reviewCount = $product->reviews()->count();
+                                    @endphp
+                                    <span style="font-size: 0.62rem; color: #64748B; font-weight: 600;">
+                                        ⭐ {{ number_format($avgRating, 1) }} <span style="color: #CBD5E1;">|</span> {{ $reviewCount > 0 ? 'รีวิว ' . $reviewCount : 'สินค้าใหม่' }}
+                                    </span>
+                                    
+                                    <div style="display: flex; gap: 4px; align-items: center;">
+                                        <button type="button" class="wishlist-toggle-btn" data-product-id="{{ $product->id }}" onclick="animateHeartBtn(this)" title="ลบออกจากสินค้าที่ชอบ" style="background: #FEF2F2; border: 1px solid #FCA5A5; color: #EF4444; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                                            <i class="fa-solid fa-heart"></i>
+                                        </button>
+
+                                        <form action="{{ route('cart.add', $product) }}" method="POST" class="ajax-add-to-cart-form" style="margin: 0;">
+                                            @csrf
+                                            <button type="submit" onclick="animateBasketBtn(this)" title="เพิ่มลงตะกร้า" style="background: #FF5722; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; font-weight: 900; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 2px 6px rgba(255, 87, 34, 0.3);">
+                                                <i class="fa-solid fa-basket-shopping"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     @endif
                 @empty
-                    <div style="grid-column: span 3; text-align: center; color: #94A3B8; padding: 3rem 0; font-weight: 800;">
+                    <div style="grid-column: 1 / -1; text-align: center; color: #94A3B8; padding: 3rem 0; font-weight: 800;">
                         ❤️ ยังไม่มีสินค้าที่กดชอบไว้
                     </div>
                 @endforelse
@@ -612,29 +737,65 @@
         <!-- TAB 8: My Repairs / Claims (Fix Blank Page Bug) -->
         <div x-show="tab === 'repairs'" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1.5px solid #E2E8F0; padding-bottom: 0.5rem; flex-wrap: wrap; gap: 8px;">
-                <h2 style="font-size: 1.15rem; color: #0F172A; margin: 0; font-weight: 900;">งานซ่อม & เคลมของฉัน</h2>
-                <a href="{{ route('service_center') }}" style="background: #0F172A; color: #FFE600; text-decoration: none; padding: 6px 14px; border-radius: 99px; font-weight: 800; font-size: 0.76rem; box-shadow: 0 2px 8px rgba(15,23,42,0.12); white-space: nowrap;">
-                    🛠️ แจ้งส่งซ่อม/เคลม
+                <h2 style="font-size: 1.15rem; color: #0F172A; margin: 0; font-weight: 900;">🛠️ งานซ่อม & เคลมของฉัน</h2>
+                <a href="{{ route('service_center') }}" style="background: #0F172A; color: #FFE600; text-decoration: none; padding: 6px 14px; border-radius: 99px; font-weight: 800; font-size: 0.76rem; box-shadow: 0 2px 8px rgba(15,23,42,0.12); white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
+                    🔧 แจ้งส่งซ่อม/เคลม
                 </a>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 @forelse($claims as $claim)
-                <div style="border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 1.25rem 1.5rem; background: white; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <span style="font-size: 0.78rem; color: #64748B; font-weight: 800;">หมายเลขติดตามงานซ่อม</span>
-                        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 900; color: #0F172A;">{{ $claim->claim_number ?? ('CLM-' . str_pad($claim->id, 5, '0', STR_PAD_LEFT)) }}</h4>
-                        <p style="margin: 4px 0 0; font-size: 0.88rem; color: #0F172A; font-weight: 800;">อุปกรณ์: {{ $claim->device_name }} ({{ $claim->issue_description }})</p>
+                @php
+                    $claimTypeLabel = match($claim->claim_type) {
+                        'warranty' => '🛡️ เคลมประกัน',
+                        'repair'   => '🔧 ส่งซ่อมทั่วไป',
+                        'setting'  => '⚙️ ตั้งค่า/ลงโปรแกรม',
+                        default    => '📋 งานซ่อม',
+                    };
+                    $bgColor = match(true) {
+                        in_array($claim->status, ['quoted']) => '#EFF6FF',
+                        in_array($claim->status, ['completed']) => '#F0FDF4',
+                        in_array($claim->status, ['cancelled']) => '#FEF2F2',
+                        in_array($claim->status, ['in_repair', 'in_progress', 'device_received']) => '#EEF2FF',
+                        in_array($claim->status, ['repaired_waiting_payment', 'return_shipped']) => '#FFFBEB',
+                        default => 'white',
+                    };
+                    $borderColor = match(true) {
+                        in_array($claim->status, ['quoted']) => '#BFDBFE',
+                        in_array($claim->status, ['completed']) => '#86EFAC',
+                        in_array($claim->status, ['cancelled']) => '#FECACA',
+                        in_array($claim->status, ['in_repair', 'in_progress', 'device_received']) => '#C7D2FE',
+                        in_array($claim->status, ['repaired_waiting_payment', 'return_shipped']) => '#FDE68A',
+                        default => '#E2E8F0',
+                    };
+                @endphp
+                <a href="{{ route('tracking', ['q' => $claim->id, 'type' => 'claim']) }}" style="text-decoration: none; color: inherit; display: block;">
+                    <div style="border: 1.5px solid {{ $borderColor }}; border-radius: 16px; padding: 1.1rem 1.25rem; background: {{ $bgColor }}; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; transition: box-shadow 0.2s, transform 0.15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(15,23,42,0.10)'; this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='none'; this.style.transform='none'">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                                <span style="font-size: 0.68rem; font-weight: 800; color: #64748B; background: #F1F5F9; padding: 1px 8px; border-radius: 99px;">{{ $claimTypeLabel }}</span>
+                                <span style="font-size: 0.68rem; color: #94A3B8; font-weight: 700;">{{ $claim->created_at->format('d/m/Y') }}</span>
+                            </div>
+                            <h4 style="margin: 0 0 2px; font-size: 0.82rem; font-weight: 900; color: #64748B; letter-spacing: 0.3px;">{{ $claim->id }}</h4>
+                            <p style="margin: 0; font-size: 0.92rem; color: #0F172A; font-weight: 800;">{{ $claim->device_name }}</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            @if(in_array($claim->status, ['quoted']))
+                                <span style="font-size: 0.72rem; font-weight: 900; color: #1D4ED8; background: #DBEAFE; border: 1px solid #BFDBFE; padding: 3px 10px; border-radius: 99px; white-space: nowrap;">⚡ กดเพื่อยืนยัน</span>
+                            @endif
+                            <div>
+                                <span class="{{ $claim->status_badge_class }}" style="font-size: 0.78rem; font-weight: 900; padding: 4px 12px; border-radius: 99px; border: 1px solid; white-space: nowrap; display: block; text-align: center;">
+                                    {{ $claim->status_label }}
+                                </span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right" style="color: #CBD5E1; font-size: 0.75rem;"></i>
+                        </div>
                     </div>
-                    <div style="text-align: right;">
-                        <span style="font-size: 0.82rem; font-weight: 900; color: white; background: #0F172A; padding: 4px 12px; border-radius: 99px;">
-                            {{ $claim->status }}
-                        </span>
-                    </div>
-                </div>
+                </a>
                 @empty
                 <div style="text-align: center; color: #94A3B8; padding: 3rem 0; font-weight: 800;">
-                    🛠️ ยังไม่มีรายการแจ้งส่งซ่อมหรือเคลมสินค้า
+                    🛠️ ยังไม่มีรายการแจ้งส่งซ่อมหรือเคลมสินค้า<br>
+                    <a href="{{ route('service_center') }}" style="display: inline-block; margin-top: 1rem; color: #0F172A; background: #FFE600; text-decoration: none; padding: 8px 20px; border-radius: 99px; font-weight: 900; font-size: 0.85rem;">แจ้งงานซ่อมแรก</a>
                 </div>
                 @endforelse
             </div>

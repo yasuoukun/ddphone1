@@ -28,7 +28,7 @@
 
             <!-- Product Image (Aspect Ratio 1:1 contain) -->
             @if($product->primary_image_url)
-                <img src="{{ $product->primary_image_url }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: contain; padding: 0.6rem; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <img src="{{ $product->primary_image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: contain; padding: 0.6rem; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
             @else
                 <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
                     <i class="fa-solid fa-mobile-screen text-4xl"></i>
@@ -59,8 +59,8 @@
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                     @php
-                        $avgRating = round($product->reviews()->avg('rating') ?? 5.0, 1);
-                        $reviewCount = $product->reviews()->count();
+                        $avgRating = round($product->reviews_avg_rating ?? 5.0, 1);
+                        $reviewCount = $product->reviews_count ?? 0;
                     @endphp
                     <span style="font-size: 0.62rem; color: #64748B; font-weight: 600;">
                         ⭐ {{ number_format($avgRating, 1) }} <span style="color: #CBD5E1;">|</span> {{ $reviewCount > 0 ? 'รีวิว ' . $reviewCount : 'สินค้าใหม่' }}
@@ -74,12 +74,18 @@
                             <i class="fa-{{ $isFavorite ? 'solid' : 'regular' }} fa-heart"></i>
                         </button>
 
+                        @if($product->stock > 0)
                         <form action="{{ route('cart.add', $product) }}" method="POST" class="ajax-add-to-cart-form" style="margin: 0;">
                             @csrf
                             <button type="submit" onclick="animateBasketBtn(this)" title="เพิ่มลงตะกร้า" style="background: #FF5722; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; font-weight: 900; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 2px 6px rgba(255, 87, 34, 0.3);">
                                 <i class="fa-solid fa-basket-shopping"></i>
                             </button>
                         </form>
+                        @else
+                        <button type="button" disabled title="สินค้าหมดชั่วคราว" style="background: #94A3B8; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: not-allowed; font-size: 0.7rem; font-weight: 900; display: flex; align-items: center; justify-content: center; opacity: 0.7;">
+                            <i class="fa-solid fa-ban"></i>
+                        </button>
+                        @endif
                     </div>
                 </div>
             </div>

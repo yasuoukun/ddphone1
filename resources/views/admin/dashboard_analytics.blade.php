@@ -14,7 +14,7 @@
     </div>
 
     <!-- Summary Stats Row (Wishlists, Reviews, Average Rating) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div class="bg-gradient-to-br from-rose-50 to-pink-50/50 p-5 rounded-2xl border border-rose-100 flex items-center justify-between shadow-sm">
             <div>
                 <p class="text-xs text-rose-600 font-bold uppercase tracking-wider">ลูกค้าถูกใจทั้งหมด (Wishlist)</p>

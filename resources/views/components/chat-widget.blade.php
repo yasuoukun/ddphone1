@@ -137,8 +137,10 @@ function chatWidget() {
                     this.scrollDown();
                 });
 
-            // Start fast real-time polling (1.2s interval)
-            setInterval(() => this.fetchMessages(), 1200);
+            // Poll every 2 seconds always - fast enough for responsive chat
+            setInterval(() => {
+                this.fetchMessages();
+            }, 2000);
         },
         unreadCount() {
             return this.messages.filter(m => m.sender_id !== this.userId && !m.is_read).length;
@@ -156,17 +158,24 @@ function chatWidget() {
             fetch(url, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.length > this.messages.length) {
+                    const tempMessages = this.messages.filter(m => String(m.id).startsWith('temp-'));
+                    const realLength = this.messages.length - tempMessages.length;
+                    
+                    if (data.length > realLength) {
                         // Play sound only if it's a new message from someone else (admin)
-                        let newAdminMsg = data.slice(this.messages.length).some(m => m.sender_id !== this.userId);
+                        let newAdminMsg = data.slice(realLength).some(m => m.sender_id !== this.userId);
                         if (newAdminMsg) {
                             this.playChime();
                         }
-                        this.messages = data;
-                        this.scrollDown();
-                    } else {
-                        this.messages = data;
                     }
+                    
+                    // Always sync state with server
+                    this.messages = [...data, ...tempMessages];
+                    
+                    if (data.length > realLength) {
+                        this.scrollDown();
+                    }
+                    
                     this.updateNavBadge(this.unreadCount());
                 });
         },
@@ -206,19 +215,46 @@ function chatWidget() {
         },
         sendMessage() {
             if (this.newMessage.trim() === '') return;
+            const content = this.newMessage;
+            this.newMessage = ''; // Clear instantly
+            
+            const tempId = 'temp-' + Date.now();
+            
+            // Optimistic UI update
+            this.messages.push({
+                id: tempId,
+                sender_id: this.userId,
+                content: content,
+                created_at: new Date().toISOString(),
+                attachment_path: null
+            });
+            this.scrollDown();
+            
             fetch('/messages', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ content: this.newMessage, receiver_id: null })
+                body: JSON.stringify({ content: content, receiver_id: null })
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to send message');
+                return res.json();
+            })
             .then(data => {
-                this.messages.push(data);
-                this.newMessage = '';
+                // Remove the temp message
+                this.messages = this.messages.filter(m => m.id !== tempId);
+                // Add real message if it's not already fetched
+                if (!this.messages.some(m => m.id === data.id)) {
+                    this.messages.push(data);
+                }
                 this.scrollDown();
+            })
+            .catch(err => {
+                console.error(err);
+                this.messages = this.messages.filter(m => m.id !== tempId);
+                alert('เกิดข้อผิดพลาดในการส่งข้อความ กรุณาลองใหม่อีกครั้ง');
             });
         },
         toggleChat() {

@@ -1,5 +1,10 @@
 @extends('layouts.store')
 
+@section('title', 'โปรเด็ด & คูปองส่วนลดพิเศษ | DDPHONE ดีดีโฟน')
+@section('meta_title', 'โปรเด็ด & คูปองส่วนลดพิเศษ | DDPHONE ดีดีโฟน')
+@section('meta_description', 'รวมโปรโมชันเด็ดและโค้ดส่วนลดพิเศษประจำเดือนจาก DDPHONE ดีดีโฟน กดเก็บโค้ดส่วนลดง่ายๆ นำไปใช้ลดราคาได้ทันทีในการสั่งซื้อ')
+@section('meta_keywords', 'โปรเด็ด, คูปองส่วนลด, โค้ดส่วนลด, DDPHONE, ดีดีโฟน, ลดราคา')
+
 @section('content')
 <style>
     @keyframes pulseGlowFun {
@@ -66,7 +71,7 @@
                     🔥 PROMOTION & HOT DEALS
                 </span>
                 <h2 style="font-size: 1.8rem; font-weight: 900; color: white; margin: 4px 0 0;">
-                    โปรเด็ดมือสอง & โค้ดส่วนลดพิเศษสุดคุ้ม
+                    โปรเด็ด & โค้ดส่วนลดพิเศษสุดคุ้ม
                 </h2>
             </div>
         </div>
@@ -86,7 +91,7 @@
             🔥 SPECIAL DEALS & COUPONS
         </span>
         <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 0.75rem; color: white;">
-            โปรเด็ดมือสอง & โค้ดส่วนลดสุดคุ้ม
+            โปรเด็ด & โค้ดส่วนลดสุดคุ้ม
         </h1>
         <p style="font-size: 1.05rem; color: #E2E8F0; font-weight: 500; max-width: 650px; margin: 0 auto;">
             กดเก็บโค้ดส่วนลดไปใช้ในขั้นตอนชำระเงินเพื่อรับส่วนลดพิเศษทันที!

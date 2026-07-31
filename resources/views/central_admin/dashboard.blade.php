@@ -39,7 +39,7 @@
                     </span>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Daily Growth -->
                     <div class="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center justify-between">
                         <div>
@@ -97,7 +97,7 @@
             </div>
 
             <!-- System Statistics Card Summary -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 <!-- Categories -->
                 <div class="bg-white px-5 py-4 rounded-xl border border-gray-100 flex items-center gap-4 hover:shadow-sm transition-all">
                     <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-lg">

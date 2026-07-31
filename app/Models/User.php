@@ -24,6 +24,8 @@ class User extends Authenticatable
         'avatar',
         'phone',
         'password',
+        'google_id',
+        'facebook_id',
     ];
 
     public function getAvatarUrlAttribute()

@@ -55,7 +55,7 @@
                     </span>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Daily Growth -->
                     <div class="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center justify-between">
                         <div>

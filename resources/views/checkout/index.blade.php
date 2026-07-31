@@ -147,9 +147,9 @@
         <i class="fa-solid fa-cart-shopping" style="color: #0284C7;"></i> ยืนยันการสั่งซื้อสินค้า (Checkout)
     </h2>
 
-    <form action="{{ route('checkout.process') }}" method="POST" style="display: flex; gap: 2.2rem; flex-wrap: wrap;">
+    <form action="{{ route('checkout.process') }}" method="POST" @submit="document.getElementById('shipping_info_hidden').value = formattedAddress" style="display: flex; gap: 2.2rem; flex-wrap: wrap;">
         @csrf
-        <input type="hidden" name="shipping_info" :value="formattedAddress">
+        <input type="hidden" name="shipping_info" id="shipping_info_hidden" :value="formattedAddress">
         
         <!-- Left Column: Shipping & Payment -->
         <div style="flex: 2 1 600px; display: flex; flex-direction: column; gap: 1.75rem;">
@@ -409,6 +409,7 @@
                         <!-- Manual Coupon Code Input Bar -->
                         <div style="display: flex; gap: 8px;">
                             <input type="text" id="coupon_code_input" placeholder="พิมพ์รหัสส่วนลดอื่น..." 
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();applyCouponCode();}"
                                    style="flex: 1; min-width: 0; padding: 10px 18px; border: 1.5px solid #BAE6FD; border-radius: 9999px !important; font-family: inherit; font-size: 0.85rem; outline: none; font-weight: 700; color: #0F172A; background: white; transition: all 0.2s;"
                                    onfocus="this.style.borderColor='#0284C7'; this.style.boxShadow='0 0 0 4px rgba(2, 132, 199, 0.15)'"
                                    onblur="this.style.borderColor='#BAE6FD'; this.style.boxShadow='none'">

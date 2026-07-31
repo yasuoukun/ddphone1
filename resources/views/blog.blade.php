@@ -1,5 +1,10 @@
 @extends('layouts.store')
 
+@section('title', 'บทความ รีวิว และข่าวสารสมาร์ทโฟน | DDPHONE ดีดีโฟน')
+@section('meta_title', 'บทความ รีวิว และข่าวสารสมาร์ทโฟน | DDPHONE ดีดีโฟน')
+@section('meta_description', 'อัปเดตสาระน่ารู้ เทคนิคเลือกซื้อสมาร์ทโฟน รีวิวการใช้งาน การตรวจเช็คเครื่องแท้ และข่าวสารล่าสุดจากร้าน DDPHONE ดีดีโฟน')
+@section('meta_keywords', 'บทความมือถือ, รีวิวไอโฟน, สาระน่ารู้, DDPHONE, ดีดีโฟน')
+
 @section('content')
 <style>
     @keyframes funPulseBadge {
@@ -99,73 +104,111 @@
         </div>
     </div>
 
-    <!-- Article Detail Modal (Full Page Viewport Modal) -->
+    <!-- Article Detail Modal (Compact Viewport Modal) -->
     <template x-teleport="body">
         <div x-show="isModalOpen" 
-             style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.85); z-index: 99999999; overflow-y: auto; padding: 2rem 1rem; backdrop-filter: blur(8px);" 
+             style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.75); z-index: 99999999; overflow-y: auto; padding: 1rem 0.5rem; backdrop-filter: blur(6px);" 
              @click.self="closeArticle()" 
-             x-transition:enter="transition ease-out duration-250"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
              x-cloak>
             
-            <div style="background: #FFFFFF; width: 100%; max-width: 1020px; margin: 1.5rem auto; border-radius: 28px; box-shadow: 0 30px 70px rgba(0,0,0,0.4); position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);" class="fade-in">
+            <div style="background: #FFFFFF; width: 100%; max-width: 680px; margin: 1rem auto; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);" class="fade-in">
                 
                 <!-- Floating Glass Close Button -->
-                <button @click="closeArticle()" style="position: absolute; top: 20px; right: 20px; background: rgba(15, 23, 42, 0.75); color: #FFE600; border: 1.5px solid rgba(255,255,255,0.2); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.25rem; transition: all 0.2s; z-index: 20; backdrop-filter: blur(4px);" onmouseover="this.style.transform='scale(1.1)'; this.style.background='#0F172A';" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(15, 23, 42, 0.75)';" title="ปิดหน้าต่าง">
+                <button @click="closeArticle()" style="position: absolute; top: 12px; right: 12px; background: rgba(15, 23, 42, 0.75); color: #FFE600; border: 1.5px solid rgba(255,255,255,0.2); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; transition: all 0.2s; z-index: 20; backdrop-filter: blur(4px);" onmouseover="this.style.transform='scale(1.1)'; this.style.background='#0F172A';" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(15, 23, 42, 0.75)';" title="ปิดหน้าต่าง">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
 
-                <!-- Modal Images Showcase Banner -->
-                <div x-show="selectedArticle.images && selectedArticle.images.length > 0" style="position: relative; width: 100%; background: #0F172A; padding: 2rem 1.5rem; border-bottom: 3px solid #E2E8F0;">
-                    <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; snap-type: x mandatory; scrollbar-width: thin;">
+                <!-- Modal Images Showcase Banner (Full Width Fit with Smooth Slider & Dots) -->
+                <div x-show="selectedArticle.images && selectedArticle.images.length > 0" style="position: relative; width: 100%; height: 260px; background: #0F172A; border-bottom: 2px solid #E2E8F0; overflow: hidden;">
+                    
+                    <!-- Slider Container -->
+                    <div id="modal-img-slider"
+                         @scroll="handleSliderScroll($event)"
+                         style="display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch;">
                         <template x-for="(img, idx) in selectedArticle.images" :key="idx">
-                            <div style="flex-shrink: 0; snap-align: center;">
-                                <img :src="img" alt="Article details" style="height: 380px; max-width: 100%; width: auto; object-fit: contain; border-radius: 16px; background: #0F172A; box-shadow: 0 10px 25px rgba(0,0,0,0.3);" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800'">
+                            <div style="flex: 0 0 100%; min-width: 100%; max-width: 100%; height: 100%; scroll-snap-align: start; scroll-snap-stop: always;">
+                                <img :src="img" alt="Article details" style="width: 100%; height: 100%; object-fit: cover; object-position: center;" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600'">
                             </div>
                         </template>
                     </div>
-                </div>
-                <div x-show="!selectedArticle.images || selectedArticle.images.length === 0" style="position: relative; width: 100%; height: 380px; overflow: hidden; background: #0F172A;">
-                    <img :src="selectedArticle.image" alt="Article details" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800'">
+
+                    <!-- Left / Right Navigation Arrows (Subtle Translucent) -->
+                    <button @click="prevImg()" 
+                            x-show="selectedArticle.images && selectedArticle.images.length > 1 && activeImgIdx > 0" 
+                            style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; background: rgba(15, 23, 42, 0.35); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.2); opacity: 0.5; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 0.78rem; backdrop-filter: blur(4px); transition: all 0.25s ease;"
+                            onmouseover="this.style.opacity='1'; this.style.background='rgba(15, 23, 42, 0.8)'; this.style.color='#FFE600'; this.style.transform='translateY(-50%) scale(1.1)';" 
+                            onmouseout="this.style.opacity='0.5'; this.style.background='rgba(15, 23, 42, 0.35)'; this.style.color='#FFFFFF'; this.style.transform='translateY(-50%) scale(1)';" 
+                            title="รูปก่อนหน้า">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    
+                    <button @click="nextImg()" 
+                            x-show="selectedArticle.images && selectedArticle.images.length > 1 && activeImgIdx < selectedArticle.images.length - 1" 
+                            style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; background: rgba(15, 23, 42, 0.35); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.2); opacity: 0.5; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 0.78rem; backdrop-filter: blur(4px); transition: all 0.25s ease;"
+                            onmouseover="this.style.opacity='1'; this.style.background='rgba(15, 23, 42, 0.8)'; this.style.color='#FFE600'; this.style.transform='translateY(-50%) scale(1.1)';" 
+                            onmouseout="this.style.opacity='0.5'; this.style.background='rgba(15, 23, 42, 0.35)'; this.style.color='#FFFFFF'; this.style.transform='translateY(-50%) scale(1)';" 
+                            title="รูปถัดไป">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+
+                    <!-- Pagination Dots Indicator -->
+                    <div x-show="selectedArticle.images && selectedArticle.images.length > 1" 
+                         style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; background: rgba(15, 23, 42, 0.75); padding: 5px 12px; border-radius: 99px; backdrop-filter: blur(6px); z-index: 10; border: 1.5px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                        <template x-for="(img, idx) in selectedArticle.images" :key="idx">
+                            <button @click="goToImg(idx)" 
+                                    :style="activeImgIdx === idx 
+                                        ? 'width: 20px; height: 7px; background: #FFE600; border-radius: 99px; border: none; cursor: pointer; transition: all 0.25s ease;' 
+                                        : 'width: 7px; height: 7px; background: rgba(255,255,255,0.45); border-radius: 50%; border: none; cursor: pointer; transition: all 0.25s ease;'"
+                                    :title="'ไปรูปที่ ' + (idx + 1)">
+                            </button>
+                        </template>
+                    </div>
+
                 </div>
 
-                <!-- Modal Content Container -->
-                <div style="padding: 3rem 3.5rem;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-bottom: 1.25rem;">
-                        <span style="background: #2563EB; color: white; padding: 6px 18px; border-radius: 99px; font-size: 0.85rem; font-weight: 900; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+                <div x-show="!selectedArticle.images || selectedArticle.images.length === 0" style="position: relative; width: 100%; height: 260px; overflow: hidden; background: #0F172A; border-bottom: 2px solid #E2E8F0;">
+                    <img :src="selectedArticle.image" alt="Article details" style="width: 100%; height: 100%; object-fit: cover; object-position: center;" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600'">
+                </div>
+
+                <!-- Modal Content Container (Compact Paddings) -->
+                <div style="padding: 1.25rem 1.5rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 0.85rem;">
+                        <span style="background: #2563EB; color: white; padding: 4px 14px; border-radius: 99px; font-size: 0.76rem; font-weight: 900; letter-spacing: 0.3px;">
                             🎉 ข่าวสาร & กิจกรรม DDPHONE
                         </span>
-                        <span style="font-size: 0.95rem; color: #64748B; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.82rem; color: #64748B; font-weight: 800; display: flex; align-items: center; gap: 4px;">
                             📅 <span x-text="selectedArticle.date"></span>
                         </span>
                     </div>
                     
-                    <h1 style="color: #0F172A; font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 900; margin-top: 0; margin-bottom: 1.75rem; line-height: 1.35;" x-text="selectedArticle.title"></h1>
+                    <h2 style="color: #0F172A; font-size: 1.25rem; font-weight: 900; margin-top: 0; margin-bottom: 1rem; line-height: 1.35;" x-text="selectedArticle.title"></h2>
                     
-                    <div style="background: #F8FAFC; border-left: 5px solid #2563EB; padding: 1.25rem 1.75rem; border-radius: 0 16px 16px 0; margin-bottom: 2rem;">
-                        <p style="color: #334155; font-size: 1.08rem; line-height: 1.8; margin: 0; white-space: pre-wrap; font-weight: 700;" x-text="selectedArticle.summary"></p>
+                    <div x-show="selectedArticle.summary" style="background: #F8FAFC; border-left: 4px solid #2563EB; padding: 0.75rem 1rem; border-radius: 0 12px 12px 0; margin-bottom: 1rem;">
+                        <p style="color: #334155; font-size: 0.88rem; line-height: 1.6; margin: 0; white-space: pre-wrap; font-weight: 700;" x-text="selectedArticle.summary"></p>
                     </div>
 
-                    <div style="width: 100%; height: 1.5px; background: #E2E8F0; margin: 2rem 0;"></div>
+                    <div style="width: 100%; height: 1px; background: #E2E8F0; margin: 1rem 0;"></div>
 
-                    <div style="color: #1E293B; font-size: 1.08rem; line-height: 1.95; margin: 0; white-space: pre-wrap; font-weight: 500;" x-html="selectedArticle.content"></div>
+                    <div style="color: #1E293B; font-size: 0.92rem; line-height: 1.7; margin: 0; white-space: pre-wrap; font-weight: 500;" x-html="selectedArticle.content"></div>
                     
                     <template x-if="selectedArticle.author">
-                        <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1.5px dashed #E2E8F0; display: flex; align-items: center; gap: 12px; color: #64748B; font-weight: 700; font-size: 0.95rem;">
-                            <span style="width: 36px; height: 36px; border-radius: 50%; background: #0F172A; color: #FFE600; display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem;"><i class="fa-solid fa-pen-nib"></i></span>
+                        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed #E2E8F0; display: flex; align-items: center; gap: 8px; color: #64748B; font-weight: 700; font-size: 0.82rem;">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: #0F172A; color: #FFE600; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;"><i class="fa-solid fa-pen-nib"></i></span>
                             <span>เขียนโดย: <strong style="color: #0F172A;" x-text="selectedArticle.author"></strong></span>
                         </div>
                     </template>
                 </div>
                 
                 <!-- Modal Sticky Footer -->
-                <div style="padding: 1.25rem 3.5rem; background: #F8FAFC; border-top: 1.5px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-radius: 0 0 28px 28px;">
-                    <span style="color: #64748B; font-size: 0.88rem; font-weight: 700;">ร้านดีดีโฟน DDPHONE - สมาร์ทโฟนมือสองคุณภาพเกรด A+</span>
-                    <button @click="closeArticle()" style="background: #0F172A; color: #FFE600; border: none; padding: 12px 32px; border-radius: 99px; font-weight: 900; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; box-shadow: 0 4px 12px rgba(15,23,42,0.2);" onmouseover="this.style.background='#1E293B'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#0F172A'; this.style.transform='translateY(0)';">ปิดหน้าต่าง</button>
+                <div style="padding: 0.75rem 1.5rem; background: #F8FAFC; border-top: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-radius: 0 0 20px 20px;">
+                    <span style="color: #64748B; font-size: 0.78rem; font-weight: 700;">ร้านดีดีโฟน DDPHONE</span>
+                    <button @click="closeArticle()" style="background: #0F172A; color: #FFE600; border: none; padding: 8px 24px; border-radius: 99px; font-weight: 900; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(15,23,42,0.15);" onmouseover="this.style.background='#1E293B';" onmouseout="this.style.background='#0F172A';">ปิดหน้าต่าง</button>
                 </div>
             </div>
         </div>
@@ -180,6 +223,7 @@
             searchQuery: '',
             isModalOpen: false,
             selectedArticle: {},
+            activeImgIdx: 0,
             activeTabStyle: {
                 background: '#FFE600',
                 color: '#0F172A',
@@ -233,13 +277,10 @@
                 @if(isset($articles) && count($articles) > 0)
                     @foreach($articles as $art)
                     @php
-                        // images is already cast as array by Eloquent model
                         $imgs = $art->images ?? [];
-                        // Build full URL for each image
                         $allImgUrls = array_map(function($i) {
                             return str_starts_with($i, 'http') ? $i : Storage::url($i);
                         }, $imgs);
-                        // First image as cover
                         $coverImg = count($allImgUrls) > 0
                             ? $allImgUrls[0]
                             : 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=600';
@@ -287,6 +328,12 @@
                 this.$watch('searchQuery', () => {
                     this.filterArticles();
                 });
+                @if(isset($article))
+                    let initArt = this.articles.find(a => a.id == {{ $article->id }});
+                    if (initArt) {
+                        this.openArticle(initArt);
+                    }
+                @endif
             },
 
             setCategory(cat) {
@@ -308,13 +355,45 @@
 
             openArticle(article) {
                 this.selectedArticle = article;
+                this.activeImgIdx = 0;
                 this.isModalOpen = true;
                 document.body.style.overflow = 'hidden';
+                this.$nextTick(() => {
+                    let el = document.getElementById('modal-img-slider');
+                    if (el) el.scrollLeft = 0;
+                });
             },
 
             closeArticle() {
                 this.isModalOpen = false;
                 document.body.style.overflow = 'auto';
+            },
+
+            handleSliderScroll(e) {
+                let w = e.target.clientWidth;
+                if (w > 0) {
+                    this.activeImgIdx = Math.round(e.target.scrollLeft / w);
+                }
+            },
+
+            goToImg(idx) {
+                this.activeImgIdx = idx;
+                let el = document.getElementById('modal-img-slider');
+                if (el) {
+                    el.scrollTo({ left: idx * el.clientWidth, behavior: 'smooth' });
+                }
+            },
+
+            nextImg() {
+                if (this.selectedArticle.images && this.activeImgIdx < this.selectedArticle.images.length - 1) {
+                    this.goToImg(this.activeImgIdx + 1);
+                }
+            },
+
+            prevImg() {
+                if (this.activeImgIdx > 0) {
+                    this.goToImg(this.activeImgIdx - 1);
+                }
             }
         }
     }

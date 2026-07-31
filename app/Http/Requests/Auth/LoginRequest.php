@@ -42,11 +42,16 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        $email = $this->string('email')->trim();
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            // Log failed login attempt
+            \App\Models\LoginLog::logAttempt($email, 'failed');
+
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง',
             ]);
         }
 
@@ -67,12 +72,13 @@ class LoginRequest extends FormRequest
         event(new Lockout($this));
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
+        $email = $this->string('email')->trim();
+
+        // Log lockout event
+        \App\Models\LoginLog::logAttempt($email, 'lockout');
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'email' => "🛑 คุณป้อนรหัสผ่านผิดเกินกำหนด (5 ครั้ง) ระบบระงับการเข้าสู่ระบบชั่วคราวเพื่อความปลอดภัย กรุณาลองใหม่อีกครั้งในอีก {$seconds} วินาทีครับ",
         ]);
     }
 

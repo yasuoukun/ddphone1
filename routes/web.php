@@ -8,7 +8,54 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     $categories = \App\Models\Category::all();
-    $popularProducts = \App\Models\Product::with('images')->orderBy('id', 'desc')->take(8)->get();
+    
+    // Flexible & Dynamic Popular Products (auto best-sellers, custom pinned, or hybrid)
+    $popMode = \App\Models\HomepageSetting::get('popular_products_mode', 'hybrid');
+    $customIds = json_decode(\App\Models\HomepageSetting::get('popular_product_ids', '[]'), true) ?: [];
+
+    $limit = 8;
+    $customProducts = collect();
+
+    if (in_array($popMode, ['custom', 'hybrid']) && !empty($customIds)) {
+        $customProducts = \App\Models\Product::with('images')
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->whereIn('id', $customIds)
+            ->get()
+            ->sortBy(function ($p) use ($customIds) {
+                return array_search($p->id, $customIds);
+            })->values();
+    }
+
+    if ($popMode === 'custom') {
+        $popularProducts = $customProducts->take($limit);
+    } else {
+        $remaining = $limit - $customProducts->count();
+        if ($remaining > 0 || $popMode === 'auto') {
+            $excludeIds = $customProducts->pluck('id')->toArray();
+
+            $bestSellers = \App\Models\Product::with('images')
+                ->withAvg('reviews', 'rating')
+                ->withCount('reviews')
+                ->withCount(['orderItems as total_sales_count' => function ($q) {
+                    $q->select(\Illuminate\Support\Facades\DB::raw('COALESCE(SUM(quantity), 0)'));
+                }])
+                ->whereNotIn('id', $excludeIds)
+                ->orderByDesc('total_sales_count')
+                ->orderByDesc('reviews_avg_rating')
+                ->orderByDesc('id')
+                ->take($popMode === 'auto' ? $limit : $remaining)
+                ->get();
+
+            if ($popMode === 'auto') {
+                $popularProducts = $bestSellers;
+            } else {
+                $popularProducts = $customProducts->concat($bestSellers)->take($limit);
+            }
+        } else {
+            $popularProducts = $customProducts->take($limit);
+        }
+    }
     
     // Articles written by admins
     $articles = \App\Models\Article::where('is_published', true)->orderBy('created_at', 'desc')->take(6)->get();
@@ -121,7 +168,8 @@ Route::get('/business', function () {
 })->name('business');
 
 Route::get('/service-center', function () {
-    return view('service_center');
+    $orders = auth()->check() ? \App\Models\Order::with('items.product')->where('user_id', auth()->id())->whereIn('status', ['confirmed', 'shipped', 'delivered', 'completed'])->orderBy('created_at', 'desc')->get() : collect();
+    return view('service_center', compact('orders'));
 })->name('service_center');
 
 Route::get('/help-center', function () {
@@ -148,6 +196,9 @@ Route::get('/blog/{article}', function (\App\Models\Article $article) {
 
 Route::get('/tracking', [\App\Http\Controllers\ClaimController::class, 'track'])->name('tracking');
 Route::post('/claims/submit', [\App\Http\Controllers\ClaimController::class, 'store'])->name('claims.submit');
+Route::post('/claims/{claim}/confirm', [\App\Http\Controllers\ClaimCustomerActionController::class, 'confirm'])->name('claims.confirm');
+Route::post('/claims/{claim}/decline', [\App\Http\Controllers\ClaimCustomerActionController::class, 'decline'])->name('claims.decline');
+Route::post('/claims/{claim}/inbound-tracking', [\App\Http\Controllers\ClaimCustomerActionController::class, 'submitTracking'])->name('claims.submit_tracking');
 Route::post('/reviews/{review}/like', [\App\Http\Controllers\ReviewController::class, 'toggleLike'])->name('reviews.like');
 
 Route::middleware('auth')->group(function () {
@@ -174,7 +225,7 @@ Route::get('/dashboard', function () {
 // Customer Routes
 Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
     Route::get('/dashboard', function () {
-        $orders = \App\Models\Order::with('items.product')->where('user_id', auth()->id())->orderBy('created_at', 'desc')->get();
+        $orders = \App\Models\Order::with(['items.product.images', 'payments'])->where('user_id', auth()->id())->orderBy('created_at', 'desc')->get();
         $addresses = \App\Models\Address::where('user_id', auth()->id())->get();
         $wishlists = \App\Models\Wishlist::with('product.images')->where('user_id', auth()->id())->get();
         $collectedCoupons = \App\Models\CollectedCoupon::with('coupon.product')
@@ -184,7 +235,12 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer
             ->get();
         $paymentMethods = \App\Models\UserPaymentMethod::where('user_id', auth()->id())->get();
         $claims = \App\Models\Claim::where('user_id', auth()->id())->orderBy('created_at', 'desc')->get();
-        return view('dashboard', compact('orders', 'addresses', 'wishlists', 'collectedCoupons', 'paymentMethods', 'claims'));
+        $loginLogs = \App\Models\LoginLog::where('user_id', auth()->id())
+            ->orWhere('email', auth()->user()->email)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+        return view('dashboard', compact('orders', 'addresses', 'wishlists', 'collectedCoupons', 'paymentMethods', 'claims', 'loginLogs'));
     })->name('dashboard');
     
     Route::post('/addresses', [\App\Http\Controllers\AddressController::class, 'store'])->name('addresses.store');
@@ -285,7 +341,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
             )
             ->unique();
 
-        $users = \App\Models\User::whereIn('id', $userIds)->where('id', '!=', $adminId)->get();
+        // ONLY load users who are customers to prevent admins from seeing other admins in the chat list and polluting the UI
+        $users = \App\Models\User::whereIn('id', $userIds)->where('id', '!=', $adminId)->where('role', 'customer')->get();
 
         $unreadCounts = \App\Models\Message::whereNull('receiver_id')
             ->where('is_read', false)
@@ -295,8 +352,10 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 
         $latestMessages = \App\Models\Message::orderBy('id', 'desc')
             ->get()
-            ->groupBy(function($msg) use ($adminId) {
-                return $msg->sender_id == $adminId ? $msg->receiver_id : $msg->sender_id;
+            ->groupBy(function($msg) {
+                // If receiver_id is null, it's a customer sending. If not, it's usually an admin replying.
+                // Group by the customer's ID to keep the conversation isolated.
+                return is_null($msg->receiver_id) ? $msg->sender_id : $msg->receiver_id;
             })
             ->map(function($group) {
                 return $group->first();
@@ -329,11 +388,20 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         // Only count orders where customer has actually PAID (uploaded slip) — NOT plain pending (not paid yet)
         $pendingOrders = \App\Models\Order::where('status', 'pending_verification')->count();
         $latestOrder   = \App\Models\Order::where('status', 'pending_verification')->orderByDesc('id')->first();
+
+        // Claims that need admin attention:
+        // - pending: new claim submitted, not yet reviewed
+        // - confirmed_waiting_device: customer confirmed repair quote, waiting for device delivery
+        $pendingClaims = \App\Models\Claim::whereIn('status', ['pending', 'confirmed_waiting_device'])->count();
+        $latestClaim   = \App\Models\Claim::whereIn('status', ['pending', 'confirmed_waiting_device'])->orderByDesc('created_at')->first();
+
         return response()->json([
             'unread_chats'       => $unreadChats,
             'pending_orders'     => $pendingOrders,
             'latest_order_id'    => $latestOrder ? $latestOrder->id : null,
             'latest_order_num'   => $latestOrder ? str_pad($latestOrder->id, 5, '0', STR_PAD_LEFT) : null,
+            'pending_claims'     => $pendingClaims,
+            'latest_claim_id'    => $latestClaim ? $latestClaim->id : null,
         ])->header('Cache-Control', 'no-store, no-cache, must-revalidate')
           ->header('Pragma', 'no-cache');
     })->name('notification_counts');
@@ -486,6 +554,88 @@ Route::middleware('auth')->group(function () {
         ->name('payment.2c2p.initiate');
     Route::get('/payment/2c2p/return', [\App\Http\Controllers\TwoC2PController::class, 'return'])
         ->name('payment.2c2p.return');
+});
+
+// ========================================================
+// Dynamic XML Sitemap & Robots.txt for Technical SEO
+// ========================================================
+Route::get('/sitemap.xml', function () {
+    $baseUrl = url('/');
+    $now = date('Y-m-d\TH:i:sP');
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+
+    // Static / Core Pages
+    $staticPages = [
+        ['url' => $baseUrl, 'priority' => '1.0', 'freq' => 'daily'],
+        ['url' => route('products.index'), 'priority' => '0.9', 'freq' => 'daily'],
+        ['url' => route('promotions.index'), 'priority' => '0.8', 'freq' => 'weekly'],
+        ['url' => route('about'), 'priority' => '0.7', 'freq' => 'monthly'],
+        ['url' => route('services'), 'priority' => '0.7', 'freq' => 'monthly'],
+        ['url' => route('service_center'), 'priority' => '0.7', 'freq' => 'monthly'],
+        ['url' => route('categoryblog'), 'priority' => '0.8', 'freq' => 'weekly'],
+        ['url' => route('installment'), 'priority' => '0.6', 'freq' => 'monthly'],
+        ['url' => route('trade_in'), 'priority' => '0.6', 'freq' => 'monthly'],
+    ];
+
+    foreach ($staticPages as $page) {
+        $xml .= '  <url>' . "\n";
+        $xml .= '    <loc>' . htmlspecialchars($page['url']) . '</loc>' . "\n";
+        $xml .= '    <lastmod>' . $now . '</lastmod>' . "\n";
+        $xml .= '    <changefreq>' . $page['freq'] . '</changefreq>' . "\n";
+        $xml .= '    <priority>' . $page['priority'] . '</priority>' . "\n";
+        $xml .= '  </url>' . "\n";
+    }
+
+    // Dynamic Products
+    $products = \App\Models\Product::select('id', 'updated_at')->orderBy('updated_at', 'desc')->get();
+    foreach ($products as $product) {
+        $lastmod = $product->updated_at ? $product->updated_at->toIso8601String() : $now;
+        $xml .= '  <url>' . "\n";
+        $xml .= '    <loc>' . htmlspecialchars(route('products.show', $product->id)) . '</loc>' . "\n";
+        $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";
+        $xml .= '    <changefreq>weekly</changefreq>' . "\n";
+        $xml .= '    <priority>0.8</priority>' . "\n";
+        $xml .= '  </url>' . "\n";
+    }
+
+    // Dynamic Blog Articles
+    $articles = \App\Models\Article::where('is_published', true)->select('id', 'updated_at')->orderBy('updated_at', 'desc')->get();
+    foreach ($articles as $article) {
+        $lastmod = $article->updated_at ? $article->updated_at->toIso8601String() : $now;
+        $xml .= '  <url>' . "\n";
+        $xml .= '    <loc>' . htmlspecialchars(route('blog.show', $article->id)) . '</loc>' . "\n";
+        $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";
+        $xml .= '    <changefreq>weekly</changefreq>' . "\n";
+        $xml .= '    <priority>0.7</priority>' . "\n";
+        $xml .= '  </url>' . "\n";
+    }
+
+    $xml .= '</urlset>';
+
+    return response($xml, 200, [
+        'Content-Type' => 'application/xml; charset=utf-8',
+        'Cache-Control' => 'public, max-age=3600',
+    ]);
+});
+
+Route::get('/robots.txt', function () {
+    $baseUrl = url('/');
+    $content = "User-agent: *\n";
+    $content .= "Allow: /\n";
+    $content .= "Disallow: /admin/\n";
+    $content .= "Disallow: /central-admin/\n";
+    $content .= "Disallow: /customer/\n";
+    $content .= "Disallow: /checkout\n";
+    $content .= "Disallow: /cart\n";
+    $content .= "\n";
+    $content .= "Sitemap: {$baseUrl}/sitemap.xml\n";
+
+    return response($content, 200, [
+        'Content-Type' => 'text/plain; charset=utf-8',
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
 });
 
 require __DIR__.'/auth.php';

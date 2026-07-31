@@ -12,7 +12,7 @@ class OrderController extends Controller
     {
         // Only show orders where customer has uploaded payment slip / paid (excluding unpaid 'pending' drafts)
         $orders = Order::where('status', '!=', 'pending')
-            ->with(['user', 'items.product'])
+            ->with(['user', 'items.product.images', 'payments'])
             ->orderBy('created_at', 'desc')
             ->get();
         return view('admin.orders.index', compact('orders'));

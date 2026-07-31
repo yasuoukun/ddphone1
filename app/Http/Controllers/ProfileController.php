@@ -49,16 +49,36 @@ class ProfileController extends Controller
             $user->email_verified_at = null;
         }
 
+        $passwordChanged = false;
         if ($request->filled('password')) {
             $request->validate([
                 'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             ]);
             $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+            $passwordChanged = true;
         }
 
         $user->save();
 
-        return Redirect::back()->with('sweet_success', 'อัปเดตข้อมูลส่วนตัวและรูปโปรไฟล์เรียบร้อยแล้ว!');
+        if ($passwordChanged) {
+            // Invalidate other devices session & regenerate session token for security
+            try {
+                Auth::logoutOtherDevices($request->password);
+                $request->session()->regenerate();
+            } catch (\Throwable $e) {}
+
+            // Send notification to user
+            try {
+                \App\Models\Notification::sendToUser(
+                    $user->id,
+                    "🔐 รหัสผ่านของคุณถูกเปลี่ยนเรียบร้อยแล้ว",
+                    "หากคุณไม่ได้เป็นผู้ทำรายการนี้ กรุณาติดต่อแอดมินหรือทำการตั้งรหัสผ่านใหม่ทันที",
+                    route('dashboard')
+                );
+            } catch (\Throwable $e) {}
+        }
+
+        return Redirect::back()->with('sweet_success', $passwordChanged ? 'อัปเดตรหัสผ่านและตัดการเชื่อมต่อจากอุปกรณ์อื่นเรียบร้อยแล้ว!' : 'อัปเดตข้อมูลส่วนตัวและรูปโปรไฟล์เรียบร้อยแล้ว!');
     }
 
     /**

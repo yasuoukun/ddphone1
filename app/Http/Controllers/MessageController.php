@@ -77,7 +77,13 @@ class MessageController extends Controller
             'attachment_type' => $attachmentType,
         ]);
 
-        broadcast(new MessageSent($message))->toOthers();
+        try {
+            broadcast(new MessageSent($message))->toOthers();
+        } catch (\Exception $e) {
+            // Silently fail broadcasting if Reverb/Pusher is not running,
+            // the system will fallback to the polling mechanism.
+            \Log::warning('Broadcast failed: ' . $e->getMessage());
+        }
 
         return response()->json($message);
     }

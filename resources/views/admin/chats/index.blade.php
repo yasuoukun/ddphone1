@@ -49,34 +49,55 @@
                     });
             }
 
+            // Smart polling to reduce server load
             setInterval(() => {
                 this.fetchUsers();
                 if (this.activeChat) {
                     fetch('/messages?user_id=' + this.activeChat.id + '&_t=' + Date.now(), { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } })
                         .then(res => res.json())
                         .then(data => {
-                            if (data.length > this.messages.length) {
-                                let newCustomerMsg = data.slice(this.messages.length).some(m => m.sender_id === this.activeChat.id);
+                            const tempMessages = this.messages.filter(m => String(m.id).startsWith('temp-'));
+                            const realLength = this.messages.length - tempMessages.length;
+                            
+                            if (data.length > realLength) {
+                                let newCustomerMsg = data.slice(realLength).some(m => m.sender_id === this.activeChat.id);
                                 if (newCustomerMsg) {
                                     this.playNotificationSound();
                                 }
-                                this.messages = data;
-                                this.scrollToBottom();
-                                this.updateNavBadges();
-                            } else if (data.length !== this.messages.length) {
-                                this.messages = data;
-                                this.scrollToBottom();
-                                this.updateNavBadges();
                             }
+                            
+                            // Always sync state with server to prevent missing updates (e.g., read status)
+                            this.messages = [...data, ...tempMessages];
+                            
+                            if (data.length > realLength) {
+                                this.scrollToBottom();
+                            }
+                            
+                            this.updateNavBadges();
                         });
                 }
-            }, 1500);
+            }, 2000);
         },
         fetchUsers() {
             fetch('{{ route('admin.chats.list_ajax') }}?_t=' + Date.now(), { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } })
                 .then(res => res.json())
                 .then(data => {
+                    let oldTotal = this.users.reduce((acc, u) => acc + (u.unread_count || 0), 0);
+                    let newTotal = data.reduce((acc, u) => acc + (u.unread_count || 0), 0);
+                    if (newTotal > oldTotal) {
+                        this.playNotificationSound();
+                        
+                        // Find who sent the new message to show a specific toast
+                        data.forEach(newUser => {
+                            let oldUser = this.users.find(u => u.id === newUser.id);
+                            let oldUnread = oldUser ? (oldUser.unread_count || 0) : 0;
+                            if (newUser.unread_count > oldUnread) {
+                                this.showToast('ข้อความใหม่จาก ' + (newUser.name || 'ลูกค้า'), newUser.last_message_content || 'มีข้อความใหม่ถูกส่งมาหาคุณ');
+                            }
+                        });
+                    }
                     this.users = data;
+                    this.unreadChatsCount = newTotal;
                 });
         },
         getFilteredUsers() {
@@ -134,20 +155,48 @@
         },
         sendReply() {
             if (this.newMessage.trim() === '' || !this.activeChat) return;
+            const content = this.newMessage;
+            this.newMessage = ''; // Clear instantly
+            
+            const tempId = 'temp-' + Date.now();
+            
+            // Optimistic UI update
+            this.messages.push({
+                id: tempId,
+                sender_id: {{ auth()->id() ?? 'null' }},
+                content: content,
+                created_at: new Date().toISOString(),
+                attachment_path: null
+            });
+            this.scrollToBottom();
+            
             fetch('/messages', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ content: this.newMessage, receiver_id: this.activeChat.id })
+                body: JSON.stringify({ content: content, receiver_id: this.activeChat.id })
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to send message');
+                return res.json();
+            })
             .then(data => {
-                this.messages.push(data);
-                this.newMessage = '';
+                // Remove the temp message
+                this.messages = this.messages.filter(m => m.id !== tempId);
+                // Add real message if it's not already fetched
+                if (!this.messages.some(m => m.id === data.id)) {
+                    this.messages.push(data);
+                }
                 this.scrollToBottom();
                 this.fetchUsers();
+            })
+            .catch(err => {
+                console.error(err);
+                // Remove the temp message on failure
+                this.messages = this.messages.filter(m => m.id !== tempId);
+                alert('เกิดข้อผิดพลาดในการส่งข้อความ กรุณาลองใหม่อีกครั้ง');
             });
         },
         scrollToBottom() {
@@ -159,24 +208,35 @@
             }, 50);
         },
         updateNavBadges() {
-            fetch('/admin/notification-counts?_t=' + Date.now(), { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.unread_chats > this.unreadChatsCount) {
-                        this.playNotificationSound();
-                    }
-                    this.unreadChatsCount = data.unread_chats;
-
-                    document.querySelectorAll('.nav-chat-badge').forEach(el => {
-                        if (data.unread_chats > 0) {
-                            el.textContent = data.unread_chats;
-                            el.style.display = '';
-                        } else {
-                            el.style.display = 'none';
-                        }
-                    });
-                });
-            this.fetchUsers();
+            // Badge update is now handled by global polling in app.blade.php
+            // Just re-sync local count from current users
+            this.unreadChatsCount = this.users.reduce((acc, u) => acc + (u.unread_count || 0), 0);
+            document.querySelectorAll('.nav-chat-badge').forEach(el => {
+                if (this.unreadChatsCount > 0) {
+                    el.textContent = this.unreadChatsCount;
+                    el.style.display = '';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+        },
+        showToast(title, message) {
+            if (typeof Swal !== 'undefined') {
+                Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true,
+                }).fire({ icon: 'info', title: title, text: message });
+            }
+            if ('Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    new Notification(title, { body: message, icon: '/images/logoddphone.png' });
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission();
+                }
+            }
         }
     }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex flex-col md:flex-row gap-6 h-[calc(100vh-220px)] min-h-[480px]">

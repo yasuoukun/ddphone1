@@ -3,13 +3,79 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>DDPHONE ดีดีโฟน | ศูนย์รวมสมาร์ทโฟนและไอแพดมือสองคัดเกรด A+ คุณภาพสูง</title>
+    <!-- Primary Dynamic Meta Tags for SEO -->
+    <title>@yield('title', 'DDPHONE ดีดีโฟน | ศูนย์รวมสมาร์ทโฟนและไอแพดคัดเกรด A+ คุณภาพสูง')</title>
+    <meta name="title" content="@yield('meta_title', 'DDPHONE ดีดีโฟน | ศูนย์รวมสมาร์ทโฟนและไอแพดคัดเกรด A+ คุณภาพสูง')">
+    <meta name="description" content="@yield('meta_description', 'ศูนย์รวมโทรศัพท์มือถือ iPhone, iPad และสมาร์ทโฟนคัดเกรด A+ คุณภาพสูง ตรวจเช็คเครื่องแท้ 100% พร้อมประกันร้าน 30 วันเต็ม และบริการซ่อมเปลี่ยนแบต/หน้าจอครบวงจร')">
+    <meta name="keywords" content="@yield('meta_keywords', 'DDPHONE, ดีดีโฟน, มือถือ, ไอโฟน, ไอแพด, iPhone, iPad, สมาร์ทโฟน, ซ่อมมือถือ, ชัยภูมิ')">
+    <meta name="robots" content="@yield('meta_robots', 'index, follow')">
+    <link rel="canonical" href="@yield('canonical_url', url()->current())">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Open Graph / Facebook / Line Meta Tags -->
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:url" content="@yield('og_url', url()->current())">
+    <meta property="og:title" content="@yield('og_title', 'DDPHONE ดีดีโฟน | ศูนย์รวมสมาร์ทโฟนคุณภาพสูง')">
+    <meta property="og:description" content="@yield('og_description', 'ศูนย์รวมโทรศัพท์มือถือ iPhone, iPad และสมาร์ทโฟนคัดเกรด A+ พร้อมประกันร้าน 30 วัน')">
+    <meta property="og:image" content="@yield('og_image', asset('images/logoddphone.png'))">
+    <meta property="og:site_name" content="DDPHONE ดีดีโฟน">
+    <meta property="og:locale" content="th_TH">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="@yield('og_url', url()->current())">
+    <meta name="twitter:title" content="@yield('og_title', 'DDPHONE ดีดีโฟน | ศูนย์รวมสมาร์ทโฟนคุณภาพสูง')">
+    <meta name="twitter:description" content="@yield('og_description', 'ศูนย์รวมโทรศัพท์มือถือ iPhone, iPad และสมาร์ทโฟนคัดเกรด A+ พร้อมประกันร้าน 30 วัน')">
+    <meta name="twitter:image" content="@yield('og_image', asset('images/logoddphone.png'))">
+
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "DDPHONE ดีดีโฟน (บริษัท ดีดี.ไอที.คอม จำกัด)",
+      "image": "{{ asset('images/logoddphone.png') }}",
+      "@id": "{{ url('/') }}",
+      "url": "{{ url('/') }}",
+      "telephone": "086-869-9666",
+      "priceRange": "฿฿",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "72/47-48ก ถนนชัยประสิทธิ์ ต.ในเมือง",
+        "addressLocality": "เมืองชัยภูมิ",
+        "addressRegion": "ชัยภูมิ",
+        "postalCode": "36000",
+        "addressCountry": "TH"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 15.8078,
+        "longitude": 102.0308
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+        ],
+        "opens": "09:00",
+        "closes": "19:00"
+      },
+      "sameAs": [
+        "https://www.facebook.com/DDPHONECP",
+        "https://line.me/ti/p/@ddphone"
+      ]
+    }
+    </script>
 
     <!-- Favicon / Website Icon -->
     <link rel="icon" type="image/png" href="{{ asset('images/logoddphone.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('images/logoddphone.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/logoddphone.png') }}">
+
+    <!-- Preconnect to speed up external resource loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -17,10 +83,12 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js" defer></script>
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('css/theme.css') }}?v={{ time() }}">
+    <!-- Use stable hash versioning so browser can cache theme.css across requests -->
+    <link rel="stylesheet" href="{{ asset('css/theme.css') }}?v={{ filemtime(public_path('css/theme.css')) }}">
     <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="antialiased" data-logged-in="{{ auth()->check() ? 'true' : 'false' }}">
+
     <!-- Vibrant Animated Ambient Background -->
     <div class="animated-bg-container" aria-hidden="true">
         <div class="bg-blob blob-1"></div>
@@ -49,15 +117,15 @@
         <!-- Top Bar (Section 1: Soft Ice-Blue Glass Header) -->
         <div class="topbar">
             <div class="topbar-left" style="display: flex; align-items: center; gap: 15px;">
-                <a href="https://www.facebook.com/dditcom" target="_blank" style="display: inline-flex; align-items: center; gap: 5px; color: #0F172A;"><i class="fa-brands fa-facebook" style="color: #1877f2;"></i> <span class="topbar-txt-label">Facebook</span></a>
-                <a href="https://line.me/ti/p/@dditcom" target="_blank" style="display: inline-flex; align-items: center; gap: 5px; color: #0F172A;"><i class="fa-brands fa-line" style="color: #06c755;"></i> <span class="topbar-txt-label">Line</span></a>
+                <a href="https://www.facebook.com/DDPHONECP" target="_blank" style="display: inline-flex; align-items: center; gap: 5px; color: #0F172A;"><i class="fa-brands fa-facebook" style="color: #1877f2;"></i> <span class="topbar-txt-label">Facebook</span></a>
+                <a href="https://line.me/ti/p/@ddphone" target="_blank" style="display: inline-flex; align-items: center; gap: 5px; color: #0F172A;"><i class="fa-brands fa-line" style="color: #06c755;"></i> <span class="topbar-txt-label">Line</span></a>
                 <a href="tel:0868699666" style="display: inline-flex; align-items: center; gap: 5px; color: #0284C7;"><i class="fa-solid fa-phone" style="color: #0284C7;"></i> <span class="topbar-txt-label">086-869-9666</span></a>
             </div>
             <div class="topbar-right" style="display: flex; align-items: center; gap: 14px;" x-data="{ openProfile: false }">
                 @auth
                     <!-- User Profile Title Box -->
                     <div style="position: relative; display: inline-block; z-index: 1200;">
-                        <button @click="openProfile = !openProfile" @click.away="openProfile = false" style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.2); color: #0F172A; padding: 3px 12px; border-radius: 99px; cursor: pointer; font-weight: 800; display: flex; align-items: center; gap: 8px; font-family: 'Prompt', sans-serif; font-size: 0.8rem; transition: all 0.2s;" onmouseover="this.style.background='rgba(2, 132, 199, 0.15)'" onmouseout="this.style.background='rgba(2, 132, 199, 0.08)'">
+                        <button @click="window.innerWidth < 1024 ? window.location.href='{{ route('dashboard') }}' : openProfile = !openProfile" @click.away="openProfile = false" style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.2); color: #0F172A; padding: 3px 12px; border-radius: 99px; cursor: pointer; font-weight: 800; display: flex; align-items: center; gap: 8px; font-family: 'Prompt', sans-serif; font-size: 0.8rem; transition: all 0.2s;" onmouseover="this.style.background='rgba(2, 132, 199, 0.15)'" onmouseout="this.style.background='rgba(2, 132, 199, 0.08)'">
                             <img src="{{ auth()->user()->avatar_url }}" alt="" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid #0F172A;">
                             <span>{{ auth()->user()->name }}</span> <span style="font-size: 0.7rem; color: #0F172A;">▼</span>
                         </button>
@@ -92,19 +160,21 @@
                 <!-- Notification Bell - Alpine.js Real-time Component -->
                 @auth
                 <div x-data="notificationBell()" @click.away="open = false" style="position: relative; display: inline-block; z-index: 999998;">
-                    <button type="button" @click="toggleBell()" title="การแจ้งเตือน" style="background: none; border: none; color: #0F172A; cursor: pointer; display: flex; align-items: center; position: relative; padding: 2px;">
-                        <i class="fa-solid fa-bell animate-bell-period" style="font-size: 1.15rem;"></i>
+                    <button type="button" @click="toggleBell()" title="การแจ้งเตือน" style="background: none; border: none; color: #0F172A; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; position: relative; padding: 4px; min-width: 36px; min-height: 36px; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+                        <i class="fa-solid fa-bell animate-bell-period" style="font-size: 1.15rem; pointer-events: none;"></i>
                         <span x-show="unreadCount > 0" 
                               x-text="unreadCount" 
-                              style="position: absolute; top: -6px; right: -8px; background: #ef4444; color: white; border-radius: 50%; padding: 1px 5px; font-size: 0.65rem; font-weight: bold; min-width: 14px; text-align: center; line-height: 1.2;">
+                              style="position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; border-radius: 50%; padding: 1px 5px; font-size: 0.65rem; font-weight: bold; min-width: 14px; text-align: center; line-height: 1.2; pointer-events: none;">
                         </span>
                     </button>
-                    <!-- Dropdown pinned to top-right corner of viewport (never overflows) -->
+                    <!-- Dropdown pinned directly under notification bell (works on desktop & mobile) -->
                     <div x-show="open"
+                         @click.stop
                          x-transition:enter="transition ease-out duration-150"
                          x-transition:enter-start="opacity-0 translate-y-1 scale-95"
                          x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                         style="display:none; position: fixed; right: 20px; top: 82px; background: white; border: 1.5px solid #E2E8F0; border-radius: 16px; box-shadow: 0 12px 35px rgba(15,23,42,0.2); z-index: 999999; width: 310px; max-width: calc(100vw - 40px); text-align: left; padding: 0; overflow: hidden;">
+                         class="notif-dropdown-box"
+                         style="display:none; background: white; border: 1.5px solid #E2E8F0; border-radius: 16px; box-shadow: 0 16px 45px rgba(15,23,42,0.25); text-align: left; padding: 0; overflow: hidden;">
                         <div style="padding: 12px 16px; background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); border-bottom: 1px solid #BAE6FD; display: flex; justify-content: space-between; align-items: center; border-radius: 16px 16px 0 0;">
                             <h4 style="margin: 0; font-size: 0.92rem; font-weight: 800; color: #0369A1; display: flex; align-items: center; gap: 7px;">🔔 การแจ้งเตือน</h4>
                             <span x-show="unreadCount > 0" style="background: #ef4444; color: white; font-size: 0.68rem; font-weight: 900; padding: 1px 8px; border-radius: 9999px;" x-text="unreadCount + ' ใหม่'"></span>
@@ -178,8 +248,8 @@
 
             <div class="navbar-links">
                 <a href="{{ url('/') }}" class="nav-clean-link {{ request()->is('/') ? 'active-nav-tab' : '' }}">หน้าแรก</a>
-                <a href="{{ route('products.index') }}" class="nav-clean-link {{ request()->routeIs('products.*') ? 'active-nav-tab' : '' }}">📱 มือถือมือสองทั้งหมด</a>
-                <a href="{{ route('promotions.index') }}" class="nav-clean-link {{ request()->routeIs('promotions.*') ? 'active-nav-tab' : '' }}">🔥 โปรเด็ดมือสอง</a>
+                <a href="{{ route('products.index') }}" class="nav-clean-link {{ request()->routeIs('products.*') ? 'active-nav-tab' : '' }}">📱 มือถือทั้งหมด</a>
+                <a href="{{ route('promotions.index') }}" class="nav-clean-link {{ request()->routeIs('promotions.*') ? 'active-nav-tab' : '' }}">🔥 โปรเด็ด</a>
                 
                 <!-- Service & Warranty Dropdown (Hover to Open seamlessly) -->
                 <div class="navbar-item-dropdown">
@@ -214,7 +284,7 @@
                     <img src="{{ auth()->user()->avatar_url }}" alt="" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid #0284C7; flex-shrink: 0;">
                     <div>
                         <div style="font-size: 0.78rem; font-weight: 800; color: #0F172A; line-height: 1.2;">{{ auth()->user()->name }}</div>
-                        <div style="font-size: 0.65rem; color: #64748B; font-weight: 600;">{{ auth()->user()->email }}</div>
+                        <div style="font-size: 0.65rem; color: #64748B; font-weight: 600; word-break: break-all; overflow-wrap: anywhere; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ auth()->user()->email }}</div>
                     </div>
                 </div>
             @else
@@ -238,12 +308,12 @@
             </a>
             <a href="{{ route('products.index') }}" class="menu-popup-item" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: #0F172A; font-size: 0.84rem; font-weight: 800; transition: all 0.15s ease;">
                 <span class="menu-icon-box" style="width: 32px; height: 32px; background: #EFF6FF; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; transition: transform 0.2s ease;">📱</span>
-                <span style="flex-grow: 1;">มือถือมือสองทั้งหมด</span>
+                <span style="flex-grow: 1;">มือถือทั้งหมด</span>
                 <i class="fa-solid fa-chevron-right" style="font-size: 0.65rem; color: #CBD5E1;"></i>
             </a>
             <a href="{{ route('promotions.index') }}" class="menu-popup-item" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: #0F172A; font-size: 0.84rem; font-weight: 800; transition: all 0.15s ease;">
                 <span class="menu-icon-box" style="width: 32px; height: 32px; background: #FFF7ED; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; transition: transform 0.2s ease;">🔥</span>
-                <span style="flex-grow: 1;">โปรเด็ดมือสอง</span>
+                <span style="flex-grow: 1;">โปรเด็ด</span>
                 <i class="fa-solid fa-chevron-right" style="font-size: 0.65rem; color: #CBD5E1;"></i>
             </a>
             <a href="{{ route('service_center') }}" class="menu-popup-item" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: #0F172A; font-size: 0.84rem; font-weight: 800; transition: all 0.15s ease;">
@@ -315,10 +385,64 @@
         @yield('content')
     </main>
 
-    <!-- Floating LINE OA Button -->
-    <a href="https://line.me/ti/p/@dditcom" target="_blank" style="position: fixed; bottom: 25px; left: 25px; z-index: 9999; display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background-color: #06c755; color: white; border-radius: 50%; box-shadow: 0 4px 15px rgba(6,199,85,0.4); text-decoration: none; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 20px rgba(6,199,85,0.6)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(6,199,85,0.4)'" title="แอดไลน์สอบถามข้อมูล">
-        <i class="fa-brands fa-line" style="font-size: 2.2rem;"></i>
-    </a>
+    <!-- Google Material Style Centered Multicolor Spinner (No Backdrop, Non-blocking) -->
+    <style>
+        @keyframes googleSpinnerRotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes googleSpinnerDash {
+            0% {
+                stroke-dasharray: 1, 200;
+                stroke-dashoffset: 0;
+            }
+            50% {
+                stroke-dasharray: 130, 200;
+                stroke-dashoffset: -35px;
+            }
+            100% {
+                stroke-dasharray: 130, 200;
+                stroke-dashoffset: -160px;
+            }
+        }
+        @keyframes googleSpinnerColors {
+            0%, 100% { stroke: #4285F4; } /* Google Blue */
+            25%      { stroke: #EA4335; } /* Google Red */
+            50%      { stroke: #FBBC05; } /* Google Yellow */
+            75%      { stroke: #34A853; } /* Google Green */
+        }
+        .google-center-spinner-wrapper {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 99999999;
+            pointer-events: none;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .google-spinner {
+            width: 68px;
+            height: 68px;
+            animation: googleSpinnerRotate 1.4s linear infinite;
+            filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.22));
+        }
+        .google-spinner-path {
+            stroke-dasharray: 1, 200;
+            stroke-dashoffset: 0;
+            animation: googleSpinnerDash 1.4s ease-in-out infinite, googleSpinnerColors 5.6s ease-in-out infinite;
+            stroke-linecap: round;
+        }
+    </style>
+    <div id="floating-mini-loader" class="google-center-spinner-wrapper">
+        <svg class="google-spinner" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+            <circle class="google-spinner-path" fill="none" stroke-width="5.5" stroke-linecap="round" cx="33" cy="33" r="27"></circle>
+        </svg>
+    </div>
+
+
 
     <!-- Footer -->
     <footer class="footer-houkbank-style">
@@ -365,12 +489,12 @@
                 </p>
                 
                 <div style="display: flex; gap: 12px; margin-top: 1.25rem;">
-                    <a href="https://www.facebook.com/dditcom" target="_blank" title="Facebook Page" 
+                    <a href="https://www.facebook.com/DDPHONECP" target="_blank" title="Facebook Page" 
                        style="width: 44px; height: 44px; background: #1877F2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; transition: transform 0.2s; text-decoration: none; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);"
                        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                         <i class="fa-brands fa-facebook-f"></i>
                     </a>
-                    <a href="https://line.me/ti/p/@dditcom" target="_blank" title="Line Official" 
+                    <a href="https://line.me/ti/p/@ddphone" target="_blank" title="Line Official" 
                        style="width: 44px; height: 44px; background: #06C755; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; transition: transform 0.2s; text-decoration: none; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(6, 199, 85, 0.4);"
                        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                         <i class="fa-brands fa-line"></i>
@@ -390,13 +514,18 @@
             </div>
 
             <div>
-                <h3 style="font-weight: 900; font-size: 1.15rem; color: #FFE600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-map-location-dot" style="color: #FFE600;"></i> 📍 ปักหมุดหน้าร้าน DDPHONE
-                </h3>
-                <div style="border-radius: 18px; overflow: hidden; border: 2px solid #FFE600; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); background: #1E293B; transition: transform 0.25s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                    <iframe src="https://maps.google.com/maps?q=15.8078,102.0308&hl=th&z=16&output=embed" 
-                            width="100%" height="145" style="border:0; display:block;" allowfullscreen="" loading="lazy"></iframe>
-                </div>
+                <a href="https://maps.app.goo.gl/M46KgXmQrN4SMQATA" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+                    <h3 style="font-weight: 900; font-size: 1.15rem; color: #FFE600; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                        <span style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-map-location-dot" style="color: #FFE600;"></i> 📍 ปักหมุดหน้าร้าน DDPHONE
+                        </span>
+                        <span style="font-size: 0.75rem; background: rgba(255,230,0,0.2); color: #FFE600; padding: 3px 8px; border-radius: 99px; border: 1px solid #FFE600;">🗺️ เปิดแผนที่</span>
+                    </h3>
+                    <div style="border-radius: 18px; overflow: hidden; border: 2px solid #FFE600; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); background: #1E293B; transition: transform 0.25s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        <iframe src="https://maps.google.com/maps?q={{ urlencode('บริษัท ดีดี.ไอที.คอม จำกัด') }}&hl=th&z=17&output=embed" 
+                                width="100%" height="145" style="border:0; display:block; pointer-events: none;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </a>
             </div>
         </div>
 
@@ -493,7 +622,10 @@
                 polling: null,
                 init() {
                     this.fetchNotifications(true);
-                    this.polling = setInterval(() => this.fetchNotifications(false), 2500);
+                    // Poll every 4s for real-time customer notifications
+                    this.polling = setInterval(() => {
+                        this.fetchNotifications(false);
+                    }, 4000);
                     if ('Notification' in window && Notification.permission === 'default') {
                         Notification.requestPermission();
                     }
@@ -661,11 +793,6 @@
                     const formData = new FormData(form);
                     const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('button');
 
-                    // Trigger Flying Animation Immediately on Click
-                    if (submitBtn) {
-                        window.flyToCart(submitBtn);
-                    }
-
                     fetch(actionUrl, {
                         method: 'POST',
                         body: formData,
@@ -674,9 +801,13 @@
                             'Accept': 'application/json'
                         }
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
+                    .then(response => response.json().then(data => ({ ok: response.ok, body: data })))
+                    .then(res => {
+                        const data = res.body;
+                        if (res.ok && data.success) {
+                            if (submitBtn) {
+                                window.flyToCart(submitBtn);
+                            }
                             document.querySelectorAll('.cart-count-badge').forEach(el => {
                                 el.textContent = data.cart_count;
                                 el.style.display = data.cart_count > 0 ? 'inline-block' : 'none';
@@ -694,9 +825,11 @@
                             });
                         } else {
                             Swal.fire({
-                                icon: 'error',
-                                title: 'เกิดข้อผิดพลาด',
-                                text: data.message || 'ไม่สามารถเพิ่มสินค้าลงตะกร้าได้'
+                                icon: 'warning',
+                                title: 'ไม่สามารถเพิ่มสินค้าลงตะกร้าได้',
+                                text: data.message || 'สินค้าชิ้นนี้หมดแล้ว หรือจำนวนสต๊อกมีไม่เพียงพอ',
+                                confirmButtonColor: '#0F172A',
+                                confirmButtonText: 'เข้าใจแล้ว'
                             });
                         }
                     })
@@ -865,16 +998,117 @@
             lastScrollY = currentScrollY;
         }, { passive: true });
 
+        // Global Page Loading Progress Controller (YouTube / GitHub style top bar)
+        (function() {
+            const topBar = document.getElementById('top-loading-bar');
+            
+            function startLoading() {
+                if (topBar) {
+                    topBar.style.opacity = '1';
+                    topBar.style.width = '35%';
+                    setTimeout(() => { 
+                        if (topBar.style.width === '35%') topBar.style.width = '75%'; 
+                    }, 200);
+                }
+            }
+
+            function finishLoading() {
+                if (topBar) {
+                    topBar.style.width = '100%';
+                    setTimeout(() => {
+                        topBar.style.opacity = '0';
+                        setTimeout(() => { topBar.style.width = '0%'; }, 300);
+                    }, 250);
+                }
+            }
+
+            if (document.readyState === 'complete') {
+                finishLoading();
+            } else {
+                window.addEventListener('load', finishLoading);
+            }
+
+            document.addEventListener('click', function(e) {
+                const link = e.target.closest('a');
+                if (link && link.href && !link.target && !link.hasAttribute('download') && !link.href.startsWith('javascript:')) {
+                    try {
+                        const url = new URL(link.href, window.location.origin);
+                        if (url.origin === window.location.origin && !url.hash && url.pathname !== window.location.pathname) {
+                            startLoading();
+                        }
+                    } catch(err) {}
+                }
+            });
+
+            window.addEventListener('pageshow', function(e) {
+                if (e.persisted) {
+                    finishLoading();
+                }
+            });
+        })();
+
         // Global Button Animation Helpers
         window.animateHeartBtn = function(btn) {
+            if (!btn) return;
             btn.classList.add('heart-pop-anim');
             setTimeout(() => btn.classList.remove('heart-pop-anim'), 450);
         };
 
         window.animateBasketBtn = function(btn) {
+            if (!btn) return;
             btn.classList.add('basket-bounce-anim');
             setTimeout(() => btn.classList.remove('basket-bounce-anim'), 450);
         };
+
+        // Clean Center Multicolor Loader Script (Non-blocking)
+        (function() {
+            const loader = document.getElementById('floating-mini-loader');
+            if (!loader) return;
+
+            function showLoader() {
+                loader.style.visibility = 'visible';
+                loader.style.opacity = '1';
+                loader.style.transform = 'translate(-50%, -50%) scale(1)';
+            }
+
+            function hideLoader() {
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    loader.style.transform = 'translate(-50%, -50%) scale(0.7)';
+                    setTimeout(() => {
+                        loader.style.visibility = 'hidden';
+                    }, 250);
+                }, 150);
+            }
+
+            if (document.readyState === 'complete') {
+                hideLoader();
+            } else {
+                window.addEventListener('load', hideLoader);
+            }
+
+            setTimeout(hideLoader, 1500);
+
+            document.addEventListener('click', function(e) {
+                const link = e.target.closest('a');
+                if (link && link.href && !link.target && !link.hasAttribute('download')) {
+                    const href = link.getAttribute('href');
+                    if (href && !href.startsWith('javascript:') && href !== '#') {
+                        showLoader();
+                    }
+                }
+            });
+
+            document.addEventListener('submit', function(e) {
+                if (e.target && !e.target.classList.contains('ajax-add-to-cart-form')) {
+                    showLoader();
+                }
+            });
+
+            window.addEventListener('pageshow', function(e) {
+                if (e.persisted) hideLoader();
+            });
+        })();
     </script>
 </div>
 </body>

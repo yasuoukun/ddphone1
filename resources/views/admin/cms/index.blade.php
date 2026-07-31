@@ -184,6 +184,64 @@
                                 </div>
                             </div>
 
+                            <!-- 3. Popular Products (HOT ITEMS) Settings -->
+                            <div class="p-4 bg-amber-50/50 rounded-2xl border border-amber-200/70 space-y-3">
+                                <h4 class="font-bold text-sm text-amber-900 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-fire text-amber-600"></i> 3. ตั้งค่าสินค้ายอดนิยม (HOT ITEMS)
+                                </h4>
+                                <p class="text-[11px] text-amber-800 leading-relaxed">เลือกรูปแบบการดึงข้อมูลสินค้ายอดนิยมแนะนำในหน้าแรกของร้าน</p>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">รูปแบบการเลือกแสดงผล:</label>
+                                    <div class="space-y-1.5">
+                                        <label class="flex items-center gap-2 p-2 bg-white rounded-xl border border-amber-200 cursor-pointer hover:bg-amber-50/30 text-xs">
+                                            <input type="radio" name="popular_products_mode" value="hybrid" {{ ($settings['popular_products_mode'] ?? 'hybrid') === 'hybrid' ? 'checked' : '' }} class="text-amber-600 focus:ring-amber-500">
+                                            <div>
+                                                <span class="font-bold text-amber-900">✨ ไฮบริด (ผสมผสาน - แนะนำ)</span>
+                                                <span class="block text-[10px] text-slate-500">แสดงสินค้าที่ปักหมุดก่อน แล้วเติมเต็มที่เหลือด้วยสินค้าขายดีจริงอัตโนมัติ</span>
+                                            </div>
+                                        </label>
+
+                                        <label class="flex items-center gap-2 p-2 bg-white rounded-xl border border-amber-200 cursor-pointer hover:bg-amber-50/30 text-xs">
+                                            <input type="radio" name="popular_products_mode" value="auto" {{ ($settings['popular_products_mode'] ?? '') === 'auto' ? 'checked' : '' }} class="text-amber-600 focus:ring-amber-500">
+                                            <div>
+                                                <span class="font-bold text-slate-800">📈 ขายดีอัตโนมัติ 100%</span>
+                                                <span class="block text-[10px] text-slate-500">คำนวณจากยอดขายจริงในระบบ หรือสินค้าเรตติ้งสูง</span>
+                                            </div>
+                                        </label>
+
+                                        <label class="flex items-center gap-2 p-2 bg-white rounded-xl border border-amber-200 cursor-pointer hover:bg-amber-50/30 text-xs">
+                                            <input type="radio" name="popular_products_mode" value="custom" {{ ($settings['popular_products_mode'] ?? '') === 'custom' ? 'checked' : '' }} class="text-amber-600 focus:ring-amber-500">
+                                            <div>
+                                                <span class="font-bold text-slate-800">📌 กำหนดสินค้าเอง 100%</span>
+                                                <span class="block text-[10px] text-slate-500">แสดงเฉพาะสินค้าที่เลือกปักหมุดด้านล่างนี้เท่านั้น</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                                        <span>ปักหมุดเลือกสินค้านิยม (สำหรับโหมดไฮบริด/กำหนดเอง):</span>
+                                        <span class="text-[10px] text-amber-700 font-normal">เลือกได้หลายรายการ</span>
+                                    </label>
+                                    
+                                    <div class="max-h-48 overflow-y-auto border border-amber-200 rounded-xl bg-white p-2 space-y-1 text-xs divide-y divide-slate-100">
+                                        @forelse($allProducts as $p)
+                                            <label class="flex items-center justify-between py-1.5 px-2 hover:bg-amber-50/50 rounded-lg cursor-pointer transition">
+                                                <div class="flex items-center gap-2 truncate">
+                                                    <input type="checkbox" name="popular_product_ids[]" value="{{ $p->id }}" {{ in_array($p->id, $settings['popular_product_ids'] ?? []) ? 'checked' : '' }} class="rounded text-amber-600 focus:ring-amber-500">
+                                                    <span class="truncate font-medium text-slate-800">{{ $p->name }}</span>
+                                                </div>
+                                                <span class="text-[10px] font-bold text-emerald-600 flex-shrink-0">฿{{ number_format($p->discount_price ?: $p->price) }}</span>
+                                            </label>
+                                        @empty
+                                            <p class="text-slate-400 text-center py-3 text-xs">ยังไม่มีสินค้าในระบบ</p>
+                                        @endforelse
+                                    </div>
+                                </div>
+                            </div>
+
                             <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md text-sm">
                                 บันทึกการตั้งค่าทั้งหมด
                             </button>

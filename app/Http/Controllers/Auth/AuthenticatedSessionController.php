@@ -28,9 +28,16 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Record successful login audit log
+        if (Auth::check()) {
+            \App\Models\LoginLog::logAttempt(Auth::user()->email, 'successful', Auth::id(), 'email');
+        }
+
         $intended = session('url.intended');
         if ($intended && (
+            str_contains($intended, '/messages') ||
             str_contains($intended, 'notification-counts') ||
+            str_contains($intended, '/notifications/') ||
             str_contains($intended, 'ajax') ||
             str_contains($intended, 'list-ajax') ||
             str_contains($intended, '_t=')

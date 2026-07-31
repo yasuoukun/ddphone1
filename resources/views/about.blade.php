@@ -1,5 +1,10 @@
 @extends('layouts.store')
 
+@section('title', 'เกี่ยวกับเรา - DDPHONE ดีดีโฟน | ร้านสมาร์ทโฟนที่คุณไว้วางใจ')
+@section('meta_title', 'เกี่ยวกับเรา - DDPHONE ดีดีโฟน | ร้านสมาร์ทโฟนที่คุณไว้วางใจ')
+@section('meta_description', 'ทำความรู้จักกับ DDPHONE ดีดีโฟน ศูนย์รวมสมาร์ทโฟนคุณภาพสูง คัดสรรเครื่องแท้ 100% พร้อมบริการประกันร้าน 30 วันเต็ม และทีมงานแอดมินดูแลตลอดการใช้งาน')
+@section('meta_keywords', 'เกี่ยวกับ DDPHONE, ร้านดีดีโฟน, ร้านมือถือชัยภูมิ, ประกันร้าน 30 วัน')
+
 @section('content')
 <div class="fade-in" style="max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; font-family: 'Prompt', sans-serif;">
     
@@ -160,7 +165,7 @@
             <p style="color: var(--color-grey); font-size: 0.95rem; margin-bottom: 2rem;">
                 มีคำถามเพิ่มเติม ต้องการให้ทีมขายติดต่อกลับ หรือต้องการส่งเครื่องเก่ามาเปลี่ยนใหม่?
             </p>
-            <a href="https://line.me/ti/p/@dditcom" target="_blank" style="background: #06c755; color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 1.05rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; width: 100%; justify-content: center; box-shadow: 0 4px 15px rgba(6,199,85,0.25);" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+            <a href="https://line.me/ti/p/@ddphone" target="_blank" style="background: #06c755; color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 1.05rem; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; width: 100%; justify-content: center; box-shadow: 0 4px 15px rgba(6,199,85,0.25);" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
                 <i class="fa-brands fa-line" style="font-size: 1.3rem;"></i> แชทคุยกับทีมงานทาง Line
             </a>
         </div>

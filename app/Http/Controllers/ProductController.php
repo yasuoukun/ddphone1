@@ -11,7 +11,9 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['images', 'brand', 'category']);
+        $query = Product::with(['images', 'brand', 'category'])
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews');
 
         // Smart Multi-word search across name, description, sku, brand name, category name
         if ($request->filled('q')) {
@@ -118,6 +120,9 @@ class ProductController extends Controller
         $product->load(['images', 'brand', 'category', 'reviews.user']);
         $relatedProducts = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->with('images')
             ->limit(4)
             ->get();
         return view('products.show', compact('product', 'relatedProducts'));

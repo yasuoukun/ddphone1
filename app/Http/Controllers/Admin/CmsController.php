@@ -24,11 +24,16 @@ class CmsController extends Controller
             'showcase_button_text' => HomepageSetting::get('showcase_button_text', 'ช้อปมือถือโปรเด็ด ➔'),
             'showcase_button_url' => HomepageSetting::get('showcase_button_url', '/products'),
             'showcase_image' => HomepageSetting::get('showcase_image', ''),
+
+            // Popular Products CMS Settings
+            'popular_products_mode' => HomepageSetting::get('popular_products_mode', 'hybrid'),
+            'popular_product_ids'   => json_decode(HomepageSetting::get('popular_product_ids', '[]'), true) ?: [],
         ];
 
         $banners = PromotionalBanner::orderBy('sort_order')->get();
+        $allProducts = \App\Models\Product::select('id', 'name', 'price', 'discount_price')->orderBy('name')->get();
 
-        return view('admin.cms.index', compact('settings', 'banners'));
+        return view('admin.cms.index', compact('settings', 'banners', 'allProducts'));
     }
 
     public function updateSettings(Request $request)
@@ -44,6 +49,10 @@ class CmsController extends Controller
             'showcase_button_text' => 'nullable|string|max:100',
             'showcase_button_url' => 'nullable|string|max:255',
             'showcase_image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:51200',
+
+            'popular_products_mode' => 'required|string|in:auto,custom,hybrid',
+            'popular_product_ids'   => 'nullable|array',
+            'popular_product_ids.*' => 'integer|exists:products,id',
         ]);
 
         if ($request->hasFile('showcase_image_file')) {
@@ -55,13 +64,20 @@ class CmsController extends Controller
 
         unset($validated['showcase_image_file']);
 
+        // Store popular products configuration
+        HomepageSetting::set('popular_products_mode', $request->input('popular_products_mode', 'hybrid'));
+        $selectedIds = array_map('intval', $request->input('popular_product_ids', []));
+        HomepageSetting::set('popular_product_ids', json_encode($selectedIds));
+
+        unset($validated['popular_products_mode'], $validated['popular_product_ids']);
+
         foreach ($validated as $key => $val) {
             if ($val !== null) {
                 HomepageSetting::set($key, $val);
             }
         }
 
-        return redirect()->back()->with('success', 'บันทึกการตั้งค่าคำโฆษณา Slogan และแบนเนอร์ Showcase เรียบร้อยแล้ว');
+        return redirect()->back()->with('success', 'บันทึกการตั้งค่าคำโฆษณา แบนเนอร์ และสินค้ายอดนิยมเรียบร้อยแล้ว');
     }
 
     public function storeBanner(Request $request)

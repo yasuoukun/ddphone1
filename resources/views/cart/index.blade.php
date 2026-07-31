@@ -3,7 +3,7 @@
 @section('content')
 <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem;" x-data="{ 
     cart: {{ json_encode(session('cart', [])) }},
-    selectedItems: Object.keys({{ json_encode(session('cart', [])) }}),
+    selectedItems: Object.keys({{ json_encode(session('cart', [])) }}).map(String),
     updateQuantity(id, qty) {
         if(qty < 1) qty = 1;
         fetch('{{ route('cart.update') }}', {
@@ -152,13 +152,19 @@
                         <span style="color: #EF4444;">฿<span x-text="total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
                     </div>
 
-                    <a :href="selectedItems.length ? '{{ route('checkout.index') }}?items=' + selectedItems.join(',') : '#'"
-                       @click="if(!selectedItems.length) { $event.preventDefault(); Swal.fire({icon: 'warning', title: 'กรุณาเลือกสินค้า', text: 'กรุณาเลือกสินค้าอย่างน้อย 1 ชิ้นเพื่อดำเนินชำระเงิน'}); }"
-                       style="text-decoration: none; display: block;">
-                        <button style="width: 100%; justify-content: center; font-size: 1.05rem !important; padding: 14px !important; background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: white; border: none; border-radius: 99px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35); display: flex; align-items: center; gap: 8px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                            <i class="fa-solid fa-credit-card"></i> ดำเนินการสั่งซื้อ / ชำระเงิน
-                        </button>
-                    </a>
+                    <button
+                        @click="
+                            if (!selectedItems.length) {
+                                Swal.fire({icon: 'warning', title: 'กรุณาเลือกสินค้า', text: 'กรุณาเลือกสินค้าอย่างน้อย 1 ชิ้นเพื่อดำเนินชำระเงิน', confirmButtonColor: '#0284C7'});
+                            } else {
+                                window.location.href = '{{ route('checkout.index') }}?items=' + selectedItems.join(',');
+                            }
+                        "
+                        style="width: 100%; justify-content: center; font-size: 1.05rem; padding: 14px; background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: white; border: none; border-radius: 99px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35); display: flex; align-items: center; gap: 8px; transition: transform 0.2s;"
+                        onmouseover="this.style.transform='scale(1.02)'"
+                        onmouseout="this.style.transform='scale(1)'">
+                        <i class="fa-solid fa-credit-card"></i> ดำเนินการสั่งซื้อ / ชำระเงิน
+                    </button>
                 </div>
             </div>
         </template>

@@ -32,6 +32,7 @@ class ProductController extends Controller
             'brand_id' => 'required|exists:brands,id',
             'name' => 'required|string|max:255',
             'sku' => 'nullable|string|max:100',
+            'serial_number' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'specifications' => 'nullable|string',
             'freebie' => 'nullable|string|max:255',
@@ -39,6 +40,9 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'seo_title' => 'nullable|string|max:255',
+            'seo_description' => 'nullable|string|max:1000',
+            'seo_keywords' => 'nullable|string|max:255',
             'images' => 'required|array|min:1',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:51200'
         ], [
@@ -94,6 +98,7 @@ class ProductController extends Controller
             'brand_id' => 'required|exists:brands,id',
             'name' => 'required|string|max:255',
             'sku' => 'nullable|string|max:100',
+            'serial_number' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'specifications' => 'nullable|string',
             'freebie' => 'nullable|string|max:255',
@@ -101,6 +106,9 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'seo_title' => 'nullable|string|max:255',
+            'seo_description' => 'nullable|string|max:1000',
+            'seo_keywords' => 'nullable|string|max:255',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:51200'
         ]);

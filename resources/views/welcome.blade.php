@@ -1,5 +1,10 @@
 @extends('layouts.store')
 
+@section('title', 'DDPHONE ดีดีโฟน | ศูนย์รวมสมาร์ทโฟน แท็บเล็ต แก็ดเจ็ต และบริการซ่อมมือถือครบวงจร')
+@section('meta_title', 'DDPHONE ดีดีโฟน | ศูนย์รวมสมาร์ทโฟน แท็บเล็ต แก็ดเจ็ต และบริการซ่อมมือถือครบวงจร')
+@section('meta_description', 'ดีดีโฟน (DDPHONE) ศูนย์รวมไอโฟน ไอแพด แมคบุ๊ก และสมาร์ทโฟนแท้ 100% คัดเกรด A+ ผ่านการตรวจเช็ค 30 รายการ รับประกันร้าน 30 วัน พร้อมจัดส่งฟรีทั่วไทย')
+@section('meta_keywords', 'DDPHONE, ดีดีโฟน, สมาร์ทโฟน, ไอโฟน, ไอแพด, iPhone, iPad, มือถือราคาถูก, ซ่อมมือถือ, ชัยภูมิ')
+
 @section('content')
 <!-- Section 3: Full-width Hero Banner (No Container Box) -->
 <div style="width: 100%; margin-bottom: 3.5rem; overflow: hidden; background: #0F172A; position: relative;">
@@ -98,7 +103,7 @@
     <div style="text-align: center; margin-bottom: 2rem; padding-top: 1rem;">
         <span style="display: inline-block; background: rgba(15, 23, 42, 0.06); color: #0F172A; padding: 4px 18px; border-radius: 99px; font-size: 0.8rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: 0.5px;">EXPLORE CATEGORIES</span>
         <h2 style="font-size: 1.85rem; font-weight: 900; color: #0F172A; margin: 0;">
-            หมวดหมู่สินค้ามินิมอล
+            หมวดหมู่สินค้า
         </h2>
     </div>
 
@@ -212,7 +217,7 @@
                 @endif
 
                 @if($product->primary_image_url)
-                    <img src="{{ $product->primary_image_url }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: contain; padding: 0.6rem; transition: transform 0.3s ease;">
+                    <img src="{{ $product->primary_image_url }}" alt="{{ $product->name }}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: contain; padding: 0.6rem; transition: transform 0.3s ease;">
                 @else
                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
                         <i class="fa-solid fa-mobile-screen text-4xl"></i>
@@ -240,8 +245,8 @@
 
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                         @php
-                            $avgRating = round($product->reviews()->avg('rating') ?? 5.0, 1);
-                            $reviewCount = $product->reviews()->count();
+                            $avgRating = round($product->reviews_avg_rating ?? 5.0, 1);
+                            $reviewCount = $product->reviews_count ?? 0;
                         @endphp
                         <span style="font-size: 0.62rem; color: #64748B; font-weight: 600;">
                             ⭐ {{ number_format($avgRating, 1) }} <span style="color: #CBD5E1;">|</span> {{ $reviewCount > 0 ? 'รีวิว ' . $reviewCount : 'สินค้าใหม่' }}
@@ -255,12 +260,18 @@
                                 <i class="fa-{{ $isFavorite ? 'solid' : 'regular' }} fa-heart"></i>
                             </button>
 
+                            @if($product->stock > 0)
                             <form action="{{ route('cart.add', $product) }}" method="POST" class="ajax-add-to-cart-form" style="margin: 0;">
                                 @csrf
                                 <button type="submit" onclick="animateBasketBtn(this)" title="เพิ่มลงตะกร้า" style="background: #FF5722; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; font-weight: 900; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 2px 6px rgba(255, 87, 34, 0.3);">
                                     <i class="fa-solid fa-basket-shopping"></i>
                                 </button>
                             </form>
+                            @else
+                            <button type="button" disabled title="สินค้าหมดชั่วคราว" style="background: #94A3B8; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: not-allowed; font-size: 0.7rem; font-weight: 900; display: flex; align-items: center; justify-content: center; opacity: 0.7;">
+                                <i class="fa-solid fa-ban"></i>
+                            </button>
+                            @endif
                         </div>
                     </div>
                 </div>

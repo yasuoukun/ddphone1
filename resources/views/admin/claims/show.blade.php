@@ -86,36 +86,84 @@
 
                 <!-- Update Status Form Section (1 col) -->
                 <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm h-fit space-y-6">
-                    <h3 class="text-lg font-bold text-gray-800 border-b pb-2">⚙️ ปรับสถานะงาน</h3>
+                    <h3 class="text-lg font-bold text-gray-800 border-b pb-2">⚙️ ปรับสถานะ & ประเมินงานซ่อม</h3>
+
+                    @php $wInfo = $claim->calculated_warranty_info; @endphp
+                    @if($claim->order)
+                    <div class="p-3.5 rounded-2xl {{ $wInfo['is_in_warranty'] ? 'bg-emerald-50 border border-emerald-200 text-emerald-900' : 'bg-rose-50 border border-rose-200 text-rose-900' }} text-xs font-bold space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span>🛡️ สิทธิประกันร้าน (นับจากรับสินค้า):</span>
+                            <span class="px-2 py-0.5 rounded-full {{ $wInfo['is_in_warranty'] ? 'bg-emerald-200 text-emerald-900' : 'bg-rose-200 text-rose-900' }}">{{ $wInfo['is_in_warranty'] ? 'อยู่ในประกัน 30 วัน' : 'หมดประกันแล้ว' }}</span>
+                        </div>
+                        <div>{{ $wInfo['status_label'] }}</div>
+                    </div>
+                    @endif
+
+                    @if($claim->inbound_tracking_number)
+                    <div class="p-3.5 bg-sky-50 border border-sky-200 rounded-2xl text-xs text-sky-900 space-y-1">
+                        <span class="font-bold block text-sky-700">📦 เลขพัสดุที่ลูกค้าส่งมาที่ร้าน:</span>
+                        <div class="font-extrabold text-sm">{{ $claim->inbound_courier ?? 'ขนส่ง' }}: <span class="text-indigo-600 font-mono">{{ $claim->inbound_tracking_number }}</span></div>
+                    </div>
+                    @endif
                     
                     <form action="{{ route('admin.claims.update', $claim->id) }}" method="POST" class="space-y-4">
                         @csrf
                         @method('PATCH')
                         
                         <div>
-                            <label class="block text-sm font-semibold text-gray-600 mb-2">เลือกสถานะ:</label>
-                            <select name="status" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-indigo-200">
-                                <option value="pending" {{ $claim->status === 'pending' ? 'selected' : '' }}>⏳ ได้รับแจ้งเรื่อง (Pending)</option>
-                                <option value="received" {{ $claim->status === 'received' ? 'selected' : '' }}>📦 ได้รับเครื่องแล้ว (Received)</option>
-                                <option value="in_progress" {{ $claim->status === 'in_progress' ? 'selected' : '' }}>🛠️ กำลังดำเนินการ (In Progress)</option>
-                                <option value="completed" {{ $claim->status === 'completed' ? 'selected' : '' }}>✅ เสร็จสิ้นส่งคืน (Completed)</option>
-                                <option value="cancelled" {{ $claim->status === 'cancelled' ? 'selected' : '' }}>❌ ยกเลิก (Cancelled)</option>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">สิทธิประกัน:</label>
+                            <select name="warranty_status" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-indigo-200">
+                                <option value="unknown" {{ $claim->warranty_status === 'unknown' ? 'selected' : '' }}>❓ รอตรวจสอบ</option>
+                                <option value="in_warranty" {{ $claim->warranty_status === 'in_warranty' ? 'selected' : '' }}>🛡️ อยู่ในประกัน (ฟรีค่าซ่อม/มีเงื่อนไข)</option>
+                                <option value="out_of_warranty" {{ $claim->warranty_status === 'out_of_warranty' ? 'selected' : '' }}>💰 นอกประกัน (มีค่าซ่อม)</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-600 mb-2">💰 ค่าซ่อมเบื้องต้น (บาท):</label>
-                            <input type="number" step="0.01" name="estimated_cost" value="{{ $claim->estimated_cost }}" placeholder="เช่น 1500" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-indigo-200">
-                            <span class="text-xs text-gray-400 mt-1 block">ระบุประเมินราคาซ่อมเพื่อให้ลูกค้าทราบในระบบ</span>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">เลือกสถานะขั้นตอน:</label>
+                            <select name="status" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-indigo-200 bg-slate-50">
+                                <option value="pending_assessment" {{ in_array($claim->status, ['pending', 'pending_assessment']) ? 'selected' : '' }}>⏳ 1. รอแอดมินประเมิน / เช็คประกัน</option>
+                                <option value="quoted" {{ $claim->status === 'quoted' ? 'selected' : '' }}>💬 2. เสนอราคาแล้ว (รอลูกค้ายืนยัน)</option>
+                                <option value="confirmed_waiting_device" {{ $claim->status === 'confirmed_waiting_device' ? 'selected' : '' }}>🚚 3. ลูกค้ายืนยันแล้ว (รอส่งเครื่องมา)</option>
+                                <option value="device_received" {{ $claim->status === 'device_received' ? 'selected' : '' }}>📦 4. ร้านได้รับเครื่องแล้ว (กำลังตรวจเช็ค)</option>
+                                <option value="in_repair" {{ in_array($claim->status, ['in_repair', 'in_progress']) ? 'selected' : '' }}>🛠️ 5. ช่างกำลังดำเนินการซ่อม</option>
+                                <option value="repaired_waiting_payment" {{ $claim->status === 'repaired_waiting_payment' ? 'selected' : '' }}>✨ 6. ซ่อมเสร็จแล้ว (รอชำระเงิน/ส่งคืน)</option>
+                                <option value="return_shipped" {{ $claim->status === 'return_shipped' ? 'selected' : '' }}>📫 7. จัดส่งเครื่องคืนลูกค้าแล้ว</option>
+                                <option value="completed" {{ $claim->status === 'completed' ? 'selected' : '' }}>✅ 8. เสร็จสิ้นสมบูรณ์ (Completed)</option>
+                                <option value="cancelled" {{ $claim->status === 'cancelled' ? 'selected' : '' }}>❌ ยกเลิกรายการ (Cancelled)</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">💰 ราคาประเมินซ่อม (บาท):</label>
+                                <input type="number" step="0.01" name="estimated_cost" value="{{ $claim->estimated_cost }}" placeholder="0.00" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-indigo-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">⏱️ ระยะเวลาซ่อม (วัน):</label>
+                                <input type="number" name="estimated_days" value="{{ $claim->estimated_days ?? 1 }}" placeholder="1" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-indigo-200">
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-3 space-y-3">
+                            <span class="text-xs font-bold text-slate-700 block">🚚 เลขพัสดุจัดส่งเครื่องคืนลูกค้า:</span>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <input type="text" name="return_courier" value="{{ $claim->return_courier ?? 'Flash Express' }}" placeholder="บริษัทขนส่ง" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-indigo-200">
+                                </div>
+                                <div>
+                                    <input type="text" name="return_tracking_number" value="{{ $claim->return_tracking_number }}" placeholder="เลข Tracking" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs font-mono font-medium focus:ring-2 focus:ring-indigo-200">
+                                </div>
+                            </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-600 mb-2">บันทึกความคืบหน้า (แจ้งผู้แจ้ง):</label>
-                            <textarea name="admin_notes" rows="5" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-200 placeholder-gray-400" placeholder="เช่น ช่างตรวจอาการบอร์ดเสียแล้ว รอสั่งอะไหล่ 3 วัน...">{{ $claim->admin_notes }}</textarea>
+                            <label class="block text-sm font-semibold text-gray-600 mb-2">โน้ตแจ้งลูกค้า / รายละเอียดการซ่อม:</label>
+                            <textarea name="admin_notes" rows="4" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-200 placeholder-gray-400" placeholder="เช่น เครื่องอยู่ในประกัน เปลี่ยนหน้าจอฟรี ไม่เสียค่าใช้จ่าย หรือ เปลี่ยนแบตเตอรี่แท้ ฿1,500 สั่งอะไหล่ 1 วัน...">{{ $claim->admin_notes }}</textarea>
                         </div>
 
                         <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm py-3 rounded-xl transition duration-150 shadow-sm shadow-indigo-100">
-                            💾 บันทึกอัปเดต
+                            💾 บันทึกอัปเดตงานซ่อม
                         </button>
                     </form>
                 </div>

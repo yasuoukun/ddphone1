@@ -22,8 +22,15 @@ class ClaimController extends Controller
         ]);
 
         $order = null;
+        $warrantyStatus = 'unknown';
+
         if (!empty($validated['order_id_raw'])) {
             $order = Order::find($validated['order_id_raw']);
+            if ($order) {
+                $deliveryDate = $order->updated_at;
+                $warrantyExpiresAt = $deliveryDate->copy()->addDays(30);
+                $warrantyStatus = now()->lte($warrantyExpiresAt) ? 'in_warranty' : 'out_of_warranty';
+            }
         }
 
         $imagePaths = [];
@@ -41,13 +48,43 @@ class ClaimController extends Controller
             'device_name' => $validated['device_name'],
             'serial_number' => $validated['serial_number'],
             'claim_type' => $validated['claim_type'],
+            'warranty_status' => $warrantyStatus,
             'issue_description' => $validated['issue_description'],
             'image_paths' => $imagePaths,
             'status' => 'pending',
         ]);
 
+        // Send real-time notification to admin (stored for admin dashboard reference)
+        try {
+            \App\Models\Notification::create([
+                'user_id' => null,
+                'title' => '🔧 มีรายการแจ้งส่งซ่อม/เคลมใหม่',
+                'message' => "ลูกค้า {$claim->customer_name} แจ้งซ่อม {$claim->device_name} (สิทธิ: {$claim->warranty_status})",
+                'url' => route('admin.claims.show', $claim->id),
+                'is_read' => false,
+            ]);
+        } catch (\Throwable $e) {}
+
+        // [Option B] Notify customer immediately upon submission (only if logged in)
+        if (auth()->check()) {
+            try {
+                $claimTypeLabel = match ($claim->claim_type) {
+                    'warranty' => 'เคลมประกัน',
+                    'repair'   => 'ส่งซ่อม',
+                    'setting'  => 'ตั้งค่า/ลงโปรแกรม',
+                    default    => 'แจ้งงาน',
+                };
+                \App\Models\Notification::sendToUser(
+                    auth()->id(),
+                    "✅ ระบบได้รับใบแจ้ง{$claimTypeLabel}ของคุณแล้ว",
+                    "รหัสงาน: {$claim->id} | อุปกรณ์: {$claim->device_name} | ทีมงาน DDPHONE จะรีบตรวจสอบและแจ้งผลกลับโดยเร็วครับ",
+                    route('tracking', ['q' => $claim->id, 'type' => 'claim'])
+                );
+            } catch (\Throwable $e) {}
+        }
+
         return redirect()->route('tracking', ['q' => $claim->id, 'type' => 'claim'])
-            ->with('sweet_success', "แจ้งส่งซ่อมของร้านสำเร็จ! หมายเลขงานของท่านคือ: {$claim->id} สามารถใช้ติดตามสถานะได้ทันที");
+            ->with('sweet_success', "แจ้งส่งซ่อมเรียบร้อยแล้ว! รหัสติดตามของคุณคือ: {$claim->id} แอดมินจะรีบตรวจสอบและเสนอราคาให้ท่านทันทีครับ");
     }
 
     public function track(Request $request)

@@ -1,5 +1,66 @@
 @extends('layouts.store')
 
+@php
+    $effectivePrice = $product->discount_price ?: $product->price;
+    $primaryImg = $product->images->where('is_primary', true)->first() ?? $product->images->first();
+    $primaryImgUrl = $primaryImg ? (str_starts_with($primaryImg->image_path, 'http') ? $primaryImg->image_path : asset('storage/' . ltrim(str_replace(['public/', 'storage/'], '', $primaryImg->image_path), '/'))) : asset('images/logoddphone.png');
+    
+    // Smart Fallback Logic
+    $autoTitle = $product->name . ' - ราคา ฿' . number_format($effectivePrice) . ' | DDPHONE ดีดีโฟน';
+    $autoDesc = Str::limit(strip_tags($product->description ?: $product->name . ' คุณภาพสูง พร้อมการรับประกันร้าน 30 วันเต็ม จัดส่งฟรีทั่วไทย'), 160);
+    $autoKeywords = $product->name . ', ' . ($product->brand->name ?? '') . ', ' . ($product->category->name ?? '') . ', DDPHONE, ดีดีโฟน, สมาร์ทโฟน';
+
+    $finalTitle = !empty($product->seo_title) ? $product->seo_title : $autoTitle;
+    $finalDesc = !empty($product->seo_description) ? $product->seo_description : $autoDesc;
+    $finalKeywords = !empty($product->seo_keywords) ? $product->seo_keywords : $autoKeywords;
+@endphp
+
+@section('title', $finalTitle)
+@section('meta_title', $finalTitle)
+@section('meta_description', $finalDesc)
+@section('meta_keywords', $finalKeywords)
+
+@section('og_type', 'product')
+@section('og_title', $finalTitle)
+@section('og_description', $finalDesc)
+@section('og_image', $primaryImgUrl)
+
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ e($product->name) }}",
+  "image": ["{{ $primaryImgUrl }}"],
+  "description": "{{ e($finalDesc) }}",
+  "sku": "{{ $product->sku ?: $product->id }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "{{ e($product->brand->name ?? 'DDPHONE') }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ url()->current() }}",
+    "priceCurrency": "THB",
+    "price": "{{ $effectivePrice }}",
+    "priceValidUntil": "{{ date('Y-12-31') }}",
+    "itemCondition": "https://schema.org/UsedCondition",
+    "availability": "{{ $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
+    "seller": {
+      "@type": "Organization",
+      "name": "DDPHONE ดีดีโฟน"
+    }
+  }
+  @if($product->reviews && count($product->reviews) > 0)
+  ,
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ round($product->reviews->avg('rating'), 1) }}",
+    "reviewCount": "{{ count($product->reviews) }}"
+  }
+  @endif
+}
+</script>
+
 @section('content')
 <style>
     .custom-file-upload-label {
@@ -33,6 +94,16 @@
         border-color: #0F172A;
         box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
     }
+    @media (max-width: 768px) {
+        .product-detail-grid {
+            grid-template-columns: 1fr !important;
+            padding: 1.5rem !important;
+            gap: 1.5rem !important;
+        }
+        .product-main-image-box {
+            max-height: 320px !important;
+        }
+    }
 </style>
 
 <div class="container fade-in" style="padding: 2.5rem 1rem; max-width: 1200px; margin: 0 auto;">
@@ -43,7 +114,7 @@
     </a>
 
     <!-- Product Main Details Grid Card -->
-    <div style="background: white; border: 2px solid #E2E8F0; border-radius: 24px; padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; box-shadow: 0 6px 25px rgba(15,23,42,0.04); margin-bottom: 3.5rem;">
+    <div class="product-detail-grid" style="background: white; border: 2px solid #E2E8F0; border-radius: 24px; padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; box-shadow: 0 6px 25px rgba(15,23,42,0.04); margin-bottom: 3.5rem;">
         
         <!-- Left Column: Product Image Showcase -->
         <div style="display: flex; flex-direction: column; gap: 1rem;">
@@ -210,12 +281,12 @@
 
             <!-- LINE OA Contact Button -->
             <div style="margin-top: 14px;">
-                <a href="https://line.me/ti/p/@dditcom" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 10px; background-color: #06c755; color: white; padding: 14px; border-radius: 99px; font-weight: 900; text-decoration: none; font-size: 0.98rem; transition: transform 0.2s; box-shadow: 0 6px 16px rgba(6,199,85,0.25);" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <a href="https://line.me/ti/p/@ddphone" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 10px; background-color: #06c755; color: white; padding: 14px; border-radius: 99px; font-weight: 900; text-decoration: none; font-size: 0.98rem; transition: transform 0.2s; box-shadow: 0 6px 16px rgba(6,199,85,0.25);" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
                     <i class="fa-brands fa-line" style="font-size: 1.4rem;"></i> สอบถามรายละเอียดเพิ่มเติมผ่าน LINE OA
                 </a>
             </div>
-        </div>
 
+        </div>
     </div>
 
     <!-- Product Reviews Section (Section 7: Beautiful Layout & Custom File Button & Show More Toggle) -->
@@ -412,7 +483,7 @@
                     @endif
 
                     @if($rel->primary_image_url)
-                        <img src="{{ $rel->primary_image_url }}" alt="{{ $rel->name }}" style="width: 100%; height: 100%; object-fit: contain; padding: 0.6rem; transition: transform 0.3s ease;">
+                        <img src="{{ $rel->primary_image_url }}" alt="{{ $rel->name }}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: contain; padding: 0.6rem; transition: transform 0.3s ease;">
                     @else
                         <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
                             <i class="fa-solid fa-mobile-screen text-4xl"></i>
@@ -440,8 +511,8 @@
 
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                             @php
-                                $avgRating = round($rel->reviews()->avg('rating') ?? 5.0, 1);
-                                $reviewCount = $rel->reviews()->count();
+                                $avgRating = round($rel->reviews_avg_rating ?? 5.0, 1);
+                                $reviewCount = $rel->reviews_count ?? 0;
                             @endphp
                             <span style="font-size: 0.62rem; color: #64748B; font-weight: 600;">
                                 ⭐ {{ number_format($avgRating, 1) }} <span style="color: #CBD5E1;">|</span> {{ $reviewCount > 0 ? 'รีวิว ' . $reviewCount : 'สินค้าใหม่' }}

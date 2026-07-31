@@ -10,8 +10,32 @@ class CartController extends Controller
     public function add(Request $request, $id)
     {
         $product = Product::with('images')->findOrFail($id);
-        $cart = session()->get('cart', []);
         
+        if ($product->stock <= 0) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'สินค้าชิ้นนี้หมดชั่วคราว ไม่สามารถเพิ่มลงในตะกร้าได้'
+                ], 400);
+            }
+            return redirect()->back()->with('error', 'สินค้าชิ้นนี้หมดชั่วคราว ไม่สามารถเพิ่มลงในตะกร้าได้');
+        }
+
+        $cart = session()->get('cart', []);
+        $currentQty = isset($cart[$id]) ? $cart[$id]['quantity'] : 0;
+        $requestedQty = max(1, intval($request->input('quantity', 1)));
+
+        if ($currentQty + $requestedQty > $product->stock) {
+            $msg = "สินค้าชิ้นนี้เหลือในสต๊อกเพียง {$product->stock} ชิ้น ไม่สามารถเพิ่มเกินจำนวนได้";
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg
+                ], 400);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
         $image = "";
         $primaryImg = $product->images->where('is_primary', true)->first() ?? $product->images->first();
         if ($primaryImg) {
@@ -19,11 +43,11 @@ class CartController extends Controller
         }
 
         if (isset($cart[$id])) {
-            $cart[$id]['quantity']++;
+            $cart[$id]['quantity'] += $requestedQty;
         } else {
             $cart[$id] = [
                 "name" => $product->name,
-                "quantity" => 1,
+                "quantity" => $requestedQty,
                 "price" => $product->discount_price ?? $product->price,
                 "image" => $image
             ];
@@ -45,9 +69,21 @@ class CartController extends Controller
     public function update(Request $request)
     {
         if ($request->id && $request->quantity) {
+            $product = Product::find($request->id);
+            $newQty = max(1, intval($request->quantity));
+
+            if ($product && $newQty > $product->stock) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "สินค้าในสต๊อกมีเพียง {$product->stock} ชิ้น ไม่สามารถเพิ่มเกินจำนวนได้"
+                ], 400);
+            }
+
             $cart = session()->get('cart');
-            $cart[$request->id]["quantity"] = max(1, intval($request->quantity));
-            session()->put('cart', $cart);
+            if (isset($cart[$request->id])) {
+                $cart[$request->id]["quantity"] = $newQty;
+                session()->put('cart', $cart);
+            }
             return response()->json(['success' => true]);
         }
         return response()->json(['success' => false], 400);
