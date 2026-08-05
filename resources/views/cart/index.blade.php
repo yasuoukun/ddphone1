@@ -142,7 +142,7 @@
 
                     <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; font-size: 1rem;">
                         <span style="color: #64748B; font-weight: 600;">ค่าจัดส่งด่วน</span>
-                        <span style="font-weight: 800; color: #166534; background: #DCFCE7; padding: 2px 10px; border-radius: 99px; font-size: 0.85rem;">จัดส่งฟรีทั่วไทย</span>
+                        <span style="font-weight: 800; color: #166534; background: #DCFCE7; padding: 2px 10px; border-radius: 99px; font-size: 0.82rem; white-space: nowrap;">จัดส่งฟรีทั่วไทย</span>
                     </div>
 
                     <hr style="border: 0; border-top: 1.5px dashed #BAE6FD; margin-bottom: 1.5rem;">

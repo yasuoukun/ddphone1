@@ -94,7 +94,96 @@
         border-color: #0F172A;
         box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
     }
+    .anonymous-toggle-card {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 99px;
+        background: #F1F5F9;
+        border: 1.5px solid #E2E8F0;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        color: #475569;
+        width: fit-content;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .anonymous-toggle-card:hover {
+        border-color: #CBD5E1;
+        background: #E2E8F0;
+    }
+    .anonymous-toggle-card.active {
+        background: #0F172A;
+        border-color: #0F172A;
+        color: #FFFFFF;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.2);
+    }
+    .toggle-switch-track {
+        width: 34px;
+        height: 20px;
+        background: #CBD5E1;
+        border-radius: 99px;
+        position: relative;
+        padding: 2px;
+        transition: background-color 0.25s ease;
+        flex-shrink: 0;
+        box-sizing: border-box;
+    }
+    .toggle-switch-track.active {
+        background: #22C55E;
+    }
+    .toggle-switch-thumb {
+        width: 16px;
+        height: 16px;
+        background: #FFFFFF;
+        border-radius: 50%;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        transform: translateX(0);
+        box-sizing: border-box;
+    }
+    .toggle-switch-thumb.active {
+        transform: translateX(14px);
+    }
+    .sr-only-input {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border-width: 0 !important;
+    }
     @media (max-width: 768px) {
+        .custom-file-upload-label {
+            padding: 8px 14px !important;
+            font-size: 0.78rem !important;
+            width: 100%;
+            box-sizing: border-box;
+            justify-content: center;
+        }
+        .anonymous-toggle-wrapper-box {
+            align-self: flex-start !important;
+            width: 100%;
+        }
+        .anonymous-toggle-card {
+            width: 100% !important;
+            padding: 6px 10px !important;
+            box-sizing: border-box;
+        }
+        .anon-title-txt {
+            font-size: 0.78rem !important;
+        }
+        .anon-sub-txt {
+            font-size: 0.65rem !important;
+        }
         .product-detail-grid {
             grid-template-columns: 1fr !important;
             padding: 1.5rem !important;
@@ -120,7 +209,7 @@
         <div style="display: flex; flex-direction: column; gap: 1rem;">
             <!-- Main Large Image Container (Fixed Aspect Ratio & Height to Prevent Layout Shift) -->
             <div class="product-main-image-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #F8FAFC; border-radius: 20px; padding: 1rem; border: 1.5px solid #E2E8F0; position: relative; width: 100%; aspect-ratio: 1/1; max-height: 420px; overflow: hidden; box-sizing: border-box;">
-                <span style="position: absolute; top: 15px; left: 15px; background: #FFE600; color: #0F172A; font-weight: 900; font-size: 0.75rem; padding: 4px 12px; border-radius: 99px; border: 1px solid #EAB308; z-index: 5;">
+                <span style="position: absolute; top: 15px; left: 15px; background: #FFE600; color: #0F172A; font-weight: 900; font-size: 0.72rem; padding: 3px 10px; border-radius: 99px; border: 1px solid #EAB308; z-index: 5; white-space: nowrap;">
                     GRADE A+ GUARANTEED
                 </span>
 
@@ -163,14 +252,14 @@
             <div>
                 <!-- Brand & Category & SKU Badges -->
                 <div style="display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <span style="background: #0F172A; color: #FFE600; padding: 4px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 900;">
+                    <span style="background: #0F172A; color: #FFE600; padding: 4px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 900; white-space: nowrap;">
                         แบรนด์: {{ $product->brand->name ?? 'ทั่วไป' }}
                     </span>
-                    <span style="background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; padding: 4px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 900;">
+                    <span style="background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; padding: 4px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 900; white-space: nowrap;">
                         หมวดหมู่: {{ $product->category->name ?? 'ทั่วไป' }}
                     </span>
                     @if($product->sku)
-                    <span style="background: #F1F5F9; color: #475569; padding: 4px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 800; font-family: monospace;">
+                    <span style="background: #F1F5F9; color: #475569; padding: 4px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 800; font-family: monospace; white-space: nowrap;">
                         SKU: {{ $product->sku }}
                     </span>
                     @endif
@@ -332,29 +421,24 @@
                     </div>
 
                     <!-- Modern Styled Toggle Pill / Switch for Anonymous Review -->
-                    <div x-data="{ isAnon: false }" style="align-self: flex-end;">
-                        <label @click="isAnon = !isAnon" 
-                               :class="isAnon ? 'shadow-md' : ''"
-                               :style="isAnon ? 'background: #0F172A; color: #FFFFFF; border-color: #0F172A;' : 'background: #F1F5F9; color: #475569; border-color: #E2E8F0;'"
-                               style="display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; border-radius: 99px; border: 2px solid; cursor: pointer; font-size: 0.86rem; font-weight: 800; user-select: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+                    <div x-data="{ isAnon: false }" class="anonymous-toggle-wrapper-box" style="align-self: flex-end;">
+                        <label class="anonymous-toggle-card" :class="{ 'active': isAnon }">
+                            <input type="checkbox" name="is_anonymous" value="1" x-model="isAnon" class="sr-only-input">
                             
                             <!-- iOS Style Slider Switch -->
-                            <div :style="isAnon ? 'background: #22C55E;' : 'background: #CBD5E1;'" 
-                                 style="position: relative; width: 44px; height: 24px; border-radius: 99px; transition: background-color 0.3s ease; flex-shrink: 0; padding: 2px;">
-                                <div :style="isAnon ? 'transform: translateX(20px); background: #FFFFFF;' : 'transform: translateX(0px); background: #FFFFFF;'" 
-                                     style="width: 20px; height: 20px; border-radius: 50%; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-                                    <span x-show="isAnon" style="font-size: 0.7rem; line-height: 1;">🕶️</span>
-                                    <span x-show="!isAnon" style="font-size: 0.65rem; color: #94A3B8; line-height: 1;">👤</span>
+                            <div class="toggle-switch-track" :class="{ 'active': isAnon }">
+                                <div class="toggle-switch-thumb" :class="{ 'active': isAnon }">
+                                    <i x-show="isAnon" class="fa-solid fa-user-ninja" style="font-size: 0.58rem; color: #0F172A;"></i>
+                                    <i x-show="!isAnon" class="fa-solid fa-user" style="font-size: 0.55rem; color: #94A3B8;"></i>
                                 </div>
                             </div>
 
-                            <input type="checkbox" name="is_anonymous" value="1" x-model="isAnon" style="display: none;">
-                            <div style="display: flex; flex-direction: column; line-height: 1.25;">
-                                <span style="font-weight: 900; font-size: 0.88rem; display: flex; align-items: center; gap: 6px;">
+                            <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                                <span class="anon-title-txt" style="font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 6px;">
                                     โพสต์รีวิวแบบไม่ระบุตัวตน
-                                    <span x-show="isAnon" style="font-size: 0.68rem; background: #FFE600; color: #0F172A; padding: 1px 6px; border-radius: 4px; font-weight: 900;">เปิดใช้งาน</span>
+                                    <span x-show="isAnon" style="font-size: 0.62rem; background: #FFE600; color: #0F172A; padding: 1px 5px; border-radius: 4px; font-weight: 900;">เปิดใช้งาน</span>
                                 </span>
-                                <span style="font-size: 0.72rem; opacity: 0.75; font-weight: 600;">ซ่อนชื่อและรูปโปรไฟล์ของคุณจากสาธารณะ</span>
+                                <span class="anon-sub-txt" style="font-size: 0.68rem; opacity: 0.75; font-weight: 600;">ซ่อนชื่อและรูปโปรไฟล์ของคุณจากสาธารณะ</span>
                             </div>
                         </label>
                     </div>

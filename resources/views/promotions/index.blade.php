@@ -38,9 +38,14 @@
             this.startAutoSlide();
         },
         startAutoSlide() {
-            this.timer = setInterval(() => {
-                this.nextSlide();
-            }, 5000);
+            if (this.totalSlides > 1) {
+                this.timer = setInterval(() => {
+                    this.nextSlide();
+                }, 5500);
+            }
+        },
+        stopAutoSlide() {
+            clearInterval(this.timer);
         },
         nextSlide() {
             this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
@@ -48,26 +53,39 @@
         prevSlide() {
             this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
         }
-    }" @mouseenter="clearInterval(timer)" @mouseleave="startAutoSlide()" 
-       style="position: relative; width: 100%; aspect-ratio: 21/8; min-height: 320px; max-height: 520px; background: #0F172A;">
+    }" @mouseenter="stopAutoSlide()" @mouseleave="startAutoSlide()" 
+       style="position: relative; width: 100%; aspect-ratio: 21/8; min-height: 320px; max-height: 520px; background: #0F172A; overflow: hidden;">
         
-        <!-- Slide Items -->
-        @foreach($banners as $index => $banner)
-        <div x-show="currentSlide === {{ $index }}" x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" style="position: absolute; inset: 0; width: 100%; height: 100%;">
-            @if($banner->link_url)
-                <a href="{{ $banner->link_url }}" target="_blank" style="display: block; width: 100%; height: 100%;">
-                    <img src="{{ str_starts_with($banner->image_path, 'http') ? $banner->image_path : Storage::url($banner->image_path) }}" alt="Promotion Banner" style="width: 100%; height: 100%; object-fit: cover;">
-                </a>
-            @else
-                <img src="{{ str_starts_with($banner->image_path, 'http') ? $banner->image_path : Storage::url($banner->image_path) }}" alt="Promotion Banner" style="width: 100%; height: 100%; object-fit: cover;">
-            @endif
+        <!-- Horizontal Sliding Track -->
+        {{-- Track = totalSlides × 100% wide. Each slide = (100/totalSlides)% of track = 1 viewport width.
+             To show slide N: shift by -(N × 100/totalSlides)% of track. --}}
+        <div :style="`transform: translateX(-${currentSlide * (100 / totalSlides)}%); transition: transform 0.75s cubic-bezier(0.25, 1, 0.5, 1); width: ${totalSlides * 100}%; display: flex; height: 100%; will-change: transform;`">
+            @foreach($banners as $index => $banner)
+            @php
+                $cleanImgPath = ltrim(str_replace(['public/', 'storage/'], '', $banner->image_path), '/');
+                $fullLocalPath = storage_path('app/public/' . $cleanImgPath);
+                $mtime = file_exists($fullLocalPath) ? filemtime($fullLocalPath) : time();
+                $bannerSrc = str_starts_with($banner->image_path, 'http') 
+                    ? $banner->image_path 
+                    : asset('storage/' . $cleanImgPath) . '?v=' . $mtime;
+                $fallbackSrc = '/media/' . $cleanImgPath . '?v=' . $mtime;
+            @endphp
+            <div style="flex: 0 0 {{ number_format(100 / count($banners), 6) }}%; height: 100%; background: #1E293B;">
+                @if($banner->link_url)
+                    <a href="{{ $banner->link_url }}" target="_blank" style="display: block; width: 100%; height: 100%;">
+                        <img src="{{ $bannerSrc }}" onerror="this.onerror=null; this.src='{{ $fallbackSrc }}';" loading="{{ $index === 0 ? 'eager' : 'lazy' }}" alt="Promotion Banner" style="width: 100%; height: 100%; object-fit: cover;">
+                    </a>
+                @else
+                    <img src="{{ $bannerSrc }}" onerror="this.onerror=null; this.src='{{ $fallbackSrc }}';" loading="{{ $index === 0 ? 'eager' : 'lazy' }}" alt="Promotion Banner" style="width: 100%; height: 100%; object-fit: cover;">
+                @endif
+            </div>
+            @endforeach
         </div>
-        @endforeach
 
         <!-- Overlay Text & Glowing Badge -->
-        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(15, 23, 42, 0.95)); padding: 2.5rem 3rem; display: flex; justify-content: space-between; align-items: flex-end; z-index: 5;">
-            <div>
-                <span class="anim-pulse-glow" style="background: #FFE600; color: #0F172A; font-size: 0.8rem; padding: 5px 16px; border-radius: 99px; font-weight: 900; margin-bottom: 0.5rem; display: inline-block;">
+        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(15, 23, 42, 0.95)); padding: 2.5rem 3rem; display: flex; justify-content: space-between; align-items: flex-end; z-index: 5; pointer-events: none;">
+            <div style="pointer-events: auto;">
+                <span class="anim-pulse-glow" style="background: #FFE600; color: #0F172A; font-size: 0.8rem; padding: 5px 16px; border-radius: 99px; font-weight: 900; margin-bottom: 0.5rem; display: inline-block; white-space: nowrap;">
                     🔥 PROMOTION & HOT DEALS
                 </span>
                 <h2 style="font-size: 1.8rem; font-weight: 900; color: white; margin: 4px 0 0;">
@@ -76,18 +94,29 @@
             </div>
         </div>
 
-        <!-- Navigation Arrows -->
-        <button type="button" @click="prevSlide()" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); background: rgba(15, 23, 42, 0.7); color: white; border: 1.5px solid rgba(255,255,255,0.3); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px); font-size: 1.2rem; z-index: 10;">
+        <!-- Navigation Arrows & Indicators -->
+        @if(count($banners) > 1)
+        <button type="button" @click="prevSlide()" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); background: rgba(15, 23, 42, 0.65); color: white; border: 1.5px solid rgba(255,255,255,0.3); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px); font-size: 1.2rem; z-index: 10; transition: all 0.2s;" onmouseover="this.style.background='rgba(15,23,42,0.9)'" onmouseout="this.style.background='rgba(15,23,42,0.65)'">
             &lsaquo;
         </button>
-        <button type="button" @click="nextSlide()" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: rgba(15, 23, 42, 0.7); color: white; border: 1.5px solid rgba(255,255,255,0.3); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px); font-size: 1.2rem; z-index: 10;">
+        <button type="button" @click="nextSlide()" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: rgba(15, 23, 42, 0.65); color: white; border: 1.5px solid rgba(255,255,255,0.3); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px); font-size: 1.2rem; z-index: 10; transition: all 0.2s;" onmouseover="this.style.background='rgba(15,23,42,0.9)'" onmouseout="this.style.background='rgba(15,23,42,0.65)'">
             &rsaquo;
         </button>
+
+        <div style="position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10;">
+            @foreach($banners as $index => $banner)
+            <button type="button" @click="currentSlide = {{ $index }}" 
+                    :style="currentSlide === {{ $index }} ? 'width: 28px; background: #FFE600;' : 'width: 9px; background: rgba(255,255,255,0.45);'" 
+                    style="height: 9px; border-radius: 99px; border: none; cursor: pointer; transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);"
+                    aria-label="Go to slide {{ $index + 1 }}"></button>
+            @endforeach
+        </div>
+        @endif
     </div>
     @else
     <!-- Full-width Default Banner -->
     <div style="width: 100%; min-height: 280px; padding: 3.5rem 2rem; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); text-align: center; color: white; position: relative;">
-        <span class="anim-pulse-glow" style="display: inline-block; background: #FFE600; color: #0F172A; padding: 6px 20px; border-radius: 99px; font-size: 0.85rem; font-weight: 900; margin-bottom: 1rem;">
+        <span class="anim-pulse-glow" style="display: inline-block; background: #FFE600; color: #0F172A; padding: 6px 20px; border-radius: 99px; font-size: 0.85rem; font-weight: 900; margin-bottom: 1rem; white-space: nowrap;">
             🔥 SPECIAL DEALS & COUPONS
         </span>
         <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 0.75rem; color: white;">
@@ -104,7 +133,7 @@
 
     <!-- Title Section -->
     <div style="text-align: center; margin-bottom: 2.5rem;">
-        <span style="display: inline-block; background: #FFE600; color: #0F172A; padding: 4px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: 0.5px;">COLLECT COUPONS</span>
+        <span style="display: inline-block; background: #FFE600; color: #0F172A; padding: 4px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: 0.5px; white-space: nowrap;">COLLECT COUPONS</span>
         <h2 style="font-size: 2rem; color: #0F172A; font-weight: 900; margin: 0;">
             🎟️ คูปองส่วนลดพิเศษประจำเดือน
         </h2>
@@ -153,7 +182,7 @@
                     </div>
                     
                     <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                        <span class="countdown-timer" data-expires="{{ $coupon->expires_at }}" style="font-size: 0.82rem; color: #D97706; font-weight: 800; background: #FEF3C7; padding: 6px 14px; border-radius: 99px; border: 1px solid #FCD34D;">
+                        <span class="countdown-timer" data-expires="{{ $coupon->expires_at }}" style="font-size: 0.82rem; color: #D97706; font-weight: 800; background: #FEF3C7; padding: 6px 14px; border-radius: 99px; border: 1px solid #FCD34D; white-space: nowrap;">
                             ⌛ โค้ดหมดอายุใน: --:--:--
                         </span>
 
@@ -183,7 +212,7 @@
     <div style="margin-top: 3rem; margin-bottom: 2rem;">
         <div style="border-bottom: 2px solid #E2E8F0; padding-bottom: 0.75rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
             <div>
-                <span style="display: inline-block; background: #FFE600; color: #0F172A; padding: 4px 14px; border-radius: 99px; font-size: 0.75rem; font-weight: 900; margin-bottom: 0.4rem;">
+                <span style="display: inline-block; background: #FFE600; color: #0F172A; padding: 4px 14px; border-radius: 99px; font-size: 0.75rem; font-weight: 900; margin-bottom: 0.4rem; white-space: nowrap;">
                     🔥 HOT PROMOTIONS
                 </span>
                 <h2 style="font-size: 1.5rem; font-weight: 900; color: #0F172A; margin: 0; letter-spacing: -0.02em;">

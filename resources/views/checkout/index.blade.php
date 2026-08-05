@@ -198,7 +198,7 @@
                                                 {{ $addr->address_line }}
                                             </span>
                                             @if($addr->is_main)
-                                            <span style="background: #0284C7; color: white; font-size: 0.68rem; padding: 1px 8px; border-radius: 99px; font-weight: 900;">ที่อยู่หลัก</span>
+                                            <span style="background: #0284C7; color: white; font-size: 0.68rem; padding: 1px 8px; border-radius: 99px; font-weight: 900; white-space: nowrap;">ที่อยู่หลัก</span>
                                             @endif
                                         </div>
                                         <p style="margin: 0; font-size: 0.82rem; color: #64748B; font-weight: 700; line-height: 1.4;">
@@ -292,7 +292,7 @@
             <div class="checkout-card-box" style="background: white; border: 1.5px solid #BAE6FD; border-radius: 32px; padding: 2rem; box-shadow: 0 10px 40px rgba(8, 145, 178, 0.06); position: sticky; top: 100px;">
                 <h3 style="font-size: 1.25rem; font-weight: 900; color: #0E7490; margin-bottom: 1.25rem; border-bottom: 2px solid #F0F9FF; padding-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
                     <span>📦 รายการสินค้า</span>
-                    <span style="font-size: 0.8rem; background: #0284C7; color: white; padding: 4px 14px; border-radius: 99px; font-weight: 900;">{{ count($cart) }} รายการ</span>
+                    <span style="font-size: 0.78rem; background: #0284C7; color: white; padding: 3px 12px; border-radius: 99px; font-weight: 900; white-space: nowrap;">{{ count($cart) }} รายการ</span>
                 </h3>
                 
                 @foreach($cart as $id => $item)

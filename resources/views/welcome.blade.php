@@ -40,38 +40,55 @@
             </div>
         </div>
     @else
-        <!-- Full-width Dynamic Slideshow Hero -->
+        <!-- Full-width Dynamic Horizontal Sliding Hero -->
         <div x-data="{ 
                 activeSlide: 0, 
                 slidesCount: {{ $banners->count() }},
+                timer: null,
+                init() { this.startAutoSlide(); },
+                startAutoSlide() {
+                    if (this.slidesCount > 1) {
+                        this.timer = setInterval(() => this.next(), 5500);
+                    }
+                },
+                stopAutoSlide() { clearInterval(this.timer); },
                 next() { this.activeSlide = (this.activeSlide + 1) % this.slidesCount },
-                prev() { this.activeSlide = (this.activeSlide - 1 + this.slidesCount) % this.slidesCount },
-                init() { setInterval(() => this.next(), 6000) }
+                prev() { this.activeSlide = (this.activeSlide - 1 + this.slidesCount) % this.slidesCount }
              }"
-             style="position: relative; width: 100%; aspect-ratio: 21/8; min-height: 320px; max-height: 520px; background: #0F172A;">
+             @mouseenter="stopAutoSlide()"
+             @mouseleave="startAutoSlide()"
+             style="position: relative; width: 100%; aspect-ratio: 21/8; min-height: 320px; max-height: 520px; background: #0F172A; overflow: hidden;">
             
-            <!-- Slides Container -->
-            <div style="width: 100%; height: 100%; position: relative;">
+            <!-- Horizontal Smooth Sliding Track -->
+            {{-- Track = slidesCount × 100% wide. Each slide = (100/slidesCount)% of track = 1 viewport width.
+                 To show slide N, shift track left by N × (100/slidesCount)% of track. --}}
+            <div x-ref="sliderTrack"
+                 :style="`transform: translateX(-${activeSlide * (100 / slidesCount)}%); transition: transform 0.75s cubic-bezier(0.25, 1, 0.5, 1); width: ${slidesCount * 100}%; display: flex; height: 100%; will-change: transform;`">
                 @foreach($banners as $idx => $banner)
-                <div x-show="activeSlide === {{ $idx }}" 
-                     x-transition:enter="transition ease-out duration-700"
-                     x-transition:enter-start="opacity-0 scale-95"
-                     x-transition:enter-end="opacity-100 scale-100"
-                     style="width: 100%; height: 100%; position: absolute; inset: 0; display: {{ $idx === 0 ? 'block' : 'none' }};">
+                @php
+                    $cleanImgPath = ltrim(str_replace(['public/', 'storage/'], '', $banner->image_path), '/');
+                    $fullLocalPath = storage_path('app/public/' . $cleanImgPath);
+                    $mtime = file_exists($fullLocalPath) ? filemtime($fullLocalPath) : time();
+                    $bannerSrc = str_starts_with($banner->image_path, 'http') 
+                        ? $banner->image_path 
+                        : asset('storage/' . $cleanImgPath) . '?v=' . $mtime;
+                    $fallbackSrc = '/media/' . $cleanImgPath . '?v=' . $mtime;
+                @endphp
+                <div style="flex: 0 0 {{ number_format(100 / $banners->count(), 6) }}%; height: 100%; background: #1E293B;">
                     @if($banner->link_url)
                     <a href="{{ $banner->link_url }}" style="display: block; width: 100%; height: 100%;">
-                        <img src="{{ str_starts_with($banner->image_path, 'http') ? $banner->image_path : Storage::url($banner->image_path) }}" alt="Promotion Banner" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="{{ $bannerSrc }}" onerror="this.onerror=null; this.src='{{ $fallbackSrc }}';" loading="{{ $idx === 0 ? 'eager' : 'lazy' }}" alt="Promotion Banner" style="width: 100%; height: 100%; object-fit: cover;">
                     </a>
                     @else
-                        <img src="{{ str_starts_with($banner->image_path, 'http') ? $banner->image_path : Storage::url($banner->image_path) }}" alt="Promotion Banner" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="{{ $bannerSrc }}" onerror="this.onerror=null; this.src='{{ $fallbackSrc }}';" loading="{{ $idx === 0 ? 'eager' : 'lazy' }}" alt="Promotion Banner" style="width: 100%; height: 100%; object-fit: cover;">
                     @endif
                 </div>
                 @endforeach
             </div>
 
             <!-- Full-width Overlay Content -->
-            <div class="hero-slide-overlay" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(15, 23, 42, 0.95)); padding: 2.5rem 3rem; display: flex; justify-content: space-between; align-items: flex-end; z-index: 5;">
-                <div class="hero-slide-text" style="max-width: 65%;">
+            <div class="hero-slide-overlay" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(15, 23, 42, 0.95)); padding: 2.5rem 3rem; display: flex; justify-content: space-between; align-items: flex-end; z-index: 5; pointer-events: none;">
+                <div class="hero-slide-text" style="max-width: 65%; pointer-events: auto;">
                     <span style="background: #FFE600; color: #0F172A; font-size: 0.78rem; padding: 4px 12px; border-radius: 99px; font-weight: 900; margin-bottom: 0.5rem; display: inline-block;">
                         DDPHONE PROMOTION
                     </span>
@@ -82,16 +99,28 @@
                         {{ str_replace("\n", ' ', $settings['slogan_description']) }}
                     </p>
                 </div>
-                <a href="{{ route('products.index') }}" style="text-decoration: none;" class="hero-slide-btn-wrap">
+                <a href="{{ route('products.index') }}" style="text-decoration: none; pointer-events: auto;" class="hero-slide-btn-wrap">
                     <button style="background: #FFE600; color: #0F172A; border: none; padding: 12px 24px; border-radius: 99px; font-size: 0.95rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255, 230, 0, 0.3);">
                         <i class="fa-solid fa-cart-shopping"></i> ช้อปเลย ➔
                     </button>
                 </a>
             </div>
 
-            <!-- Slider Navigation Arrows -->
-            <button @click="prev()" style="position: absolute; top: 50%; left: 20px; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(15, 23, 42, 0.7); border: 1.5px solid rgba(255,255,255,0.3); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 1.2rem;">&lsaquo;</button>
-            <button @click="next()" style="position: absolute; top: 50%; right: 20px; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(15, 23, 42, 0.7); border: 1.5px solid rgba(255,255,255,0.3); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 1.2rem;">&rsaquo;</button>
+            <!-- Slider Navigation Arrows & Dots -->
+            @if($banners->count() > 1)
+            <button @click="prev()" style="position: absolute; top: 50%; left: 20px; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(15, 23, 42, 0.65); border: 1.5px solid rgba(255,255,255,0.3); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 1.2rem; backdrop-filter: blur(4px); transition: all 0.2s;" onmouseover="this.style.background='rgba(15,23,42,0.9)'" onmouseout="this.style.background='rgba(15,23,42,0.65)'">&lsaquo;</button>
+            <button @click="next()" style="position: absolute; top: 50%; right: 20px; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(15, 23, 42, 0.65); border: 1.5px solid rgba(255,255,255,0.3); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 1.2rem; backdrop-filter: blur(4px); transition: all 0.2s;" onmouseover="this.style.background='rgba(15,23,42,0.9)'" onmouseout="this.style.background='rgba(15,23,42,0.65)'">&rsaquo;</button>
+
+            <!-- Slide Indicator Dots -->
+            <div style="position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10;">
+                @foreach($banners as $idx => $b)
+                <button @click="activeSlide = {{ $idx }}" 
+                        :style="activeSlide === {{ $idx }} ? 'width: 28px; background: #FFE600;' : 'width: 9px; background: rgba(255,255,255,0.45);'" 
+                        style="height: 9px; border-radius: 99px; border: none; cursor: pointer; transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);"
+                        aria-label="Go to slide {{ $idx + 1 }}"></button>
+                @endforeach
+            </div>
+            @endif
         </div>
     @endif
 </div>

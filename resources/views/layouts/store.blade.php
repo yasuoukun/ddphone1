@@ -362,12 +362,10 @@
             <i class="fa-solid fa-mobile-screen"></i>
             <span>สินค้า</span>
         </a>
-        <a href="{{ route('cart.index') }}" class="nav-item {{ request()->routeIs('cart.*') ? 'active' : '' }}" style="position: relative;">
+        <a href="{{ route('cart.index') }}" id="mobile-cart-bottom-link" class="nav-item {{ request()->routeIs('cart.*') ? 'active' : '' }}" style="position: relative;">
             <i class="fa-solid fa-cart-shopping"></i>
             @php $cartCount = session('cart') ? count(session('cart')) : 0; @endphp
-            @if($cartCount > 0)
-                <span class="bottom-cart-badge">{{ $cartCount }}</span>
-            @endif
+            <span class="cart-count-badge bottom-cart-badge" style="{{ $cartCount > 0 ? '' : 'display: none !important;' }}">{{ $cartCount }}</span>
             <span>ตะกร้า</span>
         </a>
         <a href="{{ route('promotions.index') }}" class="nav-item {{ request()->routeIs('promotions.*') ? 'active' : '' }}">
@@ -519,7 +517,7 @@
                         <span style="display: flex; align-items: center; gap: 8px;">
                             <i class="fa-solid fa-map-location-dot" style="color: #FFE600;"></i> 📍 ปักหมุดหน้าร้าน DDPHONE
                         </span>
-                        <span style="font-size: 0.75rem; background: rgba(255,230,0,0.2); color: #FFE600; padding: 3px 8px; border-radius: 99px; border: 1px solid #FFE600;">🗺️ เปิดแผนที่</span>
+                        <span style="font-size: 0.72rem; background: rgba(255,230,0,0.2); color: #FFE600; padding: 3px 10px; border-radius: 99px; border: 1px solid #FFE600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;">🗺️ เปิดแผนที่</span>
                     </h3>
                     <div style="border-radius: 18px; overflow: hidden; border: 2px solid #FFE600; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); background: #1E293B; transition: transform 0.25s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
                         <iframe src="https://maps.google.com/maps?q={{ urlencode('บริษัท ดีดี.ไอที.คอม จำกัด') }}&hl=th&z=17&output=embed" 
@@ -732,56 +730,184 @@
 
         document.addEventListener('DOMContentLoaded', function() {
 
-            // Flying Basket Animation Function
+            // Ultra-Fluid 60/120fps Flying Basket Animation with Particle Trail & Impact Shockwave
             window.flyToCart = function(startBtn) {
-                const targetCart = document.querySelector('#cart-badge-link i') || document.querySelector('.fa-basket-shopping');
-                if (!startBtn || !targetCart) return;
+                if (!startBtn) return;
+
+                const isMobile = window.innerWidth <= 768;
+                let targetCart = null;
+
+                if (isMobile) {
+                    targetCart = document.querySelector('#mobile-cart-bottom-link i') || 
+                                 document.querySelector('#mobile-cart-bottom-link') ||
+                                 document.querySelector('.shopee-mobile-bottom-nav a[href*="cart"]');
+                }
+
+                if (!targetCart) {
+                    targetCart = document.querySelector('#cart-badge-link i') || 
+                                 document.querySelector('#cart-badge-link') || 
+                                 document.querySelector('.fa-basket-shopping');
+                }
+
+                if (!targetCart) return;
 
                 const btnRect = startBtn.getBoundingClientRect();
                 const cartRect = targetCart.getBoundingClientRect();
 
-                // Create flying element
+                const startX = btnRect.left + btnRect.width / 2;
+                const startY = btnRect.top + btnRect.height / 2;
+                const endX = cartRect.left + cartRect.width / 2;
+                const endY = cartRect.top + cartRect.height / 2;
+
+                // Create Main Glowing Flyer Element
                 const flyer = document.createElement('div');
-                flyer.innerHTML = '<i class="fa-solid fa-basket-shopping" style="color: #FFE600; font-size: 1.2rem;"></i>';
+                flyer.innerHTML = '<i class="fa-solid fa-basket-shopping" style="color: #FFE600; font-size: 1.15rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));"></i>';
                 flyer.style.cssText = `
                     position: fixed;
                     z-index: 9999999;
-                    left: ${btnRect.left + btnRect.width / 2 - 18}px;
-                    top: ${btnRect.top + btnRect.height / 2 - 18}px;
-                    width: 36px;
-                    height: 36px;
-                    background: #0F172A;
+                    left: 0px;
+                    top: 0px;
+                    width: 40px;
+                    height: 40px;
+                    background: radial-gradient(circle, #1E293B 0%, #0F172A 100%);
+                    border: 2px solid #FFE600;
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.4);
+                    box-shadow: 0 0 20px rgba(255, 230, 0, 0.75), 0 8px 25px rgba(15, 23, 42, 0.6);
                     pointer-events: none;
-                    transition: all 0.75s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+                    will-change: transform, opacity;
+                    transform-origin: center center;
                 `;
                 document.body.appendChild(flyer);
 
-                // Trigger animation on next tick
-                requestAnimationFrame(() => {
-                    flyer.style.left = `${cartRect.left + cartRect.width / 2 - 14}px`;
-                    flyer.style.top = `${cartRect.top + cartRect.height / 2 - 14}px`;
-                    flyer.style.transform = 'scale(0.35) rotate(360deg)';
-                    flyer.style.opacity = '0.7';
-                });
+                // Smooth Parabola Control Point Calculation
+                const isXRight = endX > startX;
+                const distanceX = Math.abs(endX - startX);
+                const distanceY = Math.abs(endY - startY);
 
-                // Remove element after animation completes and bounce cart badge
-                setTimeout(() => {
-                    if (flyer.parentNode) flyer.parentNode.removeChild(flyer);
+                const controlX = isMobile 
+                    ? startX + (isXRight ? distanceX * 0.35 : -distanceX * 0.35) 
+                    : (startX + endX) / 2;
                     
-                    const cartLink = document.querySelector('#cart-badge-link');
-                    if (cartLink) {
-                        cartLink.style.transition = 'transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                        cartLink.style.transform = 'scale(1.4)';
-                        setTimeout(() => {
-                            cartLink.style.transform = 'scale(1)';
-                        }, 250);
+                const controlY = Math.min(startY, endY) - (isMobile ? Math.min(distanceY * 0.5, 140) : 100);
+
+                const duration = 680; // Ultra smooth ~0.68s
+                const startTime = performance.now();
+                let lastParticleTime = 0;
+
+                function animate(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const rawProgress = Math.min(elapsed / duration, 1);
+
+                    // Fluid Cubic-Bezier Ease Out Interpolation
+                    const t = 1 - Math.pow(1 - rawProgress, 3.2);
+
+                    // Quadratic Bezier Formula: (1-t)^2 * P0 + 2(1-t)t * P1 + t^2 * P2
+                    const currentX = (1 - t) * (1 - t) * startX + 2 * (1 - t) * t * controlX + t * t * endX;
+                    const currentY = (1 - t) * (1 - t) * startY + 2 * (1 - t) * t * controlY + t * t * endY;
+
+                    // Fluid Scaling & Smooth Rotation along trajectory
+                    const scale = 1.12 - 0.78 * t;
+                    const rotation = t * 540; // 1.5 graceful spins
+                    const opacity = rawProgress > 0.9 ? (1 - (rawProgress - 0.9) / 0.1) : 1;
+
+                    flyer.style.transform = `translate3d(${currentX - 20}px, ${currentY - 20}px, 0) scale(${scale}) rotate(${rotation}deg)`;
+                    flyer.style.opacity = opacity;
+
+                    // Spawn Golden Sparkle Particle Trail
+                    if (currentTime - lastParticleTime > 35 && rawProgress < 0.88) {
+                        lastParticleTime = currentTime;
+                        createSparkleParticle(currentX, currentY);
                     }
-                }, 750);
+
+                    if (rawProgress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        if (flyer.parentNode) flyer.parentNode.removeChild(flyer);
+
+                        // Elastic Ripple Impact Wobble on Target Cart Icon
+                        triggerCartImpact(targetCart, isMobile);
+                    }
+                }
+
+                // Sparkle Trail Generator
+                function createSparkleParticle(x, y) {
+                    const particle = document.createElement('div');
+                    particle.style.cssText = `
+                        position: fixed;
+                        z-index: 9999998;
+                        left: ${x - 4}px;
+                        top: ${y - 4}px;
+                        width: 8px;
+                        height: 8px;
+                        background: #FFE600;
+                        border-radius: 50%;
+                        pointer-events: none;
+                        box-shadow: 0 0 10px #FFE600;
+                        will-change: transform, opacity;
+                        transition: all 0.4s ease-out;
+                    `;
+                    document.body.appendChild(particle);
+
+                    requestAnimationFrame(() => {
+                        particle.style.transform = `scale(0.2) translate(${(Math.random() - 0.5) * 16}px, ${(Math.random() - 0.5) * 16}px)`;
+                        particle.style.opacity = '0';
+                    });
+
+                    setTimeout(() => {
+                        if (particle.parentNode) particle.parentNode.removeChild(particle);
+                    }, 400);
+                }
+
+                // Elastic Impact & Shockwave Ring
+                function triggerCartImpact(target, isMobile) {
+                    const bounceTarget = isMobile ? (document.querySelector('#mobile-cart-bottom-link') || target) : target;
+                    if (!bounceTarget) return;
+
+                    // Expanding Shockwave Ripple
+                    const ripple = document.createElement('div');
+                    const targetRect = bounceTarget.getBoundingClientRect();
+                    ripple.style.cssText = `
+                        position: fixed;
+                        z-index: 999999;
+                        left: ${targetRect.left + targetRect.width / 2 - 25}px;
+                        top: ${targetRect.top + targetRect.height / 2 - 25}px;
+                        width: 50px;
+                        height: 50px;
+                        border: 2px solid #FFE600;
+                        border-radius: 50%;
+                        pointer-events: none;
+                        box-shadow: 0 0 15px #FFE600;
+                        will-change: transform, opacity;
+                        transition: all 0.4s cubic-bezier(0, 0, 0.2, 1);
+                        transform: scale(0.3);
+                        opacity: 1;
+                    `;
+                    document.body.appendChild(ripple);
+
+                    requestAnimationFrame(() => {
+                        ripple.style.transform = 'scale(1.8)';
+                        ripple.style.opacity = '0';
+                    });
+
+                    setTimeout(() => {
+                        if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
+                    }, 400);
+
+                    // Elastic Spring Wobble Animation
+                    bounceTarget.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.4)';
+                    bounceTarget.style.transform = 'scale(1.35) rotate(-8deg)';
+                    setTimeout(() => {
+                        bounceTarget.style.transform = 'scale(0.95) rotate(4deg)';
+                        setTimeout(() => {
+                            bounceTarget.style.transform = 'scale(1) rotate(0deg)';
+                        }, 150);
+                    }, 150);
+                }
+
+                requestAnimationFrame(animate);
             };
 
             // AJAX add to cart

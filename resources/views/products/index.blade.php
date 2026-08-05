@@ -162,7 +162,7 @@
             <h3 style="font-size: 1.15rem; font-weight: 900; color: #0F172A; margin: 0; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-filter" style="color: #2563EB;"></i> ค้นหา & ตัวกรองสินค้า
             </h3>
-            <span style="font-size: 0.72rem; background: #EFF6FF; color: #2563EB; font-weight: 800; padding: 3px 10px; border-radius: 99px; border: 1px solid #BFDBFE;">Real-time</span>
+            <span style="font-size: 0.68rem; background: #EFF6FF; color: #2563EB; font-weight: 800; padding: 2px 9px; border-radius: 99px; border: 1px solid #BFDBFE; white-space: nowrap;">Real-time</span>
         </div>
         
         <form id="realtime-filter-form" action="{{ route('products.index') }}" method="GET" style="display: flex; flex-direction: column; gap: 1.5rem;">

@@ -549,6 +549,7 @@
             canvas = cropperInstance.getCroppedCanvas({
                 width: 1200,
                 height: 400,
+                fillColor: '#FFFFFF',
                 imageSmoothingEnabled: true,
                 imageSmoothingQuality: 'high',
             });
